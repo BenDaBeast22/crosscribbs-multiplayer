@@ -4,13 +4,14 @@ import RoundScore from "~/ui/Game/RoundScore";
 import GameOver from "~/ui/Game/GameOver";
 import TurnIndicator from "~/ui/Game/TurnIndicator";
 import RoundHistory from "~/ui/Game/RoundHistory";
-import BottomHud from "~/ui/Game/BottomHud";
+import Crib from "~/ui/Game/Crib";
 import { useEffect, useState } from "react";
 import type { GameStateType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
 import { socket } from "../connections/socket";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import DealerSelection from "~/ui/GameSetup/DealerSelection";
+import PlayersDisplay from "~/ui/Game/PlayersDisplay";
+import Header from "~/ui/Game/Header";
 
 export default function Game() {
   const location = useLocation();
@@ -25,29 +26,17 @@ export default function Game() {
   console.log("local num ps = ", numPlayers);
   useEffect(() => {
     console.log("location.state: ", location.state);
-    // Listener functions
-    // const handleConnect = () => {
-    //   console.log("Game Started");
-    //   socket.emit("startGame", { lobbyId, numPlayers });
-    // };
-
-    // // if the socket is already connected, call it manually
-    // if (socket.connected) {
-    //   handleConnect();
-    // }
 
     const handleGameUpdate = (state: GameStateType) => {
       console.log("Game state updated", state);
       setGameState(state);
     };
 
-    // // Attach listeners
-    // socket.on("connect", handleConnect);
+    // Attach listeners
     socket.on("gameStateUpdate", handleGameUpdate);
 
     // Cleanup on unmount
     return () => {
-      // socket.off("connect", handleConnect);
       socket.off("gameStateUpdate", handleGameUpdate);
     };
   }, []);
@@ -97,11 +86,18 @@ export default function Game() {
     }
   };
 
+  const cardSizes = {
+    base: "w-[54.075px] h-[75.6px] max-w-[54.075px] max-h-[75.6px]",
+    md: "md:w-[81.9px] md:h-[116.55px] md:max-h-[133.2px] md:max-w-[93.6px]",
+    xl: "xl:w-[93.6px] xl:h-[133.2px]",
+  };
+
   return (
-    <div className="bg-green-600">
-      <div className="flex flex-col xl:flex-row relative h-screen items-center">
-        <div className="w-full xl:w-1/4">
-          <div className="flex justify-start mb-4 pt-2">
+    <div className="bg-green-600 min-h-screen w-full flex flex-col">
+      <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} />
+      <div className="flex-1 flex flex-col md:flex-row relative items-center justify-center gap-5 md:gap-7">
+        <div className="w-full md:w-1/3">
+          {/* <div className="flex justify-start mb-4 pt-2">
             {!gameState.gameOver && (
               <button
                 onClick={handleBackToMenu}
@@ -110,79 +106,39 @@ export default function Game() {
                 Back to Menu
               </button>
             )}
+          </div> */}
+          <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-10">
+              <PlayersDisplay
+                lobbyId={lobbyId}
+                numPlayers={numPlayers}
+                playerNames={playerNames}
+                players={gameState.players}
+                turn={gameState.turn}
+                crib={gameState.crib}
+                cardSizes={cardSizes}
+              ></PlayersDisplay>
+              <TurnIndicator
+                className="hidden md:block"
+                turn={gameState.turn}
+                playerNames={playerNames}
+                dealer={gameState.dealer}
+              />
+            </div>
           </div>
-          {numPlayers === 4 && (
-            <>
-              <Player
-                name={playerNames[0]}
-                player={gameState.player1}
-                turn={gameState.turn}
-                crib={gameState.crib}
-                numPlayers={numPlayers}
-                lobbyId={lobbyId}
-                playerId={socket.id}
-              />
-              <Player
-                name={playerNames[2]}
-                player={gameState.player3}
-                turn={gameState.turn}
-                crib={gameState.crib}
-                numPlayers={numPlayers}
-                lobbyId={lobbyId}
-                playerId={socket.id}
-              />
-            </>
-          )}
-          {numPlayers === 2 && (
-            <Player
-              name={playerNames[0]}
-              player={gameState.player1}
-              turn={gameState.turn}
-              crib={gameState.crib}
-              numPlayers={numPlayers}
-              lobbyId={lobbyId}
-              playerId={socket.id}
-            />
-          )}
         </div>
-        <div className="w-full xl:w-1/2">
-          <Board board={gameState.board} selectedCard={gameState.selectedCard} playCard={playCard} />
+        <div className="w-full md:w-1/3">
+          <Board board={gameState.board} playCard={playCard} turn={gameState.turn} cardSizes={cardSizes} />
         </div>
-        <div className="w-full xl:w-1/4">
-          {numPlayers === 4 && (
-            <>
-              <Player
-                name={playerNames[1]}
-                player={gameState.player2}
-                turn={gameState.turn}
-                crib={gameState.crib}
-                numPlayers={numPlayers}
-                lobbyId={lobbyId}
-                playerId={socket.id}
-              />
-              <Player
-                name={playerNames[3]}
-                player={gameState.player4}
-                turn={gameState.turn}
-                crib={gameState.crib}
-                numPlayers={numPlayers}
-                lobbyId={lobbyId}
-                playerId={socket.id}
-              />
-            </>
-          )}
-          {numPlayers === 2 && (
-            <Player
-              name={playerNames[1]}
-              player={gameState.player2}
-              turn={gameState.turn}
-              crib={gameState.crib}
-              numPlayers={numPlayers}
-              lobbyId={lobbyId}
-              playerId={socket.id}
-            />
-          )}
+        <div className="md:w-1/3">
+          <div className="flex justify-center">
+            <div className="inline-flex flex-col items-center gap-10">
+              <Crib crib={gameState.crib} dealer={gameState.dealer} cardSizes={cardSizes} />
+              <RoundHistory roundHistory={gameState.roundHistory} />
+            </div>
+          </div>
         </div>
+
         {gameState.roundScoreVisible && !gameState.gameOver && (
           <RoundScore
             nextRound={nextRound}
@@ -193,6 +149,7 @@ export default function Game() {
             crib={gameState.crib}
             board={gameState.board}
             heels={gameState.heels}
+            cardSizes={cardSizes}
           />
         )}
         {gameState.gameOver && (
@@ -204,8 +161,7 @@ export default function Game() {
             onBackToMenu={handleBackToMenu}
           />
         )}
-        {!gameState.gameOver && <BottomHud gameState={gameState} playerNames={playerNames} />}
-        <RoundHistory roundHistory={gameState.roundHistory} />
+        {/* {!gameState.gameOver && <BottomHud gameState={gameState} playerNames={playerNames} />} */}
       </div>
     </div>
   );

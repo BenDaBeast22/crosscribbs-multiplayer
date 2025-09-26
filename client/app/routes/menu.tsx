@@ -36,6 +36,8 @@ export default function GameSetup() {
     const currentIndex = pageOrder.indexOf(currentPage);
     if (currentIndex > 0) {
       setCurrentPage(pageOrder[currentIndex - 1]);
+    } else if (currentIndex === 0) {
+      navigate("/");
     }
   };
   const setLocalSettings = () => {
@@ -65,6 +67,7 @@ export default function GameSetup() {
               setGameType(type);
               goToNextPage("numPlayers");
             }}
+            onBack={goBack}
           />
         )}
         {currentPage === "numPlayers" && (

@@ -6,27 +6,51 @@
 */
 
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
-import type { CardType } from "@cross-cribbs/shared-types/CardType";
+import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
+import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
+import { useState } from "react";
 
 type ChildProps = {
   pos: BoardPosition;
   card: CardType | null;
+  turn: number;
+  cardSizes: CardSizesType;
   playCard: (pos: BoardPosition) => void;
 };
 
-export default function Spot({ pos, card, playCard }: ChildProps) {
+export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProps) {
+  const [isOver, setIsOver] = useState(false);
+
   function handleDragOver(e: any) {
     e.stopPropagation();
     e.preventDefault();
+    setIsOver(true);
+  }
+
+  function handleDragLeave(e: any) {
+    e.stopPropagation();
+    e.preventDefault();
+    setIsOver(false);
   }
 
   function handleDrop(e: any) {
     e.preventDefault();
+    const playerData = e.dataTransfer.getData("application/player");
+    if (!playerData) return;
+    if (playerData) {
+      const player: PlayerType = JSON.parse(playerData);
+      console.log("Dropped player:", player);
+      if (player.num !== turn) {
+        return;
+      }
+    }
     playCard(pos);
   }
 
-  const cardSpotStyles =
-    "w-[103px] h-36 mx-10 mb-10 bg-stone-200 border-2 border-stone-700 hover:bg-blue-300 transition duration-300 cursor-pointer";
+  const placeholderImage = "/cards/fronts/clubs_2.svg";
+  const hover = "hover:bg-blue-300";
+
+  const cardSpotStyles = `${isOver ? "bg-blue-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl}  border-2 border-stone-700 ${hover} transition duration-300 cursor-pointer1`;
 
   if (card) {
     return (
@@ -37,6 +61,14 @@ export default function Spot({ pos, card, playCard }: ChildProps) {
   }
   // Show placeholder if no card played
   return (
-    <td className={cardSpotStyles} onDragOver={handleDragOver} onDrop={handleDrop} onClick={() => playCard(pos)}></td>
+    <td
+      className={cardSpotStyles}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      onClick={() => playCard(pos)}
+    >
+      <img className="h-full invisible" src={placeholderImage} alt="" draggable="false" />
+    </td>
   );
 }
