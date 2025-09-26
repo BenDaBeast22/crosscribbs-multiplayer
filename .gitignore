@@ -8,7 +8,7 @@ client/.react-router/
 client/build/
 
 # server
-/server/dist
+server/dist
 
 .specstory/
 .cursorindexingignore/

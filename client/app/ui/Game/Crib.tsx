@@ -24,7 +24,7 @@ export default function Crib({ crib, dealer, cardSizes }: CribProps) {
                 className={`${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} rounded-md shadow-lg ${
                   card ? "" : "invisible"
                 }`}
-                src={card ? card.frontImgSrc : backImgSrc} // optional: could keep backImgSrc or leave blank
+                src={backImgSrc} // optional: could keep backImgSrc or leave blank
                 alt=""
               />
             );
