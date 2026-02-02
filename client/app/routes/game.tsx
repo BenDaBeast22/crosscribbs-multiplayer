@@ -124,7 +124,7 @@ export default function Game() {
                 lobbyId={lobbyId}
                 numPlayers={numPlayers}
                 playerNames={playerNames}
-                players={players}
+                players={gameState.players}
                 turn={gameState.turn}
                 crib={gameState.crib}
                 cardSizes={cardSizes}
