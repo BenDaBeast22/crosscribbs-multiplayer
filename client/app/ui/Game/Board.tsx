@@ -12,7 +12,7 @@ import type { BoardType } from "@cross-cribbs/shared-types/GameControllerTypes";
 type ChildProps = {
   board: BoardType;
   turn: number;
-  playCard: (pos: BoardPosition) => void;
+  playCard: (pos: BoardPosition, turn: number) => void;
   cardSizes: CardSizesType;
 };
 
@@ -31,7 +31,7 @@ export default function Board({ board, playCard, turn, cardSizes }: ChildProps) 
           playCard={playCard}
           turn={turn}
           cardSizes={cardSizes}
-        />
+        />,
       );
     }
 
@@ -39,7 +39,7 @@ export default function Board({ board, playCard, turn, cardSizes }: ChildProps) 
     displayBoard.push(
       <tr className="w-full" key={r}>
         {row}
-      </tr>
+      </tr>,
     );
   }
 

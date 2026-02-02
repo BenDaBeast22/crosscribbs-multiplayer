@@ -15,7 +15,7 @@ type ChildProps = {
   card: CardType | null;
   turn: number;
   cardSizes: CardSizesType;
-  playCard: (pos: BoardPosition) => void;
+  playCard: (pos: BoardPosition, turn: number) => void;
 };
 
 export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProps) {
@@ -44,7 +44,7 @@ export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProp
         return;
       }
     }
-    playCard(pos);
+    playCard(pos, turn);
   }
 
   const placeholderImage = "/cards/fronts/clubs_2.svg";
