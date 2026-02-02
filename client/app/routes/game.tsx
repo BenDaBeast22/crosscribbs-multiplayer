@@ -7,6 +7,7 @@ import RoundHistory from "~/ui/Game/RoundHistory";
 import Crib from "~/ui/Game/Crib";
 import { useEffect, useState } from "react";
 import type { GameStateType } from "@cross-cribbs/shared-types/GameControllerTypes";
+import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
 import { socket } from "../connections/socket";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -20,6 +21,7 @@ export default function Game() {
   const { initialGameState } = location.state || {}; // get initial game state from lobby or menu
   let { gameType, numPlayers, playerNames } = location.state || {}; // set local settings
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
+  const [players, setPlayers] = useState<PlayerType[]>(initialGameState?.players || []);
 
   console.log("lobby id = ", lobbyId);
   console.log("local p names = ", playerNames);
