@@ -40,6 +40,7 @@ const io = new Server(server, {
       "http://localhost:3000",
       "http://127.0.0.1:3000",
       "https://cross-cribbs.up.railway.app",
+      "https://crosscribbs-multiplayer-u5lh.onrender.com",
     ],
     methods: ["GET", "POST"],
   },
