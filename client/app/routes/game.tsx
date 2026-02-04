@@ -32,6 +32,7 @@ export default function Game() {
     const handleGameUpdate = (state: GameStateType) => {
       console.log("Game state updated", state);
       setGameState(state);
+      setPlayers(state.players);
     };
 
     // Attach listeners
@@ -72,14 +73,15 @@ export default function Game() {
 
   const playCard = (pos: BoardPosition, turn: number) => {
     // Optimistic update: remove top card from your hand
-    // setPlayers((prev) =>
-    //   prev.map((p) => {
-    //     if ((p.num = turn)) {
-    //       return { ...p, hand: p.hand.slice(0, -1) }; // remove top card
-    //     }
-    //     return p;
-    //   }),
-    // );
+    setPlayers((prev) =>
+      prev.map((p) => {
+        if ((p.num = turn)) {
+          return { ...p, hand: p.hand.slice(0, -1) }; // remove top card
+        }
+        return p;
+      }),
+    );
+
     if (isMultiplayer) {
       const playerId = socket.id;
       socket.emit("playCard", { lobbyId, pos, playerId });
@@ -124,7 +126,7 @@ export default function Game() {
                 lobbyId={lobbyId}
                 numPlayers={numPlayers}
                 playerNames={playerNames}
-                players={gameState.players}
+                players={players}
                 turn={gameState.turn}
                 crib={gameState.crib}
                 cardSizes={cardSizes}
