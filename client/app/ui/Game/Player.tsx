@@ -44,7 +44,7 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
   const outlineStyle = useMemo(() => {
     const color = player.num % 2 === 0 ? "outline-fuchsia-400" : "outline-cyan-400";
-    return isTurn ? `outline-3 md:outline-8 ${color}` : "outline-2 outline-stone-700";
+    return isTurn ? `outline-3 md:outline-6 ${color}` : "outline-2 outline-stone-300";
   }, [player.num, isTurn]);
 
   const bgGradient = useMemo(() => "bg-gradient-to-br from-slate-100 to-slate-200", []);
@@ -68,7 +68,7 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
       <div className="flex flex-col items-center space-y-0.5 md:space-y-2 max-w-16 md:max-w-none">
         <img
-          className={`${displayCardImage} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} self-center hover:border-gray-700 border-transparent border-[0.5px] md:border-2 cursor-pointer rounded-lg shadow-lg transition-transform hover:scale-105`}
+          className={`${displayCardImage} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} self-center hover:border-gray-400 border-transparent border-[0.5px] md:border-2 cursor-pointer rounded-lg shadow-lg transition-transform hover:scale-105`}
           src={cardImgSrc}
           alt=""
           draggable={isDraggable}
@@ -78,7 +78,7 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
         <button
           onClick={handleDiscard}
-          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold py-0.5 px-2 md:p-2 rounded md:text-sm`}
+          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold py-0.5 px-2 md:p-2 rounded md:text-sm cursor-pointer`}
         >
           Discard to Crib
         </button>

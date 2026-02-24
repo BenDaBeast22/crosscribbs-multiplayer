@@ -106,7 +106,7 @@ export default function Game() {
   };
 
   return (
-    <div className="bg-green-600 min-h-screen w-full flex flex-col">
+    <div className="bg-green-1 min-h-screen w-full flex flex-col">
       <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} />
       <div className="flex-1 flex flex-col md:flex-row relative items-center justify-center gap-5 md:gap-7">
         <div className="w-full md:w-1/3">

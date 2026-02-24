@@ -87,7 +87,7 @@ export default function PlayersDisplay({
         // 2 player layout
         <div className="flex flex-row gap-12 md:gap-2">
           <div className="flex flex-col gap-2">
-            <span className="text-center font-medium">Row:</span>
+            <span className="text-center font-medium text-white">Row:</span>
             <Player
               name={playerNames[0]}
               player={players[0]}
@@ -100,7 +100,7 @@ export default function PlayersDisplay({
             />
           </div>
           <div className="flex flex-col gap-2">
-            <span className="text-center font-medium">Column:</span>
+            <span className="text-center font-medium text-white">Column:</span>
             <Player
               name={playerNames[1]}
               player={players[1]}

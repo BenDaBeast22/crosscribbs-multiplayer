@@ -19,13 +19,13 @@ export default function GameOver({ winner, totalScores, resetGame, roundHistory,
         <div className="w-full flex justify-center mb-1 md:mb-3 text-center">
           <div>
             <h3 className="font-bold text-lg md:text-3xl text-cyan-400">Row</h3>
-            <p className="md:text-2xl">Total Score: {totalScores[0]}</p>
+            <p className="md:text-2xl text-white">Total Score: {totalScores[0]}</p>
           </div>
         </div>
         <div className="w-full flex justify-center mb-1 md:mb-3 text-center">
           <div>
             <h3 className="font-bold text-lg md:text-3xl text-fuchsia-400">Column</h3>
-            <p className="md:text-2xl mb-2">Total Score: {totalScores[1]}</p>
+            <p className="md:text-2xl mb-2 text-white">Total Score: {totalScores[1]}</p>
             <p className="font-semi-bold md:text-xl bg-emerald-600 rounded-md mb-1 italic">{winner} wins the game!</p>
           </div>
         </div>

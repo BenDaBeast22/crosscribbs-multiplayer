@@ -11,7 +11,7 @@ export default function MultiplayerSetup() {
         </h1>
       </div>
   <div className="bg-panel panel-card card-max">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">Home</h2>
+        {/* <h2 className="text-2xl font-bold text-white mb-6 ">Home</h2> */}
         <div className="space-y-4">
           <button onClick={() => navigate("/menu")} className="w-full btn-primary shadow font-bold text-lg transition-colors duration-200">
             Play
