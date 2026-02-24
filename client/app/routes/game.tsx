@@ -23,9 +23,9 @@ export default function Game() {
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
   const [players, setPlayers] = useState<PlayerType[]>(initialGameState?.players || []);
 
-  console.log("lobby id = ", lobbyId);
-  console.log("local p names = ", playerNames);
-  console.log("local num ps = ", numPlayers);
+  // console.log("lobby id = ", lobbyId);
+  // console.log("local p names = ", playerNames);
+  // console.log("local num ps = ", numPlayers);
   useEffect(() => {
     console.log("location.state: ", location.state);
 
@@ -73,14 +73,14 @@ export default function Game() {
 
   const playCard = (pos: BoardPosition, turn: number) => {
     // Optimistic update: remove top card from your hand
-    setPlayers((prev) =>
-      prev.map((p) => {
-        if ((p.num = turn)) {
-          return { ...p, hand: p.hand.slice(0, -1) }; // remove top card
-        }
-        return p;
-      }),
-    );
+    // setPlayers((prev) =>
+    //   prev.map((p) => {
+    //     if ((p.num = turn)) {
+    //       return { ...p, hand: p.hand.slice(0, -1) }; // remove top card
+    //     }
+    //     return p;
+    //   }),
+    // );
 
     if (isMultiplayer) {
       const playerId = socket.id;

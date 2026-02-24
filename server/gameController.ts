@@ -191,12 +191,8 @@ export default class GameController implements GameStateType {
 
     // remove card from Players hand
     let hand: CardType[] = serverPlayer.hand;
-    const cardIndex = hand.findIndex((c) => c.suit === card.suit && c.value === card.value);
-    if (cardIndex > -1) {
-      hand.splice(cardIndex, 1);
-    } else {
-      return false; // card not in hand
-    }
+    hand.pop();
+    this.updateSelectedCard();
 
     // Change turns if last card
     if (!hand.length) this.nextTurn();
