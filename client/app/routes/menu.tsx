@@ -54,13 +54,13 @@ export default function GameSetup() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-800 p-4">
+  <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
       <div className="text-center mb-12">
-        <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-fuchsia-400 text-transparent bg-clip-text">
+  <h1 className="text-6xl font-bold mb-2 title-gradient">
           Cross Cribbs
         </h1>
       </div>
-      <div className="bg-slate-700 p-8 rounded-lg shadow-xl w-[400px]">
+  <div className="bg-panel panel-card card-max">
         {currentPage === "gameType" && (
           <LocalOrOnline
             onSelect={(type) => {

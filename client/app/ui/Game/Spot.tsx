@@ -48,9 +48,10 @@ export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProp
   }
 
   const placeholderImage = "/cards/fronts/clubs_2.svg";
-  const hover = "hover:bg-blue-300";
+  // subtler hover and border, with rounded corners
+  const hover = "hover:bg-stone-300";
 
-  const cardSpotStyles = `${isOver ? "bg-blue-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl}  border-2 border-stone-700 ${hover} transition duration-300 cursor-pointer1`;
+  const cardSpotStyles = `${isOver ? "bg-stone-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} border border-stone-300 rounded-md ${hover} transition duration-300 cursor-pointer`;
 
   if (card) {
     return (
@@ -66,7 +67,7 @@ export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProp
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={() => playCard(pos)}
+      onClick={() => playCard(pos, turn)}
     >
       <img className="h-full invisible" src={placeholderImage} alt="" draggable="false" />
     </td>
