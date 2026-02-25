@@ -68,14 +68,16 @@ export default function Lobby() {
         <p className="text-white text-lg mb-4">
           Players: {lobby.players.length} / {lobby.numPlayers}
         </p>
-  <ul className="list-disc list-inside text-white mb-6">
+        <ul className="list-disc list-inside text-white mb-6">
           {lobby.players.map((player: any) => (
             <li key={player.playerId}>
               {/* {player.name} {lobby.host === player.id ? "(Host)" : ""} */}
               {player.name}
-              {player.playerId === lobby.host && <span className="badge-host px-2 rounded-full text-xs ml-2">Host</span>}}
+              {player.playerId === lobby.host && (
+                <span className="badge-host px-2 rounded-full text-xs ml-2">Host</span>
+              )}
               {console.log(`playerId = ${playerId} player.id=${player.id}`)}
-              {player.playerId === playerId && <span className="badge-you px-2 rounded-full text-xs ml-2">You</span>}}
+              {player.playerId === playerId && <span className="badge-you px-2 rounded-full text-xs ml-2">You</span>}
             </li>
           ))}
         </ul>
