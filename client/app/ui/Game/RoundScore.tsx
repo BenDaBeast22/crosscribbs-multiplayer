@@ -52,7 +52,7 @@ export default function RoundScore({
       className="absolute inset-0 mx-auto my-auto w-[320px] h-[600px] md:w-[600px] md:h-[700px] lg:w-[650px] lg:h-[750px] p-5 bg-slate-600 opacity-95 text-white rounded-lg border-2 border-solid border-slate-800
       transition-opacity ease-in duration-700 text-sm md:text-base"
     >
-      <h2 className="text-center text-lg md:text-3xl mb-3">Round Summary</h2>
+  <h2 className="text-center text-lg md:text-3xl mb-3 text-white">Round Summary</h2>
       <p className="font-semi-bold md:text-lg bg-emerald-600 rounded-md mb-1 italic w-fit px-4 mx-auto">
         {scoreDiff()} earns {Math.abs(rowTeamRoundScore - colTeamRoundScore)} points!
       </p>
@@ -60,7 +60,7 @@ export default function RoundScore({
         <div className="w-full flex justify-around mb-1 text-center">
           <div>
             <h3 className="font-bold md:text-2xl text-cyan-400">Row</h3>
-            <p className="md:text-xl text-cyan-400">Round Score: {rowTeamRoundScore}</p>
+            <p className="md:text-xl text-white">Round Score: {rowTeamRoundScore}</p>
             <div className="text-left">
               {dealerTeam === "Row" && cribScore && <p className="text-orange-400">{cribPoints} (crib)</p>}
               {dealerTeam === "Row" && heels > 0 && <p className="text-orange-400">{heels} (Heels Jack)</p>}
@@ -75,7 +75,7 @@ export default function RoundScore({
           </div>
           <div>
             <h3 className="font-bold md:text-2xl text-fuchsia-400">Column</h3>
-            <p className="md:text-xl text-fuchsia-400">Round Score: {colTeamRoundScore}</p>
+            <p className="md:text-xl text-white">Round Score: {colTeamRoundScore}</p>
             <div className="text-left">
               {dealerTeam === "Column" && cribScore && <p className="text-orange-400">{cribPoints} (crib)</p>}
               {dealerTeam === "Column" && heels > 0 && <p className="text-orange-400">{heels} (Heels - Center Jack)</p>}
@@ -92,7 +92,7 @@ export default function RoundScore({
         {cribScore && (
           <div className="w-full flex justify-center mb-2 text-center">
             <div className="bg-slate-700 rounded-lg p-2">
-              <h3 className="font-bold md:text-2xl">Crib ({dealerTeam})</h3>
+              <h3 className="font-bold md:text-2xl text-white">Crib ({dealerTeam})</h3>
               <div className="flex justify-center space-x-1 my-2">
                 {cribHand.map((card, i) => (
                   <img
@@ -103,7 +103,7 @@ export default function RoundScore({
                   />
                 ))}
               </div>
-              <p className="md:text-2xl font-bold">{cribScore.total} points</p>
+              <p className="md:text-2xl font-bold text-white">{cribScore.total} points</p>
               <div className="flex justify-around mt-2">
                 <p>{cribScore.pairs} (pairs)</p>
                 <p>{cribScore.runs} (runs)</p>
@@ -114,15 +114,15 @@ export default function RoundScore({
           </div>
         )}
         <div className="bg-slate-700 rounded-lg p-2 md:mt-2">
-          <h3 className="text-center md:text-xl">Total Scores</h3>
+          <h3 className="text-center md:text-xl text-white">Total Scores</h3>
           <div className="flex justify-around mt-1">
             <div className="text-center">
               <p className="text-cyan-400 md:text-xl font-bold">Row</p>
-              <p className="md:text-2xl">{totalScores[0]}</p>
+              <p className="md:text-2xl text-white">{totalScores[0]}</p>
             </div>
             <div className="text-center">
               <p className="text-fuchsia-400 md:text-xl font-bold">Column</p>
-              <p className="md:text-2xl">{totalScores[1]}</p>
+              <p className="md:text-2xl text-white">{totalScores[1]}</p>
             </div>
           </div>
         </div>

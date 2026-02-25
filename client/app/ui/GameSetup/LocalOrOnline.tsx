@@ -13,13 +13,13 @@ export default function LocalOrOnline({ onSelect, onBack }: ChildProps) {
       <h2 className="text-2xl font-bold text-white mb-6">Select Game Type</h2>
       <button
         onClick={() => onSelect("local")}
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200"
+        className="w-full btn-primary shadow font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200"
       >
         Local Multiplayer
       </button>
       <button
         onClick={() => navigate("/multiplayer-setup")}
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200"
+        className="w-full btn-primary shadow font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200"
       >
         Online Multiplayer
       </button>

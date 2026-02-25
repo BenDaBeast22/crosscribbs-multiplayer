@@ -53,16 +53,14 @@ export default function Lobby() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-800 p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
       <div className="text-center mb-12">
-        <h1 className="text-6xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-fuchsia-400 text-transparent bg-clip-text">
-          Cross Cribbs
-        </h1>
+        <h1 className="text-6xl font-bold mb-2 title-gradient">Cross Cribbs</h1>
       </div>
-      <div className="bg-slate-700 p-8 rounded-lg shadow-xl w-[400px]">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">Game Lobby</h2>
+      <div className="bg-panel panel-card card-max">
+        <h2 className="text-2xl font-bold panel-heading mb-6 text-center">Game Lobby</h2>
         <p className="text-white text-lg mb-4">
-          Lobby ID: <span className="font-bold text-cyan-300">{lobbyId}</span>
+          Lobby ID: <span className="font-bold text-row">{lobbyId}</span>
         </p>
         {/* <p className="text-white text-lg mb-4">
           Game Mode: <span className="font-bold text-cyan-300">{gameMode}</span>
@@ -70,18 +68,14 @@ export default function Lobby() {
         <p className="text-white text-lg mb-4">
           Players: {lobby.players.length} / {lobby.numPlayers}
         </p>
-        <ul className="list-disc list-inside text-white mb-6">
+  <ul className="list-disc list-inside text-white mb-6">
           {lobby.players.map((player: any) => (
             <li key={player.playerId}>
               {/* {player.name} {lobby.host === player.id ? "(Host)" : ""} */}
               {player.name}
-              {player.playerId === lobby.host && (
-                <span className="bg-yellow-400 text-black px-2 rounded-full text-xs ml-2">Host</span>
-              )}
+              {player.playerId === lobby.host && <span className="badge-host px-2 rounded-full text-xs ml-2">Host</span>}}
               {console.log(`playerId = ${playerId} player.id=${player.id}`)}
-              {player.playerId === playerId && (
-                <span className="bg-green-400 text-black px-2 rounded-full text-xs ml-2">You</span>
-              )}
+              {player.playerId === playerId && <span className="badge-you px-2 rounded-full text-xs ml-2">You</span>}}
             </li>
           ))}
         </ul>
@@ -90,7 +84,9 @@ export default function Lobby() {
           <button
             onClick={handleStartGame}
             disabled={!canStartGame}
-            className={`w-full font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200 mb-4 ${canStartGame ? "bg-green-500 hover:bg-green-600" : "bg-gray-500 opacity-50 cursor-not-allowed"}`}
+            className={`w-full font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200 mb-4 ${
+              canStartGame ? "btn-primary hover:opacity-95" : "bg-gray-500 opacity-50 cursor-not-allowed"
+            }`}
           >
             Start Game
           </button>

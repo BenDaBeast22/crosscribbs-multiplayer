@@ -249,5 +249,5 @@ io.on("connection", (socket) => {
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`Game testing interface available at: http://localhost:${PORT}/test-game`);
+  // console.log(`Game testing interface available at: http://localhost:${PORT}/test-game`);
 });
