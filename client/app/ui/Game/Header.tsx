@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import InstructionsModal from "./InstructionsModal";
+import ScorePegboard from "./ScorePegboard";
 
 type ChildProps = {
   totalScores: [number, number];
@@ -43,6 +44,9 @@ export default function Header({ totalScores, backToMenu }: ChildProps) {
         <span className="text-cyan-400">Row: {rowScore}</span>
         <span className="text-fuchsia-400">Column: {colScore}</span>
       </div>
+
+      {/* pegboard visualization under header */}
+      <ScorePegboard rowScore={rowScore} colScore={colScore} />
 
   {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
     </div>

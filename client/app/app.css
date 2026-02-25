@@ -71,3 +71,10 @@ button.btn-primary, .panel-card button, .card-max button, .panel-card .btn-prima
 
 /* Responsive utility: use full width on small screens but cap on larger */
 .card-max { width: 100%; max-width: 28rem; }
+
+/* pegboard bar displayed beneath the main header */
+.score-pegboard {
+  /* ensure it spans full width and sits flush with header */
+  width: 100%;
+}
+

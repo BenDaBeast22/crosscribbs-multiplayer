@@ -29,7 +29,7 @@ export default function PlayersDisplay({
           {/* Players row */}
           <div className="flex flex-row justify-center md:flex-col gap-6 md:gap-3">
             <div className="flex flex-col gap-2">
-              <span className="text-center font-medium">Row Team:</span>
+              <span className="text-center font-medium text-white">Row Team:</span>
               {/* Row Team Players */}
               <div className="flex flex-row gap-2">
                 <Player
@@ -56,7 +56,7 @@ export default function PlayersDisplay({
             </div>
 
             <div className="flex flex-col gap-2">
-              <span className="text-center font-medium">Column Team:</span>
+              <span className="text-center font-medium text-white">Column Team:</span>
               {/* Column Team Players */}
               <div className="flex flex-row gap-2 md:gap-0">
                 <Player
