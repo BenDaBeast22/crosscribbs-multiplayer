@@ -27,6 +27,13 @@ export default function Game() {
   // console.log("local p names = ", playerNames);
   // console.log("local num ps = ", numPlayers);
   useEffect(() => {
+    let playerId = localStorage.getItem("playerId");
+    if (!playerId) {
+      playerId = crypto.randomUUID(); // or any unique ID generator
+      localStorage.setItem("playerId", playerId);
+    }
+
+    console.log("My player ID:", playerId);
     console.log("location.state: ", location.state);
 
     const handleGameUpdate = (state: GameStateType) => {

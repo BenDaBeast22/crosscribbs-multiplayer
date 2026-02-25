@@ -5,12 +5,14 @@ import type GameController from "../gameController.js";
 interface Player {
   id: string;
   name: string;
+  playerId: string;
 }
 
 export interface Lobby {
   players: Player[];
   host: string;
   numPlayers: number;
+  id: string;
 }
 
 // Export lobbies and games maps so all handlers can share it

@@ -24,18 +24,18 @@ export function useLobby(lobbyId?: string) {
     };
   }, []);
 
-  const createLobby = (username: string, numPlayers: number) =>
+  const createLobby = (username: string, numPlayers: number, playerId: string) =>
     new Promise<{ lobbyId: string }>((resolve, reject) => {
       console.log("usecribbs create lobby");
-      socket.emit("createLobby", username, numPlayers, (res: any) => {
+      socket.emit("createLobby", username, numPlayers, playerId, (res: any) => {
         if (res.error) reject(res.error);
         else resolve(res);
       });
     });
 
-  const joinLobby = (lobbyId: string, username: string) =>
+  const joinLobby = (lobbyId: string, username: string, playerId: string) =>
     new Promise<{ lobbyId: string }>((resolve, reject) => {
-      socket.emit("joinLobby", lobbyId, username, (res: any) => {
+      socket.emit("joinLobby", lobbyId, username, playerId, (res: any) => {
         if (res.error) reject(res.error);
         else resolve(res);
       });

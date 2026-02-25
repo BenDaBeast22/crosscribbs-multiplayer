@@ -13,10 +13,13 @@ export default function JoinGame() {
 
   const handleJoinGame = async () => {
     try {
-      await joinLobby(lobbyId, username);
-      navigate("/lobby", {
-        state: { lobbyId },
-      });
+      let playerId = localStorage.getItem("playerId");
+      if (!playerId) {
+        playerId = crypto.randomUUID(); // or any unique ID generator
+        localStorage.setItem("playerId", playerId);
+      }
+      await joinLobby(lobbyId, username, playerId);
+      navigate(`/lobby/${lobbyId}`);
     } catch (err: any) {
       alert(err);
     }

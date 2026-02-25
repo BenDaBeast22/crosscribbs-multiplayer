@@ -12,14 +12,14 @@ import Lobby from "./routes/lobby";
 import NotFound from "./routes/not-found";
 
 export const router = createBrowserRouter([
-  { path: "/", element: <Home /> },                       // Home page
+  { path: "/", element: <Home /> }, // Home page
   { path: "/menu", element: <Menu /> },
   { path: "/test-socket", element: <TestSocket /> },
-  { path: "/game", element: <Game /> },                   // Local game
-  { path: "/game/:lobbyId", element: <Game /> },          // Multiplayer game
+  { path: "/game", element: <Game /> }, // Local game
+  { path: "/game/:lobbyId", element: <Game /> }, // Multiplayer game
   { path: "/multiplayer-setup", element: <MultiplayerSetup /> },
   { path: "/host-game", element: <HostGame /> },
   { path: "/join-game", element: <JoinGame /> },
-  { path: "/lobby/*", element: <Lobby /> },               // wildcard for lobby sub-routes
-  { path: "*", element: <NotFound /> },                  // catch-all 404
+  { path: "/lobby/:lobbyId", element: <Lobby /> }, // wildcard for lobby sub-routes
+  { path: "*", element: <NotFound /> }, // catch-all 404
 ]);

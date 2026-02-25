@@ -10,15 +10,19 @@ interface PlayerInfo {
 }
 
 export default function Lobby() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const lobbyId = location.state?.lobbyId;
+  const { lobbyId } = useParams();
   const { lobby, gameStarted, startGame } = useLobby(lobbyId);
+
+  const playerId = localStorage.getItem("playerId");
 
   useEffect(() => {
     if (!lobbyId) {
       console.log("LOBBY: lobby id = ", lobbyId);
       navigate("/multiplayer-setup");
+    }
+    if (playerId) {
+      socket.emit("rejoinLobby", { lobbyId, playerId });
     }
 
     socket.on("gameStateUpdate", (gameState) => {
@@ -34,9 +38,10 @@ export default function Lobby() {
 
   if (!lobby) return <div>Loading lobby...</div>;
 
-  const myId = socket.id;
   const numPlayers = lobby.numPlayers;
-  const isHost = lobby.host === myId;
+  const isHost = lobby.host === playerId;
+  console.log("lobby host = ", lobby.host);
+  console.log("playerId = ", playerId);
   const canStartGame = lobby.players.length === numPlayers && isHost;
 
   console.log(`lobby.players.len = ${lobby.players.length} === lobby.numPlayers = ${lobby.numPlayers}`);
@@ -67,13 +72,14 @@ export default function Lobby() {
         </p>
         <ul className="list-disc list-inside text-white mb-6">
           {lobby.players.map((player: any) => (
-            <li key={player.id}>
+            <li key={player.playerId}>
               {/* {player.name} {lobby.host === player.id ? "(Host)" : ""} */}
               {player.name}
-              {player.id === lobby.host && (
+              {player.playerId === lobby.host && (
                 <span className="bg-yellow-400 text-black px-2 rounded-full text-xs ml-2">Host</span>
               )}
-              {player.id === myId && (
+              {console.log(`playerId = ${playerId} player.id=${player.id}`)}
+              {player.playerId === playerId && (
                 <span className="bg-green-400 text-black px-2 rounded-full text-xs ml-2">You</span>
               )}
             </li>

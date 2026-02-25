@@ -7,6 +7,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import GameController from "./gameController.js";
 import { getGame, lobbies, games, deleteGame } from "./classes/gameHelpers.js";
+const disconnectedPlayers: Record<string, NodeJS.Timeout> = {};
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = path.dirname(__filename);
@@ -52,22 +53,24 @@ io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
 
   // Create Lobby
-  socket.on("createLobby", (username, numPlayers, callback) => {
+  socket.on("createLobby", (username, numPlayers, playerId, callback) => {
     console.log("test create lobby");
     const lobbyId = String(lobbyCounter++);
     lobbies[lobbyId] = {
-      players: [{ id: socket.id, name: username }],
-      host: socket.id,
+      players: [{ id: socket.id, name: username, playerId: playerId }],
+      host: playerId,
       numPlayers,
+      id: lobbyId,
     };
     socket.join(lobbyId);
+    socket.data.lobbyId = lobbyId;
     callback({ lobbyId });
     console.log(`lobby created: lobby id: ${lobbyId}`);
     io.to(lobbyId).emit("lobbyUpdate", lobbies[lobbyId]);
   });
 
   // Join Lobby
-  socket.on("joinLobby", (lobbyId, username, callback) => {
+  socket.on("joinLobby", (lobbyId, username, playerId, callback) => {
     console.log("join lobby id: ", lobbyId);
     console.log("all lobbies = ", lobbies);
     const lobby = lobbies[lobbyId];
@@ -75,8 +78,15 @@ io.on("connection", (socket) => {
     if (!lobby) return callback({ error: "Lobby not found" });
     if (lobby.players.length >= lobby.numPlayers) return callback({ error: "Lobby full" });
 
-    lobby.players.push({ id: socket.id, name: username });
+    if (lobby.players.find((player) => player.playerId === playerId))
+      return callback({ error: "Player already in lobby" });
+
+    // for (const player of lobby.players) {
+    // }
+
+    lobby.players.push({ id: socket.id, name: username, playerId: playerId });
     socket.join(lobbyId);
+    socket.data.lobbyId = lobbyId;
     callback({ lobbyId });
     io.to(lobbyId).emit("lobbyUpdate", lobby);
   });
@@ -85,6 +95,23 @@ io.on("connection", (socket) => {
     const lobby = lobbies[lobbyId];
     if (!lobby) return callback({ error: "Lobby not found" });
     callback({ lobby });
+  });
+
+  socket.on("rejoinLobby", ({ lobbyId, playerId }) => {
+    if (disconnectedPlayers[playerId]) {
+      clearTimeout(disconnectedPlayers[playerId]);
+      delete disconnectedPlayers[playerId];
+    }
+
+    const lobby = lobbies[lobbyId];
+    if (!lobby) return;
+
+    const player = lobby.players.find((p) => p.id === playerId);
+    if (player) {
+      player.id = socket.id; // update socket
+      socket.join(lobbyId);
+      socket.data.lobbyId = lobbyId;
+    }
   });
 
   socket.on("startGame", ({ lobbyId, numPlayers }) => {
@@ -193,6 +220,30 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
+
+    // find the lobby the socket was in
+    const lobbyId = socket.data.lobbyId;
+    const lobby = lobbies[lobbyId];
+    console.log("lobby disconnect = ", lobby);
+    if (!lobby) return;
+
+    // find the player
+    const playerIndex = lobby.players.findIndex((p) => p.id === socket.id);
+    if (playerIndex === -1) return;
+
+    const player = lobby.players[playerIndex];
+    console.log("dc player = ", player);
+
+    // start a 30-second timer
+    disconnectedPlayers[player.id] = setTimeout(() => {
+      lobby.players.splice(playerIndex, 1); // remove player from lobby
+      // reasign host
+      if (lobby.host === player.id && lobby.players.length > 0) {
+        lobby.host = lobby.players[0].playerId; // first player becomes host
+      }
+      io.to(lobby.id).emit("lobbyUpdate", lobby);
+      console.log("player disconnect lobby");
+    }, 5000); // 30 seconds
   });
 });
 

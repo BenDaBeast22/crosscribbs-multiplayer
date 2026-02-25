@@ -17,11 +17,14 @@ export default function HostGame() {
       return;
     }
     try {
-      const { lobbyId } = await createLobby(username, maxPlayers);
+      let playerId = localStorage.getItem("playerId");
+      if (!playerId) {
+        playerId = crypto.randomUUID(); // or any unique ID generator
+        localStorage.setItem("playerId", playerId);
+      }
+      const { lobbyId } = await createLobby(username, maxPlayers, playerId);
       console.log("HOST GAME: lobby id = ", lobbyId);
-      navigate("/lobby", {
-        state: { lobbyId },
-      });
+      navigate(`/lobby/${lobbyId}`);
     } catch (err: any) {
       console.log("error");
       alert(err);
