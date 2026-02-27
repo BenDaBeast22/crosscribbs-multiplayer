@@ -121,28 +121,28 @@ io.on("connection", (socket) => {
     io.to(lobbyId).emit("lobbyUpdate", lobby);
   });
 
-  socket.on("startGame", ({ lobbyId, numPlayers }) => {
+  socket.on("startGame", ({ lobbyId, numPlayers, playerId }) => {
     if (lobbyId) {
       // Multiplayer game tied to a lobby
       const lobby = lobbies[lobbyId] ?? null;
       games[lobbyId] = new GameController(numPlayers, lobby);
-      const newGame = getGame(socket.id, lobbyId);
+      const newGame = getGame(playerId, lobbyId);
       if (!newGame) return;
       lobby.gameStarted = true;
       io.to(lobbyId).emit("gameStateUpdate", games[lobbyId].getGameState());
       console.log(`Multiplayer game started in lobby ${lobbyId}`);
     } else {
       // Local game (hosted just on this client)
-      const localLobbyId = socket.id; // unique socket id i.e "42SXdaf123"
+      const localLobbyId = playerId; // use player ID so can rejoin game
       games[localLobbyId] = new GameController(numPlayers);
       socket.emit("gameStateUpdate", games[localLobbyId].getGameState());
-      console.log(`Local game started for ${socket.id}`);
+      console.log(`Local game started for ${playerId}`);
     }
   });
 
   // Handle "startGame" event
-  socket.on("resetGame", ({ lobbyId }) => {
-    const game = getGame(socket.id, lobbyId);
+  socket.on("resetGame", ({ lobbyId, playerId }) => {
+    const game = getGame(playerId, lobbyId);
     if (!game) return;
 
     game.resetGame();
@@ -164,9 +164,9 @@ io.on("connection", (socket) => {
   // });
 
   socket.on("rejoinGame", ({ lobbyId, playerId }) => {
-    // rejoin single player game
+    // rejoin local game
     if (!lobbyId) {
-      socket.join(lobbyId);
+      socket.emit("gameStateUpdate", games[playerId].getGameState());
       return;
     }
 
@@ -215,7 +215,8 @@ io.on("connection", (socket) => {
 
   // Handle "playCard" event
   socket.on("playCard", ({ lobbyId, playerId, pos }) => {
-    const game = getGame(socket.id, lobbyId);
+    console.log(`player: ${playerId} played card`);
+    const game = getGame(playerId, lobbyId);
     if (!game) return;
 
     const success = game.applyMove(pos, playerId);
@@ -235,8 +236,8 @@ io.on("connection", (socket) => {
 
   // Example: next round
   socket.on("nextRound", (data = {}) => {
-    const { lobbyId } = data;
-    const game = getGame(socket.id, lobbyId);
+    const { lobbyId, playerId } = data;
+    const game = getGame(playerId, lobbyId);
     if (!game) return;
 
     game.nextRound();
@@ -250,8 +251,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("selectDealer", ({ lobbyId, winningPlayer }) => {
-    const game = getGame(socket.id, lobbyId);
+  socket.on("selectDealer", ({ lobbyId, winningPlayer, playerId }) => {
+    const game = getGame(playerId, lobbyId);
     if (!game) return;
 
     game.selectDealer(winningPlayer);
@@ -259,7 +260,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("discardToCrib", ({ lobbyId, numPlayers, player, card, playerId }) => {
-    const game = getGame(socket.id, lobbyId);
+    const game = getGame(playerId, lobbyId);
     if (!game) return;
     const success = game.discardToCrib(numPlayers, player, card, playerId);
     if (success) {
@@ -285,7 +286,7 @@ io.on("connection", (socket) => {
     player.disconnected = true;
     player.disconnectExpiresAt = Date.now() + 10000;
 
-    const game = getGame(socket.id, lobbyId);
+    const game = games[lobbyId];
     if (!game) {
       startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
     }

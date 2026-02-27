@@ -101,7 +101,7 @@ export default function Game() {
       const playerId = socket.id;
       socket.emit("playCard", { lobbyId, pos, playerId });
     } else {
-      socket.emit("playCard", { pos });
+      socket.emit("playCard", { pos, playerId });
     }
   };
 

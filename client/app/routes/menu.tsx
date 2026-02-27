@@ -15,13 +15,18 @@ export default function GameSetup() {
   const [gameType, setGameType] = useState<"local" | "online" | null>(null);
   const [numPlayers, setNumPlayers] = useState<2 | 4>(2);
   const [playerNames, setPlayerNames] = useState<string[]>([]);
+  let playerId = localStorage.getItem("playerId");
+  if (!playerId) {
+    playerId = crypto.randomUUID(); // or any unique ID generator
+    localStorage.setItem("playerId", playerId);
+  }
 
   useEffect(() => {
     socket.on("gameStateUpdate", (gameState: GameStateType) => {
       // This means the game has started
       console.log("Game started, navigating to game page.", gameState);
       console.log(
-        `gamestate = ${gameState} gameType = ${gameType} numPlayers=${numPlayers} playerNames=${playerNames}`
+        `gamestate = ${gameState} gameType = ${gameType} numPlayers=${numPlayers} playerNames=${playerNames}`,
       );
       navigate("/game", { state: { initialGameState: gameState, gameType, numPlayers, playerNames } });
     });
@@ -46,7 +51,7 @@ export default function GameSetup() {
 
   const handleSetPlayerNames = (playerNames: string[]) => {
     setPlayerNames(playerNames);
-    socket.emit("startGame", { numPlayers });
+    socket.emit("startGame", { numPlayers, playerId });
     // console.log("player names esk = ", playerNames);
     // navigate("/game", {
     //   state: { gameType, numPlayers, playerNames },
@@ -54,13 +59,11 @@ export default function GameSetup() {
   };
 
   return (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
       <div className="text-center mb-12">
-  <h1 className="text-6xl font-bold mb-2 title-gradient">
-          Cross Cribbs
-        </h1>
+        <h1 className="text-6xl font-bold mb-2 title-gradient">Cross Cribbs</h1>
       </div>
-  <div className="bg-panel panel-card card-max">
+      <div className="bg-panel panel-card card-max">
         {currentPage === "gameType" && (
           <LocalOrOnline
             onSelect={(type) => {
