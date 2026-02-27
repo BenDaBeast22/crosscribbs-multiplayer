@@ -296,26 +296,6 @@ io.on("connection", (socket) => {
       startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
       io.to(lobbyId).emit("lobbyUpdate", lobby);
     }
-
-    // io.to(lobbyId).emit("playerUpdate", game.players);
-
-    // update players in gamestate
-    // const game = getGame(socket.id, lobbyId);
-    // if (!game) return;
-    // const gameStatePlayer = game.players.find((p) => p.id === )
-
-    // startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
-
-    // // start a 30-second timer
-    // disconnectedPlayers[player.id] = setTimeout(() => {
-    //   lobby.players.splice(playerIndex, 1); // remove player from lobby
-    //   // reasign host
-    //   if (lobby.host === player.id && lobby.players.length > 0) {
-    //     lobby.host = lobby.players[0].playerId; // first player becomes host
-    //   }
-    //   io.to(lobby.id).emit("lobbyUpdate", lobby);
-    //   console.log("player disconnect lobby");
-    // }, 5000); // 30 seconds
   });
 });
 

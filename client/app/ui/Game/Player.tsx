@@ -60,9 +60,17 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
     return isTurn && card ? card.frontImgSrc : backImgSrc;
   };
 
+  const displayDiscardButton = () => {
+    if (isMultiplayer) {
+      return isPlayer && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
+    } else {
+      return numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1;
+    }
+  };
+
   // const cardImgSrc = isTurn && card ? card.frontImgSrc : backImgSrc;
-  const displayDiscardButton = isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
-  const displayDiscardButtonClass = displayDiscardButton ? "" : "invisible";
+  // const displayDiscardButton = isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
+  const displayDiscardButtonClass = displayDiscardButton() ? "" : "invisible";
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
