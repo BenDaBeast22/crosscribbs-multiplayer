@@ -62,10 +62,15 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
   const displayDiscardButton = () => {
     if (isMultiplayer) {
-      return isPlayer && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
-    } else {
-      return numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1;
+      return isPlayer && isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
     }
+    console.log("isTurn == ", isTurn);
+    console.log(
+      "isTurn && numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1 = ",
+      isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1),
+    );
+
+    return isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
   };
 
   // const cardImgSrc = isTurn && card ? card.frontImgSrc : backImgSrc;
