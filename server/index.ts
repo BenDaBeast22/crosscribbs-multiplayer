@@ -189,7 +189,7 @@ io.on("connection", (socket) => {
     // Clear disconnect state
     player.disconnected = false;
     player.disconnectExpiresAt = undefined;
-
+    socket.data.lobbyId = lobbyId;
     // Rejoin socket room
     socket.join(lobbyId);
 
@@ -277,26 +277,22 @@ io.on("connection", (socket) => {
     console.log("lobby disconnect = ", lobby);
     if (!lobby) return;
 
-    // find the player
-    const playerIndex = lobby.players.findIndex((p) => p.id === socket.id);
-    if (playerIndex === -1) return;
-    const player: Player = lobby.players[playerIndex];
-    console.log(`${player.name} disconnected with playerId: ${player.playerId}`);
-
-    player.disconnected = true;
-    player.disconnectExpiresAt = Date.now() + 10000;
-
     const game = games[lobbyId];
 
     if (game) {
+      // disconnected from game
       const gameStatePlayer = game.players.find((p) => p.id === socket.id);
-      if (gameStatePlayer) {
-        gameStatePlayer.disconnected = true;
-        gameStatePlayer.disconnectExpiresAt = Date.now() + 10000;
-        io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
-      }
+      if (!gameStatePlayer) return;
+      gameStatePlayer.disconnected = true;
+      gameStatePlayer.disconnectExpiresAt = Date.now() + 10000;
+      io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
     } else {
-      // if disconnected from lobby
+      // disconnected from lobby
+      const player = lobby.players.find((p) => p.id === socket.id);
+      if (!player) return;
+      console.log(`${player.name} disconnected with playerId: ${player.playerId}`);
+      player.disconnected = true;
+      player.disconnectExpiresAt = Date.now() + 10000;
       startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
       io.to(lobbyId).emit("lobbyUpdate", lobby);
     }
