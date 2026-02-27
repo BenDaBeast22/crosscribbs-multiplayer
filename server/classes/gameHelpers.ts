@@ -2,10 +2,12 @@
 
 import type GameController from "../gameController.js";
 
-interface Player {
+export interface Player {
   id: string;
   name: string;
   playerId: string;
+  disconnected?: boolean;
+  disconnectExpiresAt?: number;
 }
 
 export interface Lobby {
@@ -13,6 +15,7 @@ export interface Lobby {
   host: string;
   numPlayers: number;
   id: string;
+  gameStarted?: true;
 }
 
 // Export lobbies and games maps so all handlers can share it

@@ -6,7 +6,8 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import GameController from "./gameController.js";
-import { getGame, lobbies, games, deleteGame } from "./classes/gameHelpers.js";
+import { getGame, lobbies, games, Player } from "./classes/gameHelpers.js";
+import { startDisconnectCountdown } from "./serverHelper.js";
 const disconnectedPlayers: Record<string, NodeJS.Timeout> = {};
 
 // const __filename = fileURLToPath(import.meta.url);
@@ -71,11 +72,12 @@ io.on("connection", (socket) => {
 
   // Join Lobby
   socket.on("joinLobby", (lobbyId, username, playerId, callback) => {
-    console.log("join lobby id: ", lobbyId);
-    console.log("all lobbies = ", lobbies);
     const lobby = lobbies[lobbyId];
 
     if (!lobby) return callback({ error: "Lobby not found" });
+    if (lobby.players.length >= lobby.numPlayers) {
+      console.log(`lobby.players.length = ${lobby.players.length} lobby.numPlayers = ${lobby.numPlayers}`);
+    }
     if (lobby.players.length >= lobby.numPlayers) return callback({ error: "Lobby full" });
 
     if (lobby.players.find((player) => player.playerId === playerId))
@@ -98,20 +100,25 @@ io.on("connection", (socket) => {
   });
 
   socket.on("rejoinLobby", ({ lobbyId, playerId }) => {
-    if (disconnectedPlayers[playerId]) {
-      clearTimeout(disconnectedPlayers[playerId]);
-      delete disconnectedPlayers[playerId];
-    }
+    console.log(`rejoing lobby lobbyId = ${lobbyId} playerId=${playerId}`);
 
     const lobby = lobbies[lobbyId];
     if (!lobby) return;
 
-    const player = lobby.players.find((p) => p.id === playerId);
-    if (player) {
-      player.id = socket.id; // update socket
-      socket.join(lobbyId);
-      socket.data.lobbyId = lobbyId;
+    const player = lobby.players.find((p) => p.playerId === playerId);
+    if (!player) return;
+    player.id = socket.id; // update socket
+    player.disconnected = false;
+    player.disconnectExpiresAt = undefined;
+    socket.data.lobbyId = lobbyId;
+    //  Clear disconnect countdown
+    if (disconnectedPlayers[playerId]) {
+      clearInterval(disconnectedPlayers[playerId]);
+      delete disconnectedPlayers[playerId];
     }
+
+    socket.join(lobbyId);
+    io.to(lobbyId).emit("lobbyUpdate", lobby);
   });
 
   socket.on("startGame", ({ lobbyId, numPlayers }) => {
@@ -121,6 +128,7 @@ io.on("connection", (socket) => {
       games[lobbyId] = new GameController(numPlayers, lobby);
       const newGame = getGame(socket.id, lobbyId);
       if (!newGame) return;
+      lobby.gameStarted = true;
       io.to(lobbyId).emit("gameStateUpdate", games[lobbyId].getGameState());
       console.log(`Multiplayer game started in lobby ${lobbyId}`);
     } else {
@@ -139,6 +147,61 @@ io.on("connection", (socket) => {
 
     game.resetGame();
     io.emit("gameStateUpdate", game.getGameState()); // broadcast to all clients
+  });
+
+  // socket.on("rejoinGame", ({ lobbyId, playerId }) => {
+  //   const game = getGame(socket.id, lobbyId);
+  //   if (game) {
+  //     // Update the player's socket mapping
+  //     // Re-join the socket to the correct room for future broadcasts
+  //     socket.join(lobbyId);
+  //     // Send the latest state to the re-joining player
+  //     socket.emit("gameStateUpdate", game.getGameState());
+  //   } else {
+  //     // Handle case where the lobby doesn't exist
+  //     socket.emit("error", { message: "Lobby not found." });
+  //   }
+  // });
+
+  socket.on("rejoinGame", ({ lobbyId, playerId }) => {
+    // rejoin single player game
+    if (!lobbyId) {
+      socket.join(lobbyId);
+      return;
+    }
+
+    const game = games[lobbyId];
+
+    if (!game) {
+      socket.emit("error", { message: "Game not found." });
+      return;
+    }
+
+    const player = game.players.find((p) => p.playerId === playerId);
+    if (!player) {
+      socket.emit("error", { message: "Player not found." });
+      return;
+    }
+
+    // Update socketId
+    player.id = socket.id;
+
+    // Clear disconnect state
+    player.disconnected = false;
+    player.disconnectExpiresAt = undefined;
+
+    // Rejoin socket room
+    socket.join(lobbyId);
+
+    io.to(lobbyId).emit("gameStateUpdate", game);
+
+    // Send full authoritative game state ONLY to this player
+    // game = getGame(sock)
+
+    // io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+    // socket.emit("gameStateUpdate", game.getGameState());
+
+    console.log("Player rejoined game:", playerId);
   });
 
   // Handle "selectCard" event
@@ -204,20 +267,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("rejoinGame", ({ lobbyId, playerId }) => {
-    const game = getGame(socket.id, lobbyId);
-    if (game) {
-      // Update the player's socket mapping
-      // Re-join the socket to the correct room for future broadcasts
-      socket.join(lobbyId);
-      // Send the latest state to the re-joining player
-      socket.emit("gameStateUpdate", game.getGameState());
-    } else {
-      // Handle case where the lobby doesn't exist
-      socket.emit("error", { message: "Lobby not found." });
-    }
-  });
-
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
 
@@ -230,20 +279,47 @@ io.on("connection", (socket) => {
     // find the player
     const playerIndex = lobby.players.findIndex((p) => p.id === socket.id);
     if (playerIndex === -1) return;
+    const player: Player = lobby.players[playerIndex];
+    console.log(`${player.name} disconnected with playerId: ${player.playerId}`);
 
-    const player = lobby.players[playerIndex];
-    console.log("dc player = ", player);
+    player.disconnected = true;
+    player.disconnectExpiresAt = Date.now() + 10000;
 
-    // start a 30-second timer
-    disconnectedPlayers[player.id] = setTimeout(() => {
-      lobby.players.splice(playerIndex, 1); // remove player from lobby
-      // reasign host
-      if (lobby.host === player.id && lobby.players.length > 0) {
-        lobby.host = lobby.players[0].playerId; // first player becomes host
+    const game = getGame(socket.id, lobbyId);
+    if (!game) {
+      startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
+    }
+
+    if (game) {
+      const gameStatePlayer = game.players.find((p) => p.id === socket.id);
+      if (gameStatePlayer) {
+        gameStatePlayer.disconnected = true;
+        gameStatePlayer.disconnectExpiresAt = Date.now() + 10000;
+        io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
       }
-      io.to(lobby.id).emit("lobbyUpdate", lobby);
-      console.log("player disconnect lobby");
-    }, 5000); // 30 seconds
+    } else {
+      io.to(lobbyId).emit("lobbyUpdate", lobby);
+    }
+
+    // io.to(lobbyId).emit("playerUpdate", game.players);
+
+    // update players in gamestate
+    // const game = getGame(socket.id, lobbyId);
+    // if (!game) return;
+    // const gameStatePlayer = game.players.find((p) => p.id === )
+
+    // startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
+
+    // // start a 30-second timer
+    // disconnectedPlayers[player.id] = setTimeout(() => {
+    //   lobby.players.splice(playerIndex, 1); // remove player from lobby
+    //   // reasign host
+    //   if (lobby.host === player.id && lobby.players.length > 0) {
+    //     lobby.host = lobby.players[0].playerId; // first player becomes host
+    //   }
+    //   io.to(lobby.id).emit("lobbyUpdate", lobby);
+    //   console.log("player disconnect lobby");
+    // }, 5000); // 30 seconds
   });
 });
 

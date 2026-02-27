@@ -1,3 +1,4 @@
+import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { socket } from "~/connections/socket";
@@ -12,10 +13,10 @@ interface PlayerInfo {
 export default function Lobby() {
   const navigate = useNavigate();
   const { lobbyId } = useParams();
+  console.log("lobbyId = ", lobbyId);
   const { lobby, gameStarted, startGame } = useLobby(lobbyId);
 
   const playerId = localStorage.getItem("playerId");
-
   useEffect(() => {
     if (!lobbyId) {
       console.log("LOBBY: lobby id = ", lobbyId);
@@ -43,6 +44,10 @@ export default function Lobby() {
   console.log("lobby host = ", lobby.host);
   console.log("playerId = ", playerId);
   const canStartGame = lobby.players.length === numPlayers && isHost;
+
+  const remainingDisconnect = (player: PlayerType) => {
+    return player.disconnectExpiresAt ? Math.max(0, Math.ceil((player.disconnectExpiresAt - Date.now()) / 1000)) : null;
+  };
 
   console.log(`lobby.players.len = ${lobby.players.length} === lobby.numPlayers = ${lobby.numPlayers}`);
 
@@ -78,6 +83,9 @@ export default function Lobby() {
               )}
               {console.log(`playerId = ${playerId} player.id=${player.id}`)}
               {player.playerId === playerId && <span className="badge-you px-2 rounded-full text-xs ml-2">You</span>}
+              {player.disconnected && (
+                <span className="ml-2 text-red-400">Disconnected ({remainingDisconnect(player)}s)</span>
+              )}
             </li>
           ))}
         </ul>

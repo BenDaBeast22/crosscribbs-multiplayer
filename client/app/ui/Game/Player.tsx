@@ -64,6 +64,7 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
         {lobbyId && isPlayer && (
           <span className="bg-green-400 text-black px-2 rounded-full text-xs ml-2 italic">You</span>
         )}
+        {player.disconnected && <span className="ml-2 text-red-400">Disconnected</span>}
       </div>
 
       <div className="flex flex-col items-center space-y-0.5 md:space-y-2 max-w-16 md:max-w-none">

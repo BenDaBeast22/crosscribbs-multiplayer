@@ -6,6 +6,7 @@ import type { ScoreType } from "@cross-cribbs/shared-types/ScoreType.js";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType.js";
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes.js";
 import type { LobbyType } from "@cross-cribbs/shared-types/GameControllerTypes.js";
+import { Lobby } from "./classes/gameHelpers.js";
 // import type { CardType, GameStateType, RoundHistoryType, BoardType } from "@shared/types/GameControllerTypes";
 
 export default class GameController implements GameStateType {
@@ -65,6 +66,7 @@ export default class GameController implements GameStateType {
       const players = lobby.players;
       for (const [index, player] of players.entries()) {
         this.players[index].id = player.id;
+        this.players[index].playerId = player.playerId;
       }
       this.numPlayers = lobby.numPlayers; // set multiplayer numPlayers
     }
@@ -76,13 +78,13 @@ export default class GameController implements GameStateType {
 
   initializePlayers() {
     for (let playerNum = 1; playerNum <= this.numPlayers; playerNum++) {
-      this.players.push(new Player("", playerNum, "", [], []));
+      this.players.push(new Player("", "", playerNum, "", [], []));
     }
   }
 
   get currentPlayerId(): string | void {
     if (!this.lobby) return; // local game no socket check
-    return this.lobby.players[this.turnIndex].id;
+    return this.players[this.turnIndex].id;
   }
 
   getPlayer(playerNumber: number): PlayerType {

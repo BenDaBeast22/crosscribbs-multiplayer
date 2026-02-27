@@ -6,7 +6,7 @@ import TurnIndicator from "~/ui/Game/TurnIndicator";
 import RoundHistory from "~/ui/Game/RoundHistory";
 import Crib from "~/ui/Game/Crib";
 import { useEffect, useState } from "react";
-import type { GameStateType } from "@cross-cribbs/shared-types/GameControllerTypes";
+import type { GameStateType, LobbyType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
 import { socket } from "../connections/socket";
@@ -22,16 +22,18 @@ export default function Game() {
   let { gameType, numPlayers, playerNames } = location.state || {}; // set local settings
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
   const [players, setPlayers] = useState<PlayerType[]>(initialGameState?.players || []);
+  const playerId = localStorage.getItem("playerId");
 
   // console.log("lobby id = ", lobbyId);
   // console.log("local p names = ", playerNames);
   // console.log("local num ps = ", numPlayers);
   useEffect(() => {
-    let playerId = localStorage.getItem("playerId");
-    if (!playerId) {
-      playerId = crypto.randomUUID(); // or any unique ID generator
-      localStorage.setItem("playerId", playerId);
-    }
+    // if (!lobbyId) {
+    //   console.log("LOBBY: lobby id = ", lobbyId);
+    //   navigate("/multiplayer-setup");
+    // }
+
+    socket.emit("rejoinGame", { lobbyId, playerId });
 
     console.log("My player ID:", playerId);
     console.log("location.state: ", location.state);
@@ -41,6 +43,12 @@ export default function Game() {
       setGameState(state);
       setPlayers(state.players);
     };
+
+    // const handlePlayerUpdate = (updatedPlayers: PlayerType[]) => {
+    //   setPlayers(updatedPlayers);
+    // };
+
+    // socket.on("playerUpdate", handlePlayerUpdate);
 
     // Attach listeners
     socket.on("gameStateUpdate", handleGameUpdate);

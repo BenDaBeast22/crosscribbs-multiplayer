@@ -5,12 +5,17 @@ import type { ScoreType } from "./ScoreType.js";
 export interface LobbyPlayerType {
   id: string;
   name: string;
+  playerId: string;
+  disconnected?: boolean;
+  disconnectExpiresAt?: number;
 }
 
 export interface LobbyType {
   players: LobbyPlayerType[];
   host: string;
   numPlayers: number;
+  id: string;
+  gameStarted?: boolean;
 }
 
 // Optional: define moves/actions
