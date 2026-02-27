@@ -17,6 +17,9 @@ type ChildProps = {
 function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, cardSizes }: ChildProps) {
   const { hand, discardedToCrib } = player;
 
+  // for local should use playerId to get game
+  const localPlayerId = localStorage.getItem("playerId");
+
   // Top card
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
   const backImgSrc = `/cards/backs/red2.svg`;
@@ -33,11 +36,12 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
   // Discard handler
   const handleDiscard = useCallback(() => {
     if (card) {
-      socket.emit("discardToCrib", { lobbyId, numPlayers, player, playerId, card });
+      socket.emit("discardToCrib", { lobbyId, numPlayers, player, playerId, localPlayerId, card });
     }
   }, [card, player, playerId, lobbyId, numPlayers]);
 
   // Derived states
+  const isMultiplayer = !!lobbyId;
   const isTurn = player.num === turn;
   const isPlayer = playerId === player.id;
   const isDraggable = isTurn && (!lobbyId || isPlayer);
@@ -49,7 +53,14 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
   const bgGradient = useMemo(() => "bg-gradient-to-br from-slate-100 to-slate-200", []);
 
-  const cardImgSrc = isTurn && card ? card.frontImgSrc : backImgSrc;
+  const getCardImgSrc = () => {
+    if (isMultiplayer) {
+      return isPlayer && card ? card.frontImgSrc : backImgSrc;
+    }
+    return isTurn && card ? card.frontImgSrc : backImgSrc;
+  };
+
+  // const cardImgSrc = isTurn && card ? card.frontImgSrc : backImgSrc;
   const displayDiscardButton = isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
   const displayDiscardButtonClass = displayDiscardButton ? "" : "invisible";
   const displayCardsLeft = card ? "" : "invisible";
@@ -64,13 +75,15 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
         {lobbyId && isPlayer && (
           <span className="bg-green-400 text-black px-2 rounded-full text-xs ml-2 italic">You</span>
         )}
-        {player.disconnected && <span className="ml-2 text-red-400">Disconnected</span>}
+        {player.disconnected && (
+          <span className="block bg-red-500 text-black rounded-full px-2 text-xs ml-2 italic">DC'd</span>
+        )}
       </div>
 
       <div className="flex flex-col items-center space-y-0.5 md:space-y-2 max-w-16 md:max-w-none">
         <img
           className={`${displayCardImage} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} self-center hover:border-gray-400 border-transparent border-[0.5px] md:border-2 cursor-pointer rounded-lg shadow-lg transition-transform hover:scale-105`}
-          src={cardImgSrc}
+          src={getCardImgSrc()}
           alt=""
           draggable={isDraggable}
           onDragStart={handleDragStart}

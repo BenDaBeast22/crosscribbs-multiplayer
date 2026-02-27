@@ -77,7 +77,7 @@ export default function Game() {
   // }
 
   const handleResetGame = () => {
-    const payload = { lobbyId: isMultiplayer ? lobbyId : undefined };
+    const payload = { lobbyId: isMultiplayer ? lobbyId : undefined, playerId };
     socket.emit("resetGame", payload);
   };
 
@@ -110,7 +110,7 @@ export default function Game() {
     if (isMultiplayer) {
       socket.emit("nextRound", { lobbyId });
     } else {
-      socket.emit("nextRound");
+      socket.emit("nextRound", { playerId });
     }
   };
 

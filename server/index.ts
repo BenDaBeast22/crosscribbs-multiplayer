@@ -259,8 +259,8 @@ io.on("connection", (socket) => {
     io.emit("gameStateUpdate", game.getGameState());
   });
 
-  socket.on("discardToCrib", ({ lobbyId, numPlayers, player, card, playerId }) => {
-    const game = getGame(playerId, lobbyId);
+  socket.on("discardToCrib", ({ lobbyId, numPlayers, player, card, playerId, localPlayerId }) => {
+    const game = getGame(localPlayerId, lobbyId);
     if (!game) return;
     const success = game.discardToCrib(numPlayers, player, card, playerId);
     if (success) {
@@ -287,9 +287,6 @@ io.on("connection", (socket) => {
     player.disconnectExpiresAt = Date.now() + 10000;
 
     const game = games[lobbyId];
-    if (!game) {
-      startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
-    }
 
     if (game) {
       const gameStatePlayer = game.players.find((p) => p.id === socket.id);
@@ -299,6 +296,8 @@ io.on("connection", (socket) => {
         io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
       }
     } else {
+      // if disconnected from lobby
+      startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
       io.to(lobbyId).emit("lobbyUpdate", lobby);
     }
 
