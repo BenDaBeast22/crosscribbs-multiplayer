@@ -26,12 +26,12 @@ export default function JoinGame() {
   };
 
   return (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
-    <div className="text-center mb-12">
-  <h1 className="text-6xl font-bold mb-2 title-gradient">Cross Cribbs</h1>
-    </div>
-  <div className="bg-panel panel-card card-max">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">Join Game</h2>
+    <div className="flex flex-col items-center min-h-screen bg-main-screen p-4">
+      <div className="text-center pt-16 pb-15">
+        <h1 className="text-6xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
+      </div>
+      <div className="bg-panel panel-card card-max flex flex-col">
+        <h2 className="text-3xl font-bold text-white mb-8 text-center">Join Game</h2>
 
         <div className="mb-4">
           <label htmlFor="username" className="block text-white text-lg font-bold mb-2">
@@ -49,11 +49,12 @@ export default function JoinGame() {
           {joinError && <p className="text-red-400 text-sm mt-2">{joinError}</p>}
         </div>
 
-        <button onClick={handleJoinGame} className="w-full btn-primary hover:opacity-95 font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200 mb-4">
-          Join Game
-        </button>
-
-        <BackButton />
+        <div className="space-y-3 pt-2">
+          <button onClick={handleJoinGame} className="btn-menu btn-menu-primary">
+            Join Game
+          </button>
+          <BackButton />
+        </div>
       </div>
     </div>
   );

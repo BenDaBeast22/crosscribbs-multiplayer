@@ -9,21 +9,23 @@ type ChildProps = {
 export default function LocalOrOnline({ onSelect, onBack }: ChildProps) {
   const navigate = useNavigate();
   return (
-    <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-white mb-6">Select Game Type</h2>
+    <div className="space-y-5">
+      <h2 className="text-3xl font-bold text-white mb-8 text-center">Select Game Type</h2>
       <button
         onClick={() => onSelect("local")}
-        className="w-full btn-primary shadow font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200"
+        className="btn-menu btn-menu-primary"
       >
         Local Multiplayer
       </button>
       <button
         onClick={() => navigate("/multiplayer-setup")}
-        className="w-full btn-primary shadow font-bold py-3 px-6 rounded-lg text-lg transition-colors duration-200"
+        className="btn-menu btn-menu-secondary"
       >
         Online Multiplayer
       </button>
-      <BackButton handler={onBack} />
+      <div className="pt-2">
+        <BackButton handler={onBack} />
+      </div>
     </div>
   );
 }
