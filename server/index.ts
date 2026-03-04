@@ -32,6 +32,10 @@ app.use(express.json());
 //   res.sendFile(path.join(frontendPath, "index.html"));
 // });
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 // HTTP + Socket.io setup
 const server = http.createServer(app);
 const io = new Server(server, {

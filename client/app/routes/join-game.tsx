@@ -26,7 +26,7 @@ export default function JoinGame() {
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-main-screen p-4">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
       <div className="text-center pt-16 pb-15">
         <h1 className="text-6xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
       </div>
@@ -37,7 +37,14 @@ export default function JoinGame() {
           <label htmlFor="username" className="block text-white text-lg font-bold mb-2">
             Username:
           </label>
-          <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full input-field" placeholder="i.e BillyTheKid" />
+          <input
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full input-field"
+            placeholder="i.e BillyTheKid"
+          />
           {joinError && <p className="text-red-400 text-sm mt-2">{joinError}</p>}
         </div>
 
@@ -45,7 +52,14 @@ export default function JoinGame() {
           <label htmlFor="gameId" className="block text-white text-lg font-bold mb-2">
             Enter Game ID:
           </label>
-          <input type="text" id="lobbyId" value={lobbyId} onChange={(e) => setLobbyId(e.target.value)} className="w-full input-field" placeholder="i.e 2" />
+          <input
+            type="text"
+            id="lobbyId"
+            value={lobbyId}
+            onChange={(e) => setLobbyId(e.target.value)}
+            className="w-full input-field"
+            placeholder="i.e 2"
+          />
           {joinError && <p className="text-red-400 text-sm mt-2">{joinError}</p>}
         </div>
 

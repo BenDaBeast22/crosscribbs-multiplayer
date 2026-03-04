@@ -1,15 +1,31 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ServerLoading from "~/ui/Game/ServerLoading";
+import { ensureServerReady } from "~/connections/serverStatus";
 
 export default function MultiplayerSetup() {
   const navigate = useNavigate();
   const [fadingOut, setFadingOut] = useState(false);
+  const [serverAwake, setServerAwake] = useState(false);
 
   const handlePlay = () => {
     // trigger fade animation before navigating
     setFadingOut(true);
     setTimeout(() => navigate("/menu"), 300);
   };
+
+  useEffect(() => {
+    async function setup() {
+      if (!serverAwake) {
+        await ensureServerReady();
+        setServerAwake(true);
+      }
+    }
+
+    setup();
+  }, []);
+
+  if (!serverAwake) return <ServerLoading />;
 
   return (
     <div
