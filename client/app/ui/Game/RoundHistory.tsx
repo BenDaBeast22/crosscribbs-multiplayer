@@ -24,7 +24,7 @@ export default function RoundHistory({ roundHistory }: ChildProps) {
   const reversedTotals = [...chronologicalTotals].reverse();
 
   return (
-    <div className="hidden md:block bg-slate-600 w-full text-white p-4 rounded-lg shadow-lg min-h-[300px] lg:min-h-[450px] max-h-[450px] lg:max-h-[500px] overflow-y-auto">
+    <div className="hidden md:block bg-slate-600 w-full text-white p-4 rounded-lg shadow-lg max-h-112.5 min-h-75 xl:min-h-100 xl:max-h-120 2xl:min-h-112.5 2xl:max-h-125 overflow-y-auto">
       <h3 className="text-lg font-bold mb-3 text-center">Round History</h3>
       <div className="space-y-3">
         {reversedHistory.map((round, index) => (

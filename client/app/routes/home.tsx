@@ -25,7 +25,7 @@ export default function MultiplayerSetup() {
     setup();
   }, []);
 
-  if (!serverAwake) return <ServerLoading />;
+  // if (!serverAwake) return <ServerLoading />;
 
   return (
     <div

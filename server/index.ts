@@ -170,6 +170,7 @@ io.on("connection", (socket) => {
   socket.on("rejoinGame", ({ lobbyId, playerId }) => {
     // rejoin local game
     if (!lobbyId) {
+      if (!games[playerId]) return;
       socket.emit("gameStateUpdate", games[playerId].getGameState());
       return;
     }

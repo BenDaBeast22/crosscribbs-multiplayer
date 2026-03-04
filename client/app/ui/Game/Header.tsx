@@ -48,7 +48,7 @@ export default function Header({ totalScores, backToMenu }: ChildProps) {
       {/* pegboard visualization under header */}
       <ScorePegboard rowScore={rowScore} colScore={colScore} />
 
-  {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
+      {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
     </div>
   );
 }

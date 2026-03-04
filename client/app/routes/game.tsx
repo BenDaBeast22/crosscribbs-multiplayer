@@ -116,14 +116,14 @@ export default function Game() {
 
   const cardSizes = {
     base: "w-[54.075px] h-[75.6px] max-w-[54.075px] max-h-[75.6px]",
-    md: "md:w-[81.9px] md:h-[116.55px] md:max-h-[133.2px] md:max-w-[93.6px]",
-    xl: "xl:w-[93.6px] xl:h-[133.2px]",
+    md: "md:w-[81.9px] md:h-[116.55px] md:max-w-[93.6px] md:max-h-[133.2px]",
+    xl: "2xl:w-[93.6px] 2xl:h-[133.2px]",
   };
 
   return (
     <div className="bg-green-1 min-h-screen w-full flex flex-col">
       <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} />
-      <div className="flex-1 flex flex-col md:flex-row relative items-center justify-center gap-5 md:gap-7">
+      <div className="flex-1 flex flex-col md:flex-row relative items-center justify-center gap-5 md:gap-0 2xl:gap-7">
         <div className="w-full md:w-1/3">
           {/* <div className="flex justify-start mb-4 pt-2">
             {!gameState.gameOver && (
@@ -146,12 +146,12 @@ export default function Game() {
                 crib={gameState.crib}
                 cardSizes={cardSizes}
               ></PlayersDisplay>
-              <TurnIndicator
+              {/* <TurnIndicator
                 className="hidden md:block"
                 turn={gameState.turn}
                 playerNames={playerNames}
                 dealer={gameState.dealer}
-              />
+              /> */}
             </div>
           </div>
         </div>
