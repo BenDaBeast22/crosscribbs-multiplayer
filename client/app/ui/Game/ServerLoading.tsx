@@ -17,7 +17,7 @@ export default function ServerLoading() {
   return (
     <div className={"flex justify-center items-center min-h-screen bg-main-screen"}>
       <h1 className="text-3xl md:text-7xl font-bold title-gradient drop-shadow-lg pb-10 text-center">
-        Server Loading
+        Server Waking
         <span className="inline-block w-[3ch] text-left ml-2">{dots}</span>
       </h1>
     </div>
