@@ -15,8 +15,8 @@ export default class GameController implements GameStateType {
   deck: CardType[] | null;
   board: BoardType;
   players: PlayerType[];
+  startingTurn: number;
   turn: number;
-  turnIndex: number;
   selectedCard: CardType | null;
   roundScoreVisible: boolean;
   numSpotsLeft: number;
@@ -40,8 +40,8 @@ export default class GameController implements GameStateType {
     this.deck = null;
     this.board = newBoard();
     this.players = [];
+    this.startingTurn = 1;
     this.turn = 1;
-    this.turnIndex = 0;
     this.selectedCard = null;
     this.roundScoreVisible = false;
     this.numSpotsLeft = 24;
@@ -84,7 +84,7 @@ export default class GameController implements GameStateType {
 
   get currentPlayerId(): string | void {
     if (!this.lobby) return; // local game no socket check
-    return this.players[this.turnIndex].id;
+    return this.players[this.turn - 1].id;
   }
 
   getPlayer(playerNumber: number): PlayerType {
@@ -123,6 +123,7 @@ export default class GameController implements GameStateType {
   }
 
   initializeGame(): void {
+    this.turn = this.startingTurn;
     this.deck = newDeck();
     this.board[2][2] = this.deck[0];
 
@@ -149,7 +150,7 @@ export default class GameController implements GameStateType {
       player.discardedToCrib = [];
     }
 
-    this.selectedCard = this.players[0].hand[this.players[0].hand.length - 1];
+    this.updateSelectedCard();
   }
 
   selectCard(playerId: string, card: CardType): boolean {
@@ -236,7 +237,6 @@ export default class GameController implements GameStateType {
       return;
     }
     this.turn = this.turn >= this.numPlayers ? 1 : this.turn + 1;
-    this.turnIndex = this.turnIndex >= this.numPlayers - 1 ? 0 : this.turnIndex + 1;
     const player = this.getPlayer(this.turn);
     if (!player.hand.length && !this.forcedToDiscardToCrib(player)) {
       this.nextTurn(); // if hand is empty then switch to next turn
@@ -302,6 +302,7 @@ export default class GameController implements GameStateType {
   nextRound(): boolean {
     console.log("next round");
     if (this.gameOver) return false;
+    this.startingTurn = this.startingTurn >= this.numPlayers ? 1 : this.startingTurn + 1;
     this.board = newBoard();
     this.roundScoreVisible = false;
     this.numSpotsLeft = 24;
@@ -318,6 +319,7 @@ export default class GameController implements GameStateType {
   }
 
   resetGame(): void {
+    this.startingTurn = 1;
     this.board = newBoard();
     this.roundScoreVisible = false;
     this.numSpotsLeft = 24;
@@ -336,8 +338,8 @@ export default class GameController implements GameStateType {
     return {
       lobby: this.lobby,
       board: this.board,
+      startingTurn: this.turn,
       turn: this.turn,
-      turnIndex: this.turnIndex,
       players: this.players,
       numPlayers: this.numPlayers,
       selectedCard: this.selectedCard,

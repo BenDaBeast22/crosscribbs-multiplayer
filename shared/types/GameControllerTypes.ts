@@ -38,8 +38,8 @@ export interface RoundHistoryType {
 export interface GameStateType {
   lobby: LobbyType | null;
   board: BoardType;
+  startingTurn: number;
   turn: number;
-  turnIndex: number;
   players: PlayerType[];
   numPlayers: number;
   selectedCard: CardType | null;
