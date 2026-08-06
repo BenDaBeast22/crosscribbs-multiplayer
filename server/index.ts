@@ -1,5 +1,4 @@
 import express from "express";
-
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
@@ -8,10 +7,11 @@ import { fileURLToPath } from "url";
 import GameController from "./gameController.js";
 import { getGame, lobbies, games, Player } from "./classes/gameHelpers.js";
 import { startDisconnectCountdown } from "./serverHelper.js";
+
 const disconnectedPlayers: Record<string, NodeJS.Timeout> = {};
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -19,21 +19,22 @@ const PORT = process.env.PORT || 4000;
 // Middleware
 app.use(cors()); // {  origin: ["http://localhost:5173", "https://cross-cribbs.up.railway.app"], credentials: true,}
 app.use(express.json());
-// app.use(express.static(path.join(__dirname, "..", "public")));
-// app.use(express.static(__dirname));
-
-// Serve Vite frontend build
-// const frontendPath = path.join(__dirname, "..", "client");
-// app.use(express.static(frontendPath));
-// console.log("frontendPath = ", frontendPath);
-
-// // Handle frontend routes (React Router)
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(frontendPath, "index.html"));
-// });
 
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
+});
+
+
+// Serve the built Vite client
+// __dirname at runtime = server/dist/server, so go up to project root
+const frontendPath = path.join(process.cwd(), "..", "client", "dist");
+app.use(express.static(frontendPath));
+
+// Client-side routing fallback — must come AFTER express.static and
+// AFTER /health, but the socket.io middleware attaches itself separately
+// so this doesn't interfere with it.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 // HTTP + Socket.io setup
