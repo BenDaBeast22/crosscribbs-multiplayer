@@ -151,22 +151,12 @@ io.on("connection", (socket) => {
     if (!game) return;
 
     game.resetGame();
-    io.emit("gameStateUpdate", game.getGameState()); // broadcast to all clients
+    if (lobbyId) {
+      io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+    } else {
+      socket.emit("gameStateUpdate", game.getGameState()); // broadcast to all clients in local non lobby games
+    }
   });
-
-  // socket.on("rejoinGame", ({ lobbyId, playerId }) => {
-  //   const game = getGame(socket.id, lobbyId);
-  //   if (game) {
-  //     // Update the player's socket mapping
-  //     // Re-join the socket to the correct room for future broadcasts
-  //     socket.join(lobbyId);
-  //     // Send the latest state to the re-joining player
-  //     socket.emit("gameStateUpdate", game.getGameState());
-  //   } else {
-  //     // Handle case where the lobby doesn't exist
-  //     socket.emit("error", { message: "Lobby not found." });
-  //   }
-  // });
 
   socket.on("rejoinGame", ({ lobbyId, playerId }) => {
     // rejoin local game
@@ -199,7 +189,7 @@ io.on("connection", (socket) => {
     // Rejoin socket room
     socket.join(lobbyId);
 
-    io.to(lobbyId).emit("gameStateUpdate", game);
+    io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
 
     // Send full authoritative game state ONLY to this player
     // game = getGame(sock)
@@ -250,7 +240,7 @@ io.on("connection", (socket) => {
 
     if (lobbyId) {
       // multiplayer
-      io.emit("gameStateUpdate", game.getGameState());
+      io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
     } else {
       // local
       socket.emit("gameStateUpdate", game.getGameState());
@@ -262,7 +252,11 @@ io.on("connection", (socket) => {
     if (!game) return;
 
     game.selectDealer(winningPlayer);
-    io.emit("gameStateUpdate", game.getGameState());
+    if (lobbyId) {
+      io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+    } else {
+      socket.emit("gameStateUpdate", game.getGameState());
+    }
   });
 
   socket.on("discardToCrib", ({ lobbyId, numPlayers, player, card, playerId, localPlayerId }) => {
@@ -270,7 +264,11 @@ io.on("connection", (socket) => {
     if (!game) return;
     const success = game.discardToCrib(numPlayers, player, card, playerId);
     if (success) {
-      io.emit("gameStateUpdate", game.getGameState());
+      if (lobbyId) {
+        io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+      } else {
+        socket.emit("gameStateUpdate", game.getGameState());
+      }
     }
   });
 
