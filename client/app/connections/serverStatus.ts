@@ -1,7 +1,20 @@
 let serverReady = false;
 
-export async function ensureServerReady() {
+export async function ensureServerReady(maxAttempts = 15, delayMs = 2000) {
   if (serverReady) return;
-  await fetch("/health"); // hits your own /health route, same-origin
-  serverReady = true;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch("/health");
+      if (res.ok) {
+        serverReady = true;
+        return;
+      }
+    } catch {
+      // network error / connection refused during cold start — retry
+    }
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  throw new Error("Server did not become ready in time");
 }
