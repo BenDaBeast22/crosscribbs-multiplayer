@@ -28,7 +28,7 @@ function describeLine(line: ScoreType): string {
   if (line.fifteens) parts.push(`fifteens: ${line.fifteens}pts`);
   if (line.flushes) parts.push(`flush: ${line.flushes}pts`);
   if (line.knobs) parts.push(`knobs: ${line.knobs}pt`);
-  return parts.length ? parts.join(" · ") : "no points";
+  return parts.length ? parts.join(", ") : "no points";
 }
 
 export default function RoundScore({
@@ -62,7 +62,7 @@ export default function RoundScore({
   const [raceRow, setRaceRow] = useState(hasLineBreakdown ? rowTeamRoundScore : 0);
   const [raceCol, setRaceCol] = useState(hasLineBreakdown ? colTeamRoundScore : 0);
 
-  // Stage progression: lines -> bonus -> (race triggers separately) -> final
+  // Stage progression: lines -> bonus -> race (separate effect) -> final
   useEffect(() => {
     if (!hasLineBreakdown) return;
     if (revealedLines < 5) {
@@ -80,8 +80,8 @@ export default function RoundScore({
     }
   }, [revealedLines, showBonus, raceStarted, raceDone, showFinal, hasLineBreakdown]);
 
-  // The subtract-race: both counters tick down together; the smaller hits exactly 0
-  // at the last tick, and the remaining value on the other side IS the point diff.
+  // Subtract race: both counters tick down together; the smaller hits exactly 0
+  // on the final tick, and whatever remains on the other side IS the point diff.
   useEffect(() => {
     if (!raceStarted || raceDone || !hasLineBreakdown) return;
     const tickMs = RACE_DURATION_MS / RACE_TICKS;
@@ -133,11 +133,16 @@ export default function RoundScore({
   };
 
   return (
-    <div
-      className={`absolute inset-0 mx-auto my-auto w-[320px] h-[600px] md:w-[600px] md:h-[700px] lg:w-[650px] lg:h-[750px] p-5 bg-game-panel text-white rounded-lg border-2 border-solid border-slate-800
-      transition-opacity ease-in duration-200 text-sm md:text-base overflow-y-auto ${
-        peek ? "opacity-15" : "opacity-95"
-      }`}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85, y: 40 }}
+      animate={{ opacity: peek ? 0.15 : 0.95, scale: 1, y: 0 }}
+      transition={{
+        scale: { type: "spring", stiffness: 260, damping: 22 },
+        y: { type: "spring", stiffness: 260, damping: 22 },
+        opacity: { duration: peek ? 0.15 : 0.4, ease: "easeOut" },
+        delay: 0.2,
+      }}
+      className="absolute inset-0 mx-auto my-auto w-[320px] h-[600px] md:w-[600px] md:h-[700px] lg:w-[650px] lg:h-[750px] p-5 bg-game-panel text-white rounded-lg border-2 border-solid border-slate-800 text-sm md:text-base overflow-y-auto"
     >
       <div className="relative flex items-center justify-center mb-3">
         <h2 className="text-lg md:text-3xl text-white text-center">Round Summary</h2>
@@ -155,11 +160,11 @@ export default function RoundScore({
         </button>
       </div>
 
-      {/* Line-by-line reveal */}
+      {/* Line-by-line reveal — each line is a single row: "Row 1 | breakdown" ... "+total" */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
           <h3 className="font-bold md:text-xl text-cyan-400 text-center mb-2">Row</h3>
-          <div className="space-y-2">
+          <div className="space-y-1">
             <AnimatePresence>
               {rowLines.slice(0, revealedLines).map((line, i) => (
                 <motion.div
@@ -167,15 +172,14 @@ export default function RoundScore({
                   initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-xs md:text-sm bg-black/20 rounded px-2 py-1.5"
+                  className="text-[11px] md:text-xs bg-black/20 rounded px-2 py-1 flex items-baseline justify-between gap-2"
                 >
-                  <div className="flex justify-between items-baseline">
+                  <span className="text-white/80 truncate">
                     <span className="font-semibold text-white">Row {i + 1}</span>
-                    <span className="font-bold text-cyan-300">+{line.total}</span>
-                  </div>
-                  <div className="text-white/50 text-[11px] mt-1 pl-2 border-l-2 border-cyan-400/30">
+                    <span className="text-white/40 mx-1">|</span>
                     {describeLine(line)}
-                  </div>
+                  </span>
+                  <span className="font-bold text-cyan-300 shrink-0">+{line.total}</span>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -185,7 +189,7 @@ export default function RoundScore({
 
         <div>
           <h3 className="font-bold md:text-xl text-fuchsia-400 text-center mb-2">Column</h3>
-          <div className="space-y-2">
+          <div className="space-y-1">
             <AnimatePresence>
               {colLines.slice(0, revealedLines).map((line, i) => (
                 <motion.div
@@ -193,15 +197,14 @@ export default function RoundScore({
                   initial={{ opacity: 0, x: 15 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-xs md:text-sm bg-black/20 rounded px-2 py-1.5"
+                  className="text-[11px] md:text-xs bg-black/20 rounded px-2 py-1 flex items-baseline justify-between gap-2"
                 >
-                  <div className="flex justify-between items-baseline">
+                  <span className="text-white/80 truncate">
                     <span className="font-semibold text-white">Col {i + 1}</span>
-                    <span className="font-bold text-fuchsia-300">+{line.total}</span>
-                  </div>
-                  <div className="text-white/50 text-[11px] mt-1 pl-2 border-l-2 border-fuchsia-400/30">
+                    <span className="text-white/40 mx-1">|</span>
                     {describeLine(line)}
-                  </div>
+                  </span>
+                  <span className="font-bold text-fuchsia-300 shrink-0">+{line.total}</span>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -210,71 +213,54 @@ export default function RoundScore({
         </div>
       </div>
 
-      {/* Crib box + bonus text + round totals */}
+      {/* Crib box — cards get 2/3 width, breakdown gets 1/3, smaller card images */}
       <AnimatePresence>
         {showBonus && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
             {cribScore && (
-              <div className="w-full flex justify-center mb-2 text-center">
-                <div className="bg-game-panel rounded-lg p-2 border border-white/10">
-                  <h3 className="font-bold md:text-xl text-white">Crib ({dealerTeam})</h3>
-                  <div className="flex justify-center space-x-1 my-2">
+              <div className="bg-game-panel rounded-lg p-2 border border-white/10 mb-2">
+                <h3 className="font-bold md:text-xl text-white text-center mb-2">Crib ({dealerTeam})</h3>
+                <div className="grid grid-cols-3 gap-2 items-center">
+                  <div className="col-span-2 flex justify-center flex-wrap gap-1">
                     {cribHand.map((card, i) => (
                       <img
                         key={i}
                         src={`/cards/fronts/${card.suit}_${card.name}.svg`}
                         alt={`${card.name} of ${card.suit}`}
-                        className={`${cardSizes.base} ${cardSizes.md} ${cardSizes.xl}`}
+                        className="flex-1 min-w-0 h-auto aspect-[2.5/3.5] object-contain"
                       />
                     ))}
                   </div>
-                  <p className="md:text-xl font-bold text-white">{cribScore.total} points</p>
-                  <div className="flex justify-around mt-2 text-xs md:text-sm gap-2">
-                    <p>pairs: {cribScore.pairs}pts</p>
-                    <p>runs: {cribScore.runs}pts</p>
-                    <p>fifteens: {cribScore.fifteens}pts</p>
-                    <p>flushes: {cribScore.flushes}pts</p>
+                  <div className="col-span-1 text-[10px] md:text-xs space-y-0.5">
+                    <p className="text-center md:text-lg font-bold text-white mb-1">+{cribScore.total}pts</p>
+                    <p>pairs: {cribScore.pairs}</p>
+                    <p>runs: {cribScore.runs}</p>
+                    <p>15s: {cribScore.fifteens}</p>
+                    <p>flush: {cribScore.flushes}</p>
+                  </div>
+                  <div className="text-center space-y-0.5 mb-3">
+                    {/* {cribScore && <p className="text-orange-400 text-sm">{dealerTeam} crib: +{cribPoints}</p>} */}
+                    {heels > 0 && <p className="text-orange-400 text-sm">{dealerTeam} His Heels: +{heels}</p>}
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="text-center space-y-0.5 mb-3">
-              {cribScore && <p className="text-orange-400 text-sm">{dealerTeam} crib: +{cribPoints}</p>}
-              {heels > 0 && <p className="text-orange-400 text-sm">{dealerTeam} His Heels: +{heels}</p>}
-            </div>
-
-            {/* NEW — full round totals (line points + crib + heels combined) */}
-            <div className="flex justify-around mb-3 text-center">
-              <div>
-                <p className="text-cyan-400 font-bold text-xs md:text-sm">Row Total</p>
-                <p className="text-xl md:text-2xl font-bold text-cyan-300">{rowTeamRoundScore}</p>
-              </div>
-              <div>
-                <p className="text-fuchsia-400 font-bold text-xs md:text-sm">Column Total</p>
-                <p className="text-xl md:text-2xl font-bold text-fuchsia-300">{colTeamRoundScore}</p>
-              </div>
-            </div>
+            
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* NEW — subtract race: both totals count down together until the loser hits 0 */}
+      {/* Subtract race */}
       <AnimatePresence>
         {raceStarted && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-3">
             <div className="flex justify-around items-center">
-              <motion.p
-                key={Math.round(raceRow)}
-                className="text-2xl md:text-4xl font-bold text-cyan-300 tabular-nums"
-              >
+              <motion.p className="text-2xl md:text-4xl font-bold text-cyan-300 tabular-nums">
                 {Math.round(raceRow)}
               </motion.p>
               <span className="text-white/40 text-lg">vs</span>
-              <motion.p
-                key={Math.round(raceCol)}
-                className="text-2xl md:text-4xl font-bold text-fuchsia-300 tabular-nums"
-              >
+              <motion.p className="text-2xl md:text-4xl font-bold text-fuchsia-300 tabular-nums">
                 {Math.round(raceCol)}
               </motion.p>
             </div>
@@ -292,26 +278,31 @@ export default function RoundScore({
         )}
       </AnimatePresence>
 
-      {/* Total game scores + next round */}
+      {/* Clear visual break before the game-total scoreboard */}
       <AnimatePresence>
         {showFinal && (
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-            <div className="bg-game-panel rounded-lg p-2 border border-white/10">
-              <h3 className="text-center md:text-lg text-white">Total Scores</h3>
-              <div className="flex justify-around mt-1">
+            <div className="flex items-center gap-3 my-3">
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-[11px] uppercase tracking-widest text-white/40">Game Score</span>
+              <div className="flex-1 h-px bg-white/15" />
+            </div>
+
+            <div className="bg-black/25 rounded-lg p-3 border border-white/10">
+              <div className="flex justify-around">
                 <div className="text-center">
                   <p className="text-cyan-400 font-bold">Row</p>
-                  <p className="md:text-xl text-white">{totalScores[0]}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">{totalScores[0]}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-fuchsia-400 font-bold">Column</p>
-                  <p className="md:text-xl text-white">{totalScores[1]}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-white">{totalScores[1]}</p>
                 </div>
               </div>
             </div>
 
             <button
-              className="w-full bg-blue-500 text-white font-bold rounded-xl md:text-xl border-white border-2 hover:bg-blue-600 py-2 mt-2 transition-colors duration-300 cursor-pointer"
+              className="w-full bg-blue-500 text-white font-bold rounded-xl md:text-xl border-white border-2 hover:bg-blue-600 py-2 mt-3 transition-colors duration-300 cursor-pointer"
               onClick={nextRound}
             >
               Next Round
@@ -319,6 +310,6 @@ export default function RoundScore({
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
