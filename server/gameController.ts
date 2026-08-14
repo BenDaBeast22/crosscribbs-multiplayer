@@ -33,6 +33,7 @@ export default class GameController implements GameStateType {
   dealerSelectionComplete: boolean;
   cribScore: ScoreType | null;
   heels: number; // if his heels was scored this round
+  lineScores: [ScoreType[], ScoreType[]] | null;
 
   constructor(numPlayers = 2, lobby: LobbyType | null = null) {
     this.lobby = lobby;
@@ -58,6 +59,7 @@ export default class GameController implements GameStateType {
     this.dealerSelectionComplete = false;
     this.cribScore = null;
     this.heels = 0;
+    this.lineScores = null;
 
     this.initializePlayers();
 
@@ -260,10 +262,12 @@ export default class GameController implements GameStateType {
 
       // There is no helper function to score a single hand, so I will mock a board
       const cribBoard: BoardType = [cribHand, [], [], [], []];
-      this.cribScore = tallyScores(cribBoard)[0]; // only care about the row score
+      this.cribScore = tallyScores(cribBoard).totals[0]; // was tallyScores(cribBoard)[0]
     }
     // Score the total using round scores
-    this.roundScores = tallyScores(this.board, cutCard ?? undefined);
+    const tally = tallyScores(this.board, cutCard ?? undefined);
+    this.roundScores = tally.totals;       // unchanged behavior for existing bonus/win logic
+    this.lineScores = tally.lines;         // NEW — per-row/column breakdown for the client
     const [rowRoundScore, columnRoundScore] = this.roundScores;
 
     if (this.dealer === 1 || this.dealer === 3) {
@@ -310,6 +314,7 @@ export default class GameController implements GameStateType {
     this.deck = newDeck();
     this.currentRound++;
     this.crib = [];
+    this.lineScores = null;
     if (this.dealer) {
       this.dealer = this.dealer >= this.numPlayers ? 1 : this.dealer + 1;
     }
@@ -331,6 +336,7 @@ export default class GameController implements GameStateType {
     this.roundHistory = [];
     this.currentRound = 1;
     this.dealer = 1;
+    this.lineScores = null;
     this.initializeGame();
   }
 
@@ -357,6 +363,7 @@ export default class GameController implements GameStateType {
       dealerSelectionComplete: this.dealerSelectionComplete,
       cribScore: this.cribScore,
       heels: this.heels,
+      lineScores: this.lineScores,
     };
   }
 

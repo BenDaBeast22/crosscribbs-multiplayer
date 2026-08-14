@@ -171,6 +171,7 @@ export default function Game() {
           <RoundScore
             nextRound={nextRound}
             roundScores={gameState.roundScores}
+            lineScores={gameState.lineScores}
             totalScores={gameState.totalScores}
             cribScore={gameState.cribScore}
             dealer={gameState.dealer}
