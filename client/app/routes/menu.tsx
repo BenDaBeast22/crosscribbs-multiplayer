@@ -71,6 +71,8 @@ export default function GameSetup() {
         transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.1 }}
         className="bg-panel panel-card card-max flex flex-col overflow-hidden"
       >
+        <div className="bg-panel panel-card card-max flex flex-col overflow-hidden">
+        
         <AnimatePresence mode="wait">
           {currentPage === "gameType" && (
             <motion.div
@@ -119,6 +121,7 @@ export default function GameSetup() {
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </motion.div>
     </div>
   );
