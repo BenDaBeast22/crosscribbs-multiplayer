@@ -91,7 +91,7 @@ export default function RoundScore({
         </div>
         {cribScore && (
           <div className="w-full flex justify-center mb-2 text-center">
-            <div className="bg-slate-700 rounded-lg p-2">
+            <div className="bg-game-panel rounded-lg p-2">
               <h3 className="font-bold md:text-2xl text-white">Crib ({dealerTeam})</h3>
               <div className="flex justify-center space-x-1 my-2">
                 {cribHand.map((card, i) => (
@@ -113,7 +113,7 @@ export default function RoundScore({
             </div>
           </div>
         )}
-        <div className="bg-slate-700 rounded-lg p-2 md:mt-2">
+        <div className="bg-game-panel rounded-lg p-2 md:mt-2">
           <h3 className="text-center md:text-xl text-white">Total Scores</h3>
           <div className="flex justify-around mt-1">
             <div className="text-center">

@@ -15,7 +15,7 @@ export default function TurnIndicator({ turn, playerNames, dealer, className }: 
   };
 
   return (
-    <div className={`${className} w-full bg-slate-600 text-white p-3 rounded-lg shadow-lg`}>
+    <div className={`${className} w-full bg-game-panel text-white p-3 rounded-lg shadow-lg`}>
       {playerNames.map((name, index) => {
         const playerNum = index + 1;
         const isTurn = turn === playerNum;
