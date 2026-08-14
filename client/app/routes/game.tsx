@@ -156,7 +156,7 @@ export default function Game() {
           </div>
         </div>
         <div className="w-full md:w-1/3">
-          <Board board={gameState.board} playCard={playCard} turn={gameState.turn} cardSizes={cardSizes} />
+          <Board board={gameState.board} lastMove={gameState.lastMove} playCard={playCard} turn={gameState.turn} cardSizes={cardSizes} />
         </div>
         <div className="md:w-1/3">
           <div className="flex justify-center">

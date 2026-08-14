@@ -9,6 +9,7 @@ import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
 import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import { useState } from "react";
+import { motion } from "framer-motion"; 
 
 type ChildProps = {
   pos: BoardPosition;
@@ -16,9 +17,10 @@ type ChildProps = {
   turn: number;
   cardSizes: CardSizesType;
   playCard: (pos: BoardPosition, turn: number) => void;
+  isLastMove?: boolean;
 };
 
-export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProps) {
+export default function Spot({ pos, card, playCard, turn, cardSizes, isLastMove }: ChildProps) {
   const [isOver, setIsOver] = useState(false);
 
   function handleDragOver(e: any) {
@@ -50,17 +52,31 @@ export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProp
   const placeholderImage = "/cards/fronts/clubs_2.svg";
   // subtler hover and border, with rounded corners
   const hover = "hover:bg-stone-300";
-
-  const cardSpotStyles = `${isOver ? "bg-stone-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} border border-stone-300 rounded-md ${hover} transition duration-300 cursor-pointer`;
+  // NEW — ring highlight when this spot was the most recent move
+  const lastMoveRing = isLastMove ? "outline outline-2 md:outline-4 outline-amber-400 outline-offset-1" : "";
+  const cardSpotStyles = `${isOver ? "bg-stone-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} border border-stone-300 rounded-md ${hover} ${lastMoveRing} transition duration-300 cursor-pointer`;
 
   if (card) {
     return (
       <td className={cardSpotStyles} onDragStart={(e) => (e.dataTransfer.effectAllowed = "move")}>
-        <img className="h-full" src={card.frontImgSrc} alt="" draggable="false" />
+        {isLastMove ? (
+          <motion.img
+            key={`${pos[0]}-${pos[1]}`} // safe here: only this ONE card remounts per move, not a rapid tick loop
+            initial={{ scale: 1.3, opacity: 0.4 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="h-full"
+            src={card.frontImgSrc}
+            alt=""
+            draggable="false"
+          />
+        ) : (
+          <img className="h-full" src={card.frontImgSrc} alt="" draggable="false" />
+        )}
       </td>
     );
   }
-  // Show placeholder if no card played
+
   return (
     <td
       className={cardSpotStyles}

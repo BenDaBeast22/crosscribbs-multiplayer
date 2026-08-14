@@ -34,6 +34,7 @@ export default class GameController implements GameStateType {
   cribScore: ScoreType | null;
   heels: number; // if his heels was scored this round
   lineScores: [ScoreType[], ScoreType[]] | null;
+  lastMove: BoardPosition | null;
 
   constructor(numPlayers = 2, lobby: LobbyType | null = null) {
     this.lobby = lobby;
@@ -60,7 +61,7 @@ export default class GameController implements GameStateType {
     this.cribScore = null;
     this.heels = 0;
     this.lineScores = null;
-
+    this.lastMove = null;
     this.initializePlayers();
 
     // if multiplayer, assign socket IDs
@@ -167,6 +168,7 @@ export default class GameController implements GameStateType {
 
     const [r, c] = pos;
     this.board[r][c] = this.selectedCard;
+    this.lastMove = pos;
 
     const player = this.getPlayer(this.turn);
     player.hand.pop();
@@ -308,6 +310,7 @@ export default class GameController implements GameStateType {
     if (this.gameOver) return false;
     this.startingTurn = this.startingTurn >= this.numPlayers ? 1 : this.startingTurn + 1;
     this.board = newBoard();
+    this.lastMove = null;
     this.roundScoreVisible = false;
     this.numSpotsLeft = 24;
     this.roundOver = false;
@@ -326,6 +329,7 @@ export default class GameController implements GameStateType {
   resetGame(): void {
     this.startingTurn = 1;
     this.board = newBoard();
+    this.lastMove = null;
     this.roundScoreVisible = false;
     this.numSpotsLeft = 24;
     this.roundOver = false;
@@ -344,6 +348,7 @@ export default class GameController implements GameStateType {
     return {
       lobby: this.lobby,
       board: this.board,
+      lastMove: this.lastMove,
       startingTurn: this.turn,
       turn: this.turn,
       players: this.players,

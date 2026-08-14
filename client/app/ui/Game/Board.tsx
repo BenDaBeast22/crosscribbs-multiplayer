@@ -11,18 +11,18 @@ import type { BoardType } from "@cross-cribbs/shared-types/GameControllerTypes";
 
 type ChildProps = {
   board: BoardType;
+  lastMove: BoardPosition | null; 
   turn: number;
   playCard: (pos: BoardPosition, turn: number) => void;
   cardSizes: CardSizesType;
 };
 
-export default function Board({ board, playCard, turn, cardSizes }: ChildProps) {
+export default function Board({ board, lastMove, playCard, turn, cardSizes }: ChildProps) {
   let displayBoard = [];
-  // Render board
   for (let r = 0; r < 5; r++) {
     let row = [];
     for (let c = 0; c < 5; c++) {
-      // Pushing spot into row
+      const isLastMove = !!lastMove && lastMove[0] === r && lastMove[1] === c; 
       row.push(
         <Spot
           pos={[r, c]}
@@ -31,11 +31,10 @@ export default function Board({ board, playCard, turn, cardSizes }: ChildProps) 
           playCard={playCard}
           turn={turn}
           cardSizes={cardSizes}
+          isLastMove={isLastMove}
         />,
       );
     }
-
-    // Pushing row of spots into board
     displayBoard.push(
       <tr className="w-full" key={r}>
         {row}
