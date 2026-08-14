@@ -269,9 +269,11 @@ export default function RoundScore({
               <motion.p
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="font-semibold md:text-lg bg-emerald-600 rounded-md italic w-fit px-4 mx-auto mt-3 text-center"
+                className={`font-semibold md:text-lg rounded-md italic w-fit px-4 mx-auto mt-3 text-center ${
+                  pointDiff === 0 ? "bg-slate-500" : "bg-emerald-600"
+                }`}
               >
-                {winner} earns {pointDiff} points!
+                {pointDiff === 0 ? "It's a tie — no points awarded" : `${winner} earns ${pointDiff} points!`}
               </motion.p>
             )}
           </motion.div>
