@@ -15,7 +15,7 @@ export default function ScorePegboard({ rowScore, colScore, maxPoints = MAX_DEFA
   const dots = Array.from({ length: maxPoints }, (_, i) => i);
 
   return (
-    <div className="score-pegboard bg-slate-700 flex flex-col items-center px-2 pb-3 ">
+    <div className="score-pegboard bg-game-panel flex flex-col items-center px-2 pb-3 ">
       {/* row team */}
       <div className="flex space-x-1 overflow-x-auto" aria-label={`Row score: ${row} of ${maxPoints}`}>
         {dots.map((i) => (

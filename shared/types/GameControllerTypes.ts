@@ -57,6 +57,7 @@ export interface GameStateType {
   dealerSelectionComplete: boolean;
   cribScore: ScoreType | null;
   heels: number; // 0 or 2
+  lineScores: [ScoreType[], ScoreType[]] | null; // NEW — 5 per-line scores per team
   // added ai fields maybe should use instead
 
   // players: PlayerType[];

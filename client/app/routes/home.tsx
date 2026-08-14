@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ServerLoading from "~/ui/Game/ServerLoading";
 import { ensureServerReady } from "~/connections/serverStatus";
+import { motion } from "framer-motion";
 
 export default function MultiplayerSetup() {
   const navigate = useNavigate();
@@ -28,21 +29,38 @@ export default function MultiplayerSetup() {
   if (!serverAwake) return <ServerLoading />;
 
   return (
-    <div
-      className={`flex flex-col items-center justify-center min-h-screen bg-main-screen p-4 transition-opacity duration-500 ${
-        fadingOut ? "opacity-0" : "opacity-100"
-      }`}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: fadingOut ? 0 : 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4"
     >
-      <div className="text-center pt-16 pb-12">
+      <motion.div 
+        initial={{ y: -30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 15 }}
+        className="text-center pt-16 pb-12"
+      >
         <h1 className="text-8xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
-      </div>
-      <div className="bg-panel panel-card card-max flex flex-col mt-3">
+      </motion.div>
+      <motion.div 
+        initial={{ y: 30, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.15 }}
+        className="bg-panel panel-card card-max flex flex-col mt-3"
+      >
         <div className="space-y-5">
-          <button onClick={handlePlay} className="btn-menu btn-menu-primary">
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handlePlay} 
+            className="btn-menu btn-menu-primary"
+          >
             Play
-          </button>
+          </motion.button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
+

@@ -40,7 +40,7 @@ export default function InstructionsModal({ onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="instructions-title"
-        className={`relative bg-slate-800 bg-opacity-95 text-white rounded-lg p-6 max-w-2xl mx-4 shadow-lg transform transition-all duration-200 ${
+        className={`relative bg-game-panel bg-opacity-95 text-white rounded-lg p-6 max-w-2xl mx-4 shadow-lg transform transition-all duration-200 ${
           isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       >

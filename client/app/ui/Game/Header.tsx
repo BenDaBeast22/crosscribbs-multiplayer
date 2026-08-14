@@ -13,7 +13,7 @@ export default function Header({ totalScores, backToMenu }: ChildProps) {
   const [showInstructions, setShowInstructions] = useState(false);
 
   return (
-    <div className="Header bg-slate-700 flex flex-col">
+    <div className="Header bg-game-panel flex flex-col">
       <div className="flex items-center md:p-2">
         <div className="left-buttons w-1/3 text-xs md:text-sm text-white p-2 ">
           <button

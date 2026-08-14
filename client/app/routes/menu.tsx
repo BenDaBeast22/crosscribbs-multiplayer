@@ -5,6 +5,7 @@ import PlayerSetup from "~/ui/GameSetup/PlayerSetup";
 import { useNavigate } from "react-router-dom";
 import { socket } from "~/connections/socket";
 import type { GameStateType } from "@cross-cribbs/shared-types/GameControllerTypes";
+import { AnimatePresence, motion } from "framer-motion";
 
 type SetupPage = "gameType" | "numPlayers" | "playerSetup";
 const pageOrder: SetupPage[] = ["gameType", "numPlayers", "playerSetup"];
@@ -52,41 +53,77 @@ export default function GameSetup() {
   const handleSetPlayerNames = (playerNames: string[]) => {
     setPlayerNames(playerNames);
     socket.emit("startGame", { numPlayers, playerId });
-    // console.log("player names esk = ", playerNames);
-    // navigate("/game", {
-    //   state: { gameType, numPlayers, playerNames },
-    // });
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
-      <div className="text-center pt-16 pb-15">
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 15 }}
+        className="text-center pt-16 pb-15"
+      >
         <h1 className="text-6xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
-      </div>
-      <div className="bg-panel panel-card card-max flex flex-col">
-        {currentPage === "gameType" && (
-          <LocalOrOnline
-            onSelect={(type) => {
-              setGameType(type);
-              goToNextPage("numPlayers");
-            }}
-            onBack={goBack}
-          />
-        )}
-        {currentPage === "numPlayers" && (
-          <NumPlayers
-            onSelect={(numPlayers) => {
-              console.log("numpipiPlayers = ", numPlayers);
-              setNumPlayers(numPlayers);
-              goToNextPage("playerSetup");
-            }}
-            onBack={goBack}
-          />
-        )}
-        {currentPage === "playerSetup" && (
-          <PlayerSetup numPlayers={numPlayers} onSetPlayerNames={handleSetPlayerNames} onBack={goBack} />
-        )}
-      </div>
+      </motion.div>
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.1 }}
+        className="bg-panel panel-card card-max flex flex-col overflow-hidden"
+      >
+        <div className="bg-panel panel-card card-max flex flex-col overflow-hidden">
+        
+        <AnimatePresence mode="wait">
+          {currentPage === "gameType" && (
+            <motion.div
+              key="gameType"
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -50, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <LocalOrOnline
+                onSelect={(type) => {
+                  setGameType(type);
+                  goToNextPage("numPlayers");
+                }}
+                onBack={goBack}
+              />
+            </motion.div>
+          )}
+          {currentPage === "numPlayers" && (
+            <motion.div
+              key="numPlayers"
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -50, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <NumPlayers
+                onSelect={(numPlayers) => {
+                  console.log("numpipiPlayers = ", numPlayers);
+                  setNumPlayers(numPlayers);
+                  goToNextPage("playerSetup");
+                }}
+                onBack={goBack}
+              />
+            </motion.div>
+          )}
+          {currentPage === "playerSetup" && (
+            <motion.div
+              key="playerSetup"
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -50, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <PlayerSetup numPlayers={numPlayers} onSetPlayerNames={handleSetPlayerNames} onBack={goBack} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+        </div>
+      </motion.div>
     </div>
   );
 }
+

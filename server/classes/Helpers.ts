@@ -44,20 +44,27 @@ export { newBoard, newDeck, tallyScores };
 
 //Scoring
 function tallyScores(board: BoardType, cutCard?: CardType) {
-  const rowScore = calculateScore(board, cutCard);
-  const colScore = calculateScore(transpose(board), cutCard);
+  const rowResult = calculateScore(board, cutCard);
+  const colResult = calculateScore(transpose(board), cutCard);
 
-  return [rowScore, colScore];
+  return {
+    totals: [rowResult.total, colResult.total] as [Score, Score],
+    lines: [rowResult.lines, colResult.lines] as [Score[], Score[]],
+  };
 }
 
 //returns a score object
-function calculateScore(board: BoardType, cutCard?: CardType) {
+function calculateScore(board: BoardType, cutCard?: CardType): { total: Score; lines: Score[] } {
   let score = 0;
   let pairTotal = 0;
   let runTotal = 0;
   let fifteenTotal = 0;
   let knobsTotal = 0;
   let flushTotal = 0; // Added flushTotal
+
+
+  const lines: Score[] = [];
+
   // Assuming grid is a 2D array
   for (const [i, row] of board.entries()) {
     let rowScore = 0;
@@ -129,10 +136,15 @@ function calculateScore(board: BoardType, cutCard?: CardType) {
         else runScore += 3 * multiplier;
       }
     }
+    
+    flushScore = calculateFlush(row); // Calculate flush score for the row
+
+    // NEW — capture this line's own breakdown before folding into totals
+    lines.push(new Score(pairScore, runScore, fifteenScore, knobsScore, flushScore));
+
     pairTotal += pairScore;
     runTotal += runScore;
     fifteenTotal += fifteenScore;
-    flushScore = calculateFlush(row); // Calculate flush score for the row
     flushTotal += flushScore; // Add to total flush score
 
     rowScore = pairScore + runScore + fifteenScore + knobsScore + flushScore; // Include flushScore
@@ -147,10 +159,11 @@ function calculateScore(board: BoardType, cutCard?: CardType) {
     console.log("-------------------------------------------------------");
     // Can display row scores as sum of scores for pairs, runs, etc. For viewability
     // Can keep total scores for pairs and runs as well
+    
   }
 
-  const scoreTotals = new Score(pairTotal, runTotal, fifteenTotal, knobsTotal, flushTotal);
-  return scoreTotals;
+  const total = new Score(pairTotal, runTotal, fifteenTotal, knobsTotal, flushTotal);
+  return { total, lines };
 }
 
 function calculateFlush(row: (CardType | null)[]): number {
