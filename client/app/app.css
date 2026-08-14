@@ -67,6 +67,10 @@ h1, h2, h3, h4, h5, h6 {
   padding: 2.5rem;
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4),
               inset 0 1px 0 rgba(255, 255, 255, 0.05);
+              /* Force a dedicated compositor layer to prevent backdrop-filter repaint glitches */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  isolation: isolate;
 }
 
 .input-field {
