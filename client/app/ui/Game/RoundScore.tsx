@@ -15,6 +15,7 @@ type ChildProps = {
   board: BoardType;
   heels: number;
   cardSizes: CardSizesType;
+  isFinalRound?: boolean;
 };
 
 const LINE_REVEAL_DELAY_MS = 800;
@@ -42,6 +43,7 @@ export default function RoundScore({
   board,
   heels,
   cardSizes,
+  isFinalRound
 }: ChildProps) {
   const rowLines = lineScores?.[0] ?? [];
   const colLines = lineScores?.[1] ?? [];
@@ -310,7 +312,7 @@ export default function RoundScore({
               className="w-full bg-blue-500 text-white font-bold rounded-xl md:text-xl border-white border-2 hover:bg-blue-600 py-2 mt-3 transition-colors duration-300 cursor-pointer"
               onClick={nextRound}
             >
-              Next Round
+              {isFinalRound ? "See Final Results" : "Next Round"}
             </button>
           </motion.div>
         )}

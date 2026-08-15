@@ -24,12 +24,12 @@ export default function Game() {
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
   const [players, setPlayers] = useState<PlayerType[]>(initialGameState?.players || []);
   const playerId = localStorage.getItem("playerId");
-
+  const [revealGameOver, setRevealGameOver] = useState(false);
 
   // Initialize refs to the CURRENT counts so a fresh page load / rejoin
   // doesn't fire sounds for cards that were already on the board.
-  const prevBoardCountRef = useRef(gameState.board.flat().filter(Boolean).length);
-  const prevCribLengthRef = useRef(gameState.crib.length);
+  const prevBoardCountRef = useRef(gameState?.board.flat().filter(Boolean).length ?? 0);
+  const prevCribLengthRef = useRef(gameState?.crib.length ?? 0);
 
 
 
@@ -89,6 +89,12 @@ export default function Game() {
     prevCribLengthRef.current = currentCribLength;
   }, [gameState.crib]);
 
+
+  // Reset whenever gameOver goes false — covers starting a fresh game after resetGame()
+  useEffect(() => {
+    if (!gameState.gameOver) setRevealGameOver(false);
+  }, [gameState.gameOver]);
+
   let isMultiplayer = false;
   if (gameState.lobby) {
     numPlayers = gameState.lobby.numPlayers;
@@ -111,7 +117,15 @@ export default function Game() {
     handleResetGame();
     navigate("/");
   };
-
+  // The RoundScore "Next" button now needs to branch: normal round -> nextRound(),
+  // final round -> just reveal the GameOver screen locally instead of calling the server
+  const handleRoundScoreNext = () => {
+    if (gameState.gameOver) {
+      setRevealGameOver(true);
+    } else {
+      nextRound();
+    }
+  };
   const playCard = (pos: BoardPosition, turn: number) => {
     // Optimistic update: remove top card from your hand
     // setPlayers((prev) =>
@@ -193,9 +207,9 @@ export default function Game() {
           </div>
         </div>
 
-        {gameState.roundScoreVisible && !gameState.gameOver && (
+        {gameState.roundScoreVisible && !revealGameOver && (
           <RoundScore
-            nextRound={nextRound}
+            nextRound={handleRoundScoreNext}
             roundScores={gameState.roundScores}
             lineScores={gameState.lineScores}
             totalScores={gameState.totalScores}
@@ -205,9 +219,10 @@ export default function Game() {
             board={gameState.board}
             heels={gameState.heels}
             cardSizes={cardSizes}
+            isFinalRound={gameState.gameOver}
           />
         )}
-        {gameState.gameOver && (
+        {gameState.gameOver && revealGameOver && (
           <GameOver
             winner={gameState.winner}
             totalScores={gameState.totalScores}
