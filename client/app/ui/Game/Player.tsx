@@ -1,4 +1,5 @@
 import React, { useMemo, useCallback } from "react";
+import { motion } from "framer-motion";
 import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import { socket } from "~/connections/socket";
@@ -16,15 +17,11 @@ type ChildProps = {
 
 function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, cardSizes }: ChildProps) {
   const { hand, discardedToCrib } = player;
-
-  // for local should use playerId to get game
   const localPlayerId = localStorage.getItem("playerId");
 
-  // Top card
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
   const backImgSrc = `/cards/backs/red2.svg`;
 
-  // Drag start handler
   const handleDragStart = useCallback(
     (e: React.DragEvent<HTMLImageElement>) => {
       e.dataTransfer.effectAllowed = "move";
@@ -33,14 +30,12 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
     [player],
   );
 
-  // Discard handler
   const handleDiscard = useCallback(() => {
     if (card) {
       socket.emit("discardToCrib", { lobbyId, numPlayers, player, playerId, localPlayerId, card });
     }
   }, [card, player, playerId, lobbyId, numPlayers]);
 
-  // Derived states
   const isMultiplayer = !!lobbyId;
   const isTurn = player.num === turn;
   const isPlayer = playerId === player.id;
@@ -53,31 +48,22 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
   const bgGradient = useMemo(() => "bg-gradient-to-br from-slate-100 to-slate-200", []);
 
-  const getCardImgSrc = () => {
-    if (isMultiplayer) {
-      return isPlayer && card ? card.frontImgSrc : backImgSrc;
-    }
-    return isTurn && card ? card.frontImgSrc : backImgSrc;
-  };
+  // NEW — whether the card's FACE should be showing right now
+  const showFront = isMultiplayer ? isPlayer && !!card : isTurn && !!card;
+  const frontImgSrc = card ? card.frontImgSrc : backImgSrc;
 
   const displayDiscardButton = () => {
     if (isMultiplayer) {
       return isPlayer && isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
     }
-    console.log("isTurn == ", isTurn);
-    console.log(
-      "isTurn && numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1 = ",
-      isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1),
-    );
-
     return isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
   };
 
-  // const cardImgSrc = isTurn && card ? card.frontImgSrc : backImgSrc;
-  // const displayDiscardButton = isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
   const displayDiscardButtonClass = displayDiscardButton() ? "" : "invisible";
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
+
+  const cardImgClasses = `${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} border-transparent border-[0.5px] md:border-2 rounded-lg shadow-lg`;
 
   return (
     <div
@@ -94,13 +80,39 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
       </div>
 
       <div className="flex flex-col items-center space-y-0.5 md:space-y-2 max-w-16 md:max-w-none">
-        <img
-          className={`${displayCardImage} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} self-center hover:border-gray-400 border-transparent border-[0.5px] md:border-2 cursor-pointer rounded-lg shadow-lg transition-transform hover:scale-105`}
-          src={getCardImgSrc()}
-          alt=""
-          draggable={isDraggable}
-          onDragStart={handleDragStart}
-        />
+        {/* Flip-card container */}
+        <div
+          className={`${displayCardImage} relative self-center cursor-pointer transition-transform hover:scale-105`}
+          style={{ perspective: 1000 }}
+          draggable={isDraggable}          // moved here
+          onDragStart={handleDragStart}    // moved here
+        >
+          <motion.div
+            className="relative w-full h-full"
+            style={{ transformStyle: "preserve-3d" }}
+            animate={{ rotateY: showFront ? 180 : 0 }}
+            transition={{ duration: showFront ? 0.45 : 0, ease: "easeInOut" }}
+          >
+            {/* Back face */}
+            <img
+              className={`${cardImgClasses} absolute inset-0 hover:border-gray-400`}
+              style={{ backfaceVisibility: "hidden" }}
+              src={backImgSrc}
+              alt=""
+              draggable={false}
+            />
+            {/* Front face */}
+            <img
+              className={`${cardImgClasses} absolute inset-0 hover:border-gray-400`}
+              style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+              src={frontImgSrc}
+              alt=""
+              draggable={false}
+            />
+            <img className={`${cardImgClasses} invisible`} src={backImgSrc} alt="" />
+          </motion.div>
+        </div>
+
         <p className={`${displayCardsLeft} text-xs md:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
 
         <button
@@ -114,7 +126,6 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
   );
 }
 
-// Memoize Player to prevent rerenders when unrelated props change
 export default React.memo(PlayerComponent, (prev, next) => {
   return (
     prev.player.hand === next.player.hand &&

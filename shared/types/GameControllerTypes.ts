@@ -33,7 +33,7 @@ export interface RoundHistoryType {
   rowScore: number;
   columnScore: number;
   pointDiff: number;
-  winner: "Row" | "Column";
+  winner: "Row" | "Column" | "Tie";
 }
 
 export interface GameStateType {

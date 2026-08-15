@@ -52,21 +52,23 @@ export default function RoundScore({
   const pointDiff = Math.abs(rowTeamRoundScore - colTeamRoundScore);
   const winner = rowTeamRoundScore >= colTeamRoundScore ? "Row" : "Column";
 
-  const [revealedLines, setRevealedLines] = useState(hasLineBreakdown ? 0 : 5);
+  const TOTAL_LINES = 5;
+  const [revealStep, setRevealStep] = useState(hasLineBreakdown ? 0 : TOTAL_LINES * 2);
   const [showBonus, setShowBonus] = useState(!hasLineBreakdown);
   const [raceStarted, setRaceStarted] = useState(!hasLineBreakdown);
   const [raceDone, setRaceDone] = useState(!hasLineBreakdown);
   const [showFinal, setShowFinal] = useState(!hasLineBreakdown);
   const [peek, setPeek] = useState(false);
-
+  const rowRevealed = Math.min(revealStep, TOTAL_LINES);
+  const colRevealed = Math.max(0, revealStep - TOTAL_LINES);
   const [raceRow, setRaceRow] = useState(hasLineBreakdown ? rowTeamRoundScore : 0);
   const [raceCol, setRaceCol] = useState(hasLineBreakdown ? colTeamRoundScore : 0);
 
   // Stage progression: lines -> bonus -> race (separate effect) -> final
   useEffect(() => {
     if (!hasLineBreakdown) return;
-    if (revealedLines < 5) {
-      const t = setTimeout(() => setRevealedLines((n) => n + 1), LINE_REVEAL_DELAY_MS);
+    if (revealStep < TOTAL_LINES * 2) {
+      const t = setTimeout(() => setRevealStep((n) => n + 1), LINE_REVEAL_DELAY_MS);
       return () => clearTimeout(t);
     } else if (!showBonus) {
       const t = setTimeout(() => setShowBonus(true), LINE_REVEAL_DELAY_MS);
@@ -78,7 +80,7 @@ export default function RoundScore({
       const t = setTimeout(() => setShowFinal(true), LINE_REVEAL_DELAY_MS);
       return () => clearTimeout(t);
     }
-  }, [revealedLines, showBonus, raceStarted, raceDone, showFinal, hasLineBreakdown]);
+  }, [revealStep, showBonus, raceStarted, raceDone, showFinal, hasLineBreakdown]);
 
   // Subtract race: both counters tick down together; the smaller hits exactly 0
   // on the final tick, and whatever remains on the other side IS the point diff.
@@ -106,7 +108,7 @@ export default function RoundScore({
   }, [raceStarted, raceDone, hasLineBreakdown, rowTeamRoundScore, colTeamRoundScore]);
 
   function skipAnimation() {
-    setRevealedLines(5);
+    setRevealStep(TOTAL_LINES * 2);
     setShowBonus(true);
     setRaceStarted(true);
     setRaceDone(true);
@@ -120,8 +122,8 @@ export default function RoundScore({
   const cribHand = cutCard ? [...crib, cutCard] : crib;
   const cribPoints = cribScore ? cribScore.total : 0;
 
-  const rowRunningTotal = rowLines.slice(0, revealedLines).reduce((sum, l) => sum + l.total, 0);
-  const colRunningTotal = colLines.slice(0, revealedLines).reduce((sum, l) => sum + l.total, 0);
+  const rowRunningTotal = rowLines.slice(0, rowRevealed).reduce((sum, l) => sum + l.total, 0);
+  const colRunningTotal = colLines.slice(0, colRevealed).reduce((sum, l) => sum + l.total, 0);
 
   const peekHandlers = {
     onMouseEnter: () => setPeek(true),
@@ -166,7 +168,7 @@ export default function RoundScore({
           <h3 className="font-bold md:text-xl text-cyan-400 text-center mb-2">Row</h3>
           <div className="space-y-1">
             <AnimatePresence>
-              {rowLines.slice(0, revealedLines).map((line, i) => (
+              {rowLines.slice(0, rowRevealed).map((line, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: -15 }}
@@ -191,7 +193,7 @@ export default function RoundScore({
           <h3 className="font-bold md:text-xl text-fuchsia-400 text-center mb-2">Column</h3>
           <div className="space-y-1">
             <AnimatePresence>
-              {colLines.slice(0, revealedLines).map((line, i) => (
+              {colLines.slice(0, colRevealed).map((line, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, x: 15 }}
@@ -237,11 +239,12 @@ export default function RoundScore({
                     <p>runs: {cribScore.runs}</p>
                     <p>15s: {cribScore.fifteens}</p>
                     <p>flush: {cribScore.flushes}</p>
+                    <div className="text-center space-y-0.5 mb-3">
+                      {/* {cribScore && <p className="text-orange-400 text-sm">{dealerTeam} crib: +{cribPoints}</p>} */}
+                      {heels > 0 && <p className="text-orange-400 text-sm">His Heels: +{heels}pts</p>}
+                    </div>
                   </div>
-                  <div className="text-center space-y-0.5 mb-3">
-                    {/* {cribScore && <p className="text-orange-400 text-sm">{dealerTeam} crib: +{cribPoints}</p>} */}
-                    {heels > 0 && <p className="text-orange-400 text-sm">{dealerTeam} His Heels: +{heels}</p>}
-                  </div>
+                  
                 </div>
               </div>
             )}

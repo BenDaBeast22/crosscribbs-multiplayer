@@ -283,7 +283,7 @@ export default class GameController implements GameStateType {
     const rowPoints = rowRoundScore.total;
     const columnPoints = columnRoundScore.total;
     const pointDiff = Math.abs(rowPoints - columnPoints);
-    const roundWinner: "Row" | "Column" = rowPoints >= columnPoints ? "Row" : "Column";
+    const roundWinner: "Row" | "Column" | "Tie" = rowPoints === columnPoints ? "Tie" : rowPoints > columnPoints ? "Row" : "Column";
 
     this.roundHistory.push({
       round: this.currentRound,
@@ -293,8 +293,9 @@ export default class GameController implements GameStateType {
       winner: roundWinner,
     });
 
-    if (rowPoints >= columnPoints) this.totalScores[0] += pointDiff;
-    else this.totalScores[1] += pointDiff;
+    if (rowPoints > columnPoints) this.totalScores[0] += pointDiff;
+    else if (columnPoints > rowPoints) this.totalScores[1] += pointDiff;
+    // tie: neither total changes
 
     if (this.totalScores[0] >= 31) {
       this.gameOver = true;
