@@ -68,12 +68,12 @@ export default function Lobby() {
       >
         <h1 className="text-6xl font-bold mb-2 title-gradient">Cross Cribbs</h1>
       </motion.div>
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.1 }}
-        className="bg-panel panel-card card-max w-full"
-      >
+      <div className="bg-panel panel-card card-max w-full">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.1 }}
+        >
         <h2 className="text-2xl font-bold panel-heading mb-6 text-center">Game Lobby</h2>
         <div className="space-y-2 mb-6">
           <p className="text-white text-lg flex justify-between">
@@ -125,6 +125,7 @@ export default function Lobby() {
 
         <BackButton />
       </motion.div>
+      </div>
     </div>
   );
 }

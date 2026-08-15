@@ -42,12 +42,13 @@ export default function HostGame() {
       >
         <h1 className="text-6xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
       </motion.div>
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.1 }}
-        className="bg-panel panel-card card-max flex flex-col w-full"
-      >
+      <div className="bg-panel panel-card card-max w-full">
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.1 }}
+          className="flex flex-col"
+        >
         <h2 className="text-3xl font-bold text-white mb-8 text-center">Host Game</h2>
 
         <div className="mb-5">
@@ -106,6 +107,7 @@ export default function HostGame() {
         </div>
       </motion.div>
     </div>
+  </div>
   );
 }
 
