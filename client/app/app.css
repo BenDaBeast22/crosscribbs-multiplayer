@@ -189,3 +189,13 @@ button.btn-primary, .panel-card button, .card-max button, .panel-card .btn-prima
 }
 
 .bg-game-panel { background-color: var(--panel-2); }
+
+@keyframes discoHueRotate {
+  0% { filter: hue-rotate(0deg) saturate(1); }
+  50% { filter: hue-rotate(180deg) saturate(1.4); }
+  100% { filter: hue-rotate(360deg) saturate(1); }
+}
+
+.disco-mode {
+  animation: discoHueRotate 1.2s linear infinite;
+}

@@ -19,6 +19,9 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
   const TURN_TIMER_SECONDS = 45;
   const [timeLeft, setTimeLeft] = useState(TURN_TIMER_SECONDS);
 
+  const DISCO_DURATION_MS = 6000;
+  const [discoActive, setDiscoActive] = useState(false);
+
   useEffect(() => {
     setTimeLeft(TURN_TIMER_SECONDS); // reset whenever turn changes
     if (paused) return; // don't start a fresh interval while paused
@@ -33,18 +36,31 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
     return () => clearInterval(interval);
   }, [turn, paused]);
 
+
+  const triggerDisco = () => {
+    if (discoActive) return; // ignore spam-clicks while already running
+    setDiscoActive(true);
+    document.body.classList.add("disco-mode");
+
+    setTimeout(() => {
+      document.body.classList.remove("disco-mode");
+      setDiscoActive(false);
+    }, DISCO_DURATION_MS);
+  };
+
+
   return (
     <div className="Header bg-game-panel flex flex-col">
       <div className="flex items-center md:p-2">
         <div className="left-buttons w-1/3 text-xs md:text-sm text-white p-2 flex items-center flex-nowrap gap-2">
           <button
-            className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-2 md:px-4 rounded transition-colors duration-200"
+            className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-2 md:px-4 rounded transition-colors duration-200 cursor-pointer"
             onClick={backToMenu}
           >
             Back to Menu
           </button>
           <button
-            className="hidden md:inline bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-4 rounded transition-colors duration-200"
+            className="hidden md:inline bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-4 rounded transition-colors duration-200 cursor-pointer"
             onClick={() => setShowInstructions(true)}
             aria-haspopup="dialog"
             aria-expanded={showInstructions}
@@ -54,9 +70,10 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
 
           {/* turn timer */}
           <motion.div
+            onClick={triggerDisco} 
             animate={timeLeft <= 10 ? { scale: [1, 1.08, 1] } : { scale: 1 }}
             transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-            className={`flex items-center gap-1.5 py-1.5 px-2 md:px-4 rounded font-bold transition-colors duration-300 ${
+            className={`flex items-center gap-1.5 py-1.5 px-2 md:px-4 rounded font-bold transition-colors duration-300 cursor-pointer ${
               timeLeft <= 10 ? "bg-red-500/20 text-red-400" : "bg-gray-500 text-white"
             }`}
           >
