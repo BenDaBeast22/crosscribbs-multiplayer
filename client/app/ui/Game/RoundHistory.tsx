@@ -5,21 +5,20 @@ type ChildProps = {
 };
 
 export default function RoundHistory({ roundHistory }: ChildProps) {
-  // if (roundHistory.length === 0) return null;
-
-  // Calculate running totals in chronological order
   let rowTotal = 0;
   let columnTotal = 0;
   const chronologicalTotals = roundHistory.map((round) => {
+    // Before: `else` lumped "Column" and "Tie" together (harmless since
+    // pointDiff is 0 on a tie, but wrong logic — a tie should add to neither)
     if (round.winner === "Row") {
       rowTotal += round.pointDiff;
-    } else {
+    } else if (round.winner === "Column") {
       columnTotal += round.pointDiff;
     }
+    // Tie: neither total changes
     return { rowTotal, columnTotal };
   });
 
-  // Reverse both the history and totals to display newest first
   const reversedHistory = [...roundHistory].reverse();
   const reversedTotals = [...chronologicalTotals].reverse();
 
@@ -31,8 +30,16 @@ export default function RoundHistory({ roundHistory }: ChildProps) {
           <div key={round.round} className="text-sm border-b border-slate-500 pb-2">
             <div className="flex justify-between items-center">
               <span className="font-medium">Round {round.round}</span>
-              <span className={`font-bold ${round.winner === "Row" ? "text-cyan-400" : "text-fuchsia-400"}`}>
-                {round.winner} +{round.pointDiff}
+              <span
+                className={`font-bold ${
+                  round.winner === "Row"
+                    ? "text-cyan-400"
+                    : round.winner === "Column"
+                      ? "text-fuchsia-400"
+                      : "text-white/50"
+                }`}
+              >
+                {round.winner === "Tie" ? "Tie" : `${round.winner} +${round.pointDiff}`}
               </span>
             </div>
             <div className="flex justify-between text-xs text-slate-300 mt-1">
