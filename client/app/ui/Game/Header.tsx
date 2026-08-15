@@ -8,9 +8,11 @@ type ChildProps = {
   backToMenu: () => void;
   turn: number; 
   paused?: boolean;
+  playerNames: string[];
+  dealer: number | null; 
 };
 
-export default function Header({ totalScores, backToMenu, turn, paused }: ChildProps) {
+export default function Header({ totalScores, backToMenu, turn, paused, playerNames, dealer }: ChildProps) {
   const rowScore = totalScores[0];
   const colScore = totalScores[1];
   const [showInstructions, setShowInstructions] = useState(false);
@@ -76,6 +78,19 @@ export default function Header({ totalScores, backToMenu, turn, paused }: ChildP
             </svg>
             <span>{timeLeft}s</span>
           </motion.div>
+
+          {/* NEW — turn indicator, right of the timer */}
+          {playerNames.length > 0 && turn > 0 && turn <= playerNames.length && (
+            <div className="hidden md:flex items-center gap-1.5 text-[10px] md:text-xs shrink-0">
+              {/* <span className="text-white/60">Current turn:</span> */}
+              <span className={`w-2 h-2 rounded-full ${turn % 2 !== 0 ? "bg-cyan-400" : "bg-fuchsia-400"}`} />
+              <span className="text-white/80 font-medium truncate max-w-20">{playerNames[turn - 1]}</span>
+              <span className={turn % 2 !== 0 ? "text-cyan-400" : "text-fuchsia-400"}>
+                ({turn % 2 !== 0 ? "Row" : "Column"})
+              </span>
+              {dealer === turn && <span className="text-white/40 italic">· Dealer</span>}
+            </div>
+          )}
 
         </div>
         <h1 className="title w-1/3 text-white text-center text-lg md:text-2xl font-semibold">Cross Cribbs</h1>

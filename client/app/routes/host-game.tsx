@@ -60,6 +60,7 @@ export default function HostGame() {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            maxLength={16}
             className="w-full input-field"
             placeholder="e.g. CardMaster"
           />

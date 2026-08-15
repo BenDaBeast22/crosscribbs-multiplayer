@@ -33,6 +33,7 @@ export default function PlayerSetup({ numPlayers, onSetPlayerNames, onBack }: Ch
               value={name.toString()}
               onChange={(e) => handleNameChange(index, e.target.value)}
               className="w-full px-4 py-3 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100" style={{"--tw-ring-color": "#F3A712"} as React.CSSProperties}
+              maxLength={16}
               placeholder={`Player ${index + 1} name`}
             />
           </div>

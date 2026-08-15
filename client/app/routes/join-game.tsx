@@ -69,6 +69,7 @@ export default function JoinGame() {
             id="lobbyId"
             value={lobbyId}
             onChange={(e) => setLobbyId(e.target.value)}
+            maxLength={16}
             className="w-full input-field"
             placeholder="e.g. 1"
           />

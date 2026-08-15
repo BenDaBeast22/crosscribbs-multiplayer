@@ -18,7 +18,7 @@ type ChildProps = {
   isFinalRound?: boolean;
 };
 
-const LINE_REVEAL_DELAY_MS = 800;
+const LINE_REVEAL_DELAY_MS = 700;
 const RACE_DURATION_MS = 1400;
 const RACE_TICKS = 28;
 

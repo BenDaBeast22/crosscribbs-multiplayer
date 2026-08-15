@@ -162,7 +162,7 @@ export default function Game() {
 
   return (
     <div className="bg-main-screen min-h-screen w-full flex flex-col">
-      <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} turn={gameState.turn} paused={gameState.roundScoreVisible || gameState.gameOver} />
+      <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} turn={gameState.turn} paused={gameState.roundScoreVisible || gameState.gameOver} playerNames={playerNames} dealer={gameState.dealer} />
       <div className="flex-1 flex flex-col md:flex-row relative items-center justify-center gap-5 md:gap-0 2xl:gap-7">
         <div className="w-full md:w-1/3">
           {/* <div className="flex justify-start mb-4 pt-2">
