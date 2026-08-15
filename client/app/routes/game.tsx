@@ -5,7 +5,7 @@ import GameOver from "~/ui/Game/GameOver";
 import TurnIndicator from "~/ui/Game/TurnIndicator";
 import RoundHistory from "~/ui/Game/RoundHistory";
 import Crib from "~/ui/Game/Crib";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { GameStateType, LobbyType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
@@ -13,6 +13,7 @@ import { socket } from "../connections/socket";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PlayersDisplay from "~/ui/Game/PlayersDisplay";
 import Header from "~/ui/Game/Header";
+import { playCardPlaceSound, playDiscardSound } from "~/utils/sounds";
 
 export default function Game() {
   const location = useLocation();
@@ -23,6 +24,14 @@ export default function Game() {
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
   const [players, setPlayers] = useState<PlayerType[]>(initialGameState?.players || []);
   const playerId = localStorage.getItem("playerId");
+
+
+  // Initialize refs to the CURRENT counts so a fresh page load / rejoin
+  // doesn't fire sounds for cards that were already on the board.
+  const prevBoardCountRef = useRef(gameState.board.flat().filter(Boolean).length);
+  const prevCribLengthRef = useRef(gameState.crib.length);
+
+
 
   // console.log("lobby id = ", lobbyId);
   // console.log("local p names = ", playerNames);
@@ -62,6 +71,23 @@ export default function Game() {
   if (!gameState) {
     return <div>Loading game...</div>;
   }
+
+  //for sounds
+  useEffect(() => {
+    const currentBoardCount = gameState.board.flat().filter(Boolean).length;
+    if (currentBoardCount > prevBoardCountRef.current) {
+      playCardPlaceSound();
+    }
+    prevBoardCountRef.current = currentBoardCount;
+  }, [gameState.board]);
+
+  useEffect(() => {
+    const currentCribLength = gameState.crib.length;
+    if (currentCribLength > prevCribLengthRef.current) {
+      playDiscardSound();
+    }
+    prevCribLengthRef.current = currentCribLength;
+  }, [gameState.crib]);
 
   let isMultiplayer = false;
   if (gameState.lobby) {
