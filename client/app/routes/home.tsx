@@ -60,6 +60,9 @@ export default function MultiplayerSetup() {
           </motion.button>
         </div>
       </motion.div>
+      <p className="fixed bottom-2 left-1/2 -translate-x-1/2 text-white/40 text-[11px] md:text-xs pointer-events-none">
+        Made by Jefaw and BenDaBeast22
+      </p>
     </motion.div>
   );
 }

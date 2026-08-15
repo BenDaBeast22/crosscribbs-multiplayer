@@ -4,6 +4,17 @@ type Props = {
   onClose: () => void;
 };
 
+const scoringRows = [
+  { method: "Pair", detail: "2 matching cards", points: "2" },
+  { method: "Three of a kind", detail: "3 matching cards", points: "6" },
+  { method: "Four of a kind", detail: "4 matching cards", points: "12" },
+  { method: "Fifteen", detail: "Cards summing to 15", points: "2" },
+  { method: "Run", detail: "Sequence of 3–5 cards", points: "1 per card" },
+  { method: "Flush", detail: "4 or 5 cards, same suit", points: "4 or 5" },
+  { method: "His Knobs", detail: "Jack matching cut card's suit, in the middle row/column", points: "1" },
+  { method: "His Heels", detail: "Cut card is a Jack — dealer scores", points: "2" },
+];
+
 export default function InstructionsModal({ onClose }: Props) {
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -21,7 +32,6 @@ export default function InstructionsModal({ onClose }: Props) {
   }, []);
 
   useEffect(() => {
-    // small delay so CSS transition runs on mount
     const t = setTimeout(() => setIsVisible(true), 10);
     return () => clearTimeout(t);
   }, []);
@@ -40,7 +50,7 @@ export default function InstructionsModal({ onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="instructions-title"
-        className={`relative bg-game-panel bg-opacity-95 text-white rounded-lg p-6 max-w-2xl mx-4 shadow-lg transform transition-all duration-200 ${
+        className={`relative bg-slate-800 bg-opacity-95 text-white rounded-lg p-6 max-w-2xl md:max-w-3xl mx-4 max-h-[85vh] overflow-y-auto shadow-lg transform transition-all duration-200 ${
           isVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
         }`}
       >
@@ -54,49 +64,50 @@ export default function InstructionsModal({ onClose }: Props) {
             to both the row and column totals.
           </p>
 
-          <p className="mb-2">Basic controls:</p>
-          <ul className="list-disc list-inside mb-2">
+          <p className="mb-1">Basic controls:</p>
+          <ul className="list-disc list-inside mb-3">
             <li>Click cards to select or play them.</li>
             <li>Use the HUD buttons to end turns or interact with the crib.</li>
-            <li>
-              Scores update after each round — rows are cyan, columns are fuchsia.
-            </li>
+            <li>Scores update after each round — rows are cyan, columns are fuchsia.</li>
           </ul>
 
-          <h3 className="mt-3 text-lg font-semibold">
-            Crib Scoring - The game is won at 31 points.{" "}
-          </h3>
-          <p className="mb-2">
-            Card values: 1 - 10. Face cards count as 10.
+          <h3 className="text-lg font-semibold mb-1">Crib Scoring</h3>
+          <p className="mb-3 text-white/70">
+            The game is won at 31 points. Card values are 1–10; face cards count as 10.
           </p>
 
-          <p className="mb-1 font-medium">Scoring methods:</p>
-          <ul className="list-disc list-inside mb-2">
-            <li>
-              Pairs/Multiples: pair = 2 points, three of a kind = 6 points, four
-              of a kind = 12 points.
-            </li>
-            <li>
-              Fifteen: combinations that sum to 15 score points = 2 points.
-            </li>
-            <li>Run: sequences of 3–5 cards = 1 point for each card in run.</li>
-            <li>Flush: 4 or 5 cards of the same suit = 4 or 5 points.</li>
-            <li>
-              His Knobs: a Jack that matches the suit of the cut/middle card
-              played in middle row/column = 1 point.
-            </li>
-            <li>
-              His Heels: if the cut card (center) is a Jack = the dealer receives
-              2 points.
-            </li>
-          </ul>
+          {/* Scoring table */}
+          <div className="rounded-lg overflow-hidden border border-white/10 mb-3">
+            <table className="w-full text-left text-xs md:text-sm">
+              <thead>
+                <tr className="bg-black/30 text-white/70">
+                  <th className="px-3 py-2 font-semibold">Method</th>
+                  <th className="px-3 py-2 font-semibold hidden md:table-cell">Detail</th>
+                  <th className="px-3 py-2 font-semibold text-right">Points</th>
+                </tr>
+              </thead>
+              <tbody>
+                {scoringRows.map((row, i) => (
+                  <tr
+                    key={row.method}
+                    className={`${i % 2 === 0 ? "bg-white/[0.03]" : "bg-transparent"} border-t border-white/10`}
+                  >
+                    <td className="px-3 py-2 font-medium">{row.method}</td>
+                    <td className="px-3 py-2 text-white/60 hidden md:table-cell">{row.detail}</td>
+                    <td className="px-3 py-2 text-right font-semibold text-amber-300">{row.points}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-          <p className="mb-2">
-            After each round, the row and col hands are scored and the crib hand score is added to the dealer's / crib owner's round points.
-            Lastly the difference between row and col score for that round is added to the round winner's total score.
+          <p className="mb-2 text-white/70">
+            After each round, the row and column hands are scored and the crib hand's
+            score is added to the dealer's total. The difference between the row and
+            column scores for that round is then added to the round winner's game score.
           </p>
 
-          <p className="mb-0 italic text-xs">
+          <p className="mb-0 italic text-xs text-white/40">
             Tip: press Esc or click outside this box to close.
           </p>
         </div>
