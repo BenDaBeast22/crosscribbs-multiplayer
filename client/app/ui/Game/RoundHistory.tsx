@@ -2,25 +2,29 @@ import type { RoundHistoryType } from "@cross-cribbs/shared-types/GameController
 
 type ChildProps = {
   roundHistory: RoundHistoryType[];
+  hideLatest?: boolean; // NEW
 };
 
-export default function RoundHistory({ roundHistory }: ChildProps) {
+export default function RoundHistory({ roundHistory, hideLatest = false }: ChildProps) {
+  // Compute totals against the FULL history first, so numbers stay correct
+  // once the hidden round reappears next round.
   let rowTotal = 0;
   let columnTotal = 0;
   const chronologicalTotals = roundHistory.map((round) => {
-    // Before: `else` lumped "Column" and "Tie" together (harmless since
-    // pointDiff is 0 on a tie, but wrong logic — a tie should add to neither)
     if (round.winner === "Row") {
       rowTotal += round.pointDiff;
     } else if (round.winner === "Column") {
       columnTotal += round.pointDiff;
     }
-    // Tie: neither total changes
     return { rowTotal, columnTotal };
   });
 
-  const reversedHistory = [...roundHistory].reverse();
-  const reversedTotals = [...chronologicalTotals].reverse();
+  // Only NOW drop the newest entry from what gets displayed
+  const visibleHistory = hideLatest ? roundHistory.slice(0, -1) : roundHistory;
+  const visibleTotals = hideLatest ? chronologicalTotals.slice(0, -1) : chronologicalTotals;
+
+  const reversedHistory = [...visibleHistory].reverse();
+  const reversedTotals = [...visibleTotals].reverse();
 
   return (
     <div className="hidden md:block bg-game-panel w-full text-white p-4 rounded-lg shadow-lg max-h-112.5 min-h-75 xl:min-h-100 xl:max-h-120 2xl:min-h-112.5 2xl:max-h-125 overflow-y-auto">

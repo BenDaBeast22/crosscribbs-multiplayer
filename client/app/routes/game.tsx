@@ -202,7 +202,7 @@ export default function Game() {
           <div className="flex justify-center">
             <div className="inline-flex flex-col items-center gap-10">
               <Crib crib={gameState.crib} dealer={gameState.dealer} cardSizes={cardSizes} />
-              <RoundHistory roundHistory={gameState.roundHistory} />
+              <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
             </div>
           </div>
         </div>
