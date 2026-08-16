@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { BoardType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
 import type { ScoreType } from "@cross-cribbs/shared-types/ScoreType";
+import { playRevealTickSound, playCribRevealSound, playWinnerSound, startRaceLoopSound, stopRaceLoopSound, playDiscardSound } from "~/utils/sounds";
 
 type ChildProps = {
   nextRound: () => void;
@@ -67,47 +68,61 @@ export default function RoundScore({
   const [raceCol, setRaceCol] = useState(hasLineBreakdown ? colTeamRoundScore : 0);
 
   // Stage progression: lines -> bonus -> race (separate effect) -> final
-  useEffect(() => {
-    if (!hasLineBreakdown) return;
-    if (revealStep < TOTAL_LINES * 2) {
-      const t = setTimeout(() => setRevealStep((n) => n + 1), LINE_REVEAL_DELAY_MS);
-      return () => clearTimeout(t);
-    } else if (!showBonus) {
-      const t = setTimeout(() => setShowBonus(true), LINE_REVEAL_DELAY_MS);
-      return () => clearTimeout(t);
-    } else if (!raceStarted) {
-      const t = setTimeout(() => setRaceStarted(true), LINE_REVEAL_DELAY_MS);
-      return () => clearTimeout(t);
-    } else if (raceDone && !showFinal) {
-      const t = setTimeout(() => setShowFinal(true), LINE_REVEAL_DELAY_MS);
-      return () => clearTimeout(t);
-    }
-  }, [revealStep, showBonus, raceStarted, raceDone, showFinal, hasLineBreakdown]);
+useEffect(() => {
+  if (!hasLineBreakdown) return;
+  if (revealStep < TOTAL_LINES * 2) {
+    const t = setTimeout(() => {
+      setRevealStep((n) => n + 1);
+      playRevealTickSound(); 
+    }, LINE_REVEAL_DELAY_MS);
+    return () => clearTimeout(t);
+  } else if (!showBonus) {
+    const t = setTimeout(() => {
+      setShowBonus(true);
+      playCribRevealSound();
+    }, LINE_REVEAL_DELAY_MS);
+    return () => clearTimeout(t);
+  } else if (!raceStarted) {
+    const t = setTimeout(() => setRaceStarted(true), LINE_REVEAL_DELAY_MS);
+    return () => clearTimeout(t);
+  } else if (raceDone && !showFinal) {
+    const t = setTimeout(() => setShowFinal(true), LINE_REVEAL_DELAY_MS);
+    return () => clearTimeout(t);
+  }
+}, [revealStep, showBonus, raceStarted, raceDone, showFinal, hasLineBreakdown]);
 
   // Subtract race: both counters tick down together; the smaller hits exactly 0
   // on the final tick, and whatever remains on the other side IS the point diff.
-  useEffect(() => {
-    if (!raceStarted || raceDone || !hasLineBreakdown) return;
-    const tickMs = RACE_DURATION_MS / RACE_TICKS;
-    const minVal = Math.min(rowTeamRoundScore, colTeamRoundScore);
-    const stepPerTick = minVal / RACE_TICKS;
+useEffect(() => {
+  if (!raceStarted || raceDone || !hasLineBreakdown) return;
 
-    let tick = 0;
-    const interval = setInterval(() => {
-      tick++;
-      if (tick >= RACE_TICKS) {
-        setRaceRow(Math.max(0, Math.round(rowTeamRoundScore - minVal)));
-        setRaceCol(Math.max(0, Math.round(colTeamRoundScore - minVal)));
-        clearInterval(interval);
-        setRaceDone(true);
-        return;
-      }
-      setRaceRow(Math.max(0, rowTeamRoundScore - stepPerTick * tick));
-      setRaceCol(Math.max(0, colTeamRoundScore - stepPerTick * tick));
-    }, tickMs);
+  startRaceLoopSound(); // NEW
 
-    return () => clearInterval(interval);
-  }, [raceStarted, raceDone, hasLineBreakdown, rowTeamRoundScore, colTeamRoundScore]);
+  const tickMs = RACE_DURATION_MS / RACE_TICKS;
+  const minVal = Math.min(rowTeamRoundScore, colTeamRoundScore);
+  const stepPerTick = minVal / RACE_TICKS;
+
+  let tick = 0;
+  const interval = setInterval(() => {
+    tick++;
+    if (tick >= RACE_TICKS) {
+      setRaceRow(Math.max(0, Math.round(rowTeamRoundScore - minVal)));
+      setRaceCol(Math.max(0, Math.round(colTeamRoundScore - minVal)));
+      clearInterval(interval);
+      setRaceDone(true);
+      stopRaceLoopSound(); 
+      playWinnerSound();
+      return;
+    }
+    setRaceRow(Math.max(0, rowTeamRoundScore - stepPerTick * tick));
+    setRaceCol(Math.max(0, colTeamRoundScore - stepPerTick * tick));
+  }, tickMs);
+
+  return () => {
+    clearInterval(interval);
+    stopRaceLoopSound(); // also stop if component unmounts mid-race
+  };
+}, [raceStarted, raceDone, hasLineBreakdown, rowTeamRoundScore, colTeamRoundScore]);
 
   function skipAnimation() {
     setRevealStep(TOTAL_LINES * 2);
@@ -117,6 +132,7 @@ export default function RoundScore({
     setRaceRow(winner === "Row" ? pointDiff : 0);
     setRaceCol(winner === "Column" ? pointDiff : 0);
     setShowFinal(true);
+    stopRaceLoopSound();
   }
 
   const dealerTeam = dealer ? (dealer % 2 !== 0 ? "Row" : "Column") : "";
@@ -310,7 +326,10 @@ export default function RoundScore({
 
             <button
               className="w-full bg-blue-500 text-white font-bold rounded-xl md:text-xl border-white border-2 hover:bg-blue-600 py-2 mt-3 transition-colors duration-300 cursor-pointer"
-              onClick={nextRound}
+              onClick={() => {
+                playDiscardSound();
+                nextRound();
+              }}
             >
               {isFinalRound ? "See Final Results" : "Next Round"}
             </button>
