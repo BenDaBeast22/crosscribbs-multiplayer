@@ -22,7 +22,7 @@ export default function Crib({ crib, dealer, cardSizes }: CribProps) {
             return (
               <motion.img
                 key={i} // stable per-slot key, never changes — safe to animate
-                className={`${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} rounded-md shadow-lg`}
+                className={`${cardSizes.base} ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} rounded-md shadow-lg`}
                 src={backImgSrc}
                 alt=""
                 initial={false}

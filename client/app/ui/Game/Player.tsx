@@ -63,8 +63,8 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
-  const cardImgClasses = `${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} border-transparent border-[0.5px] md:border-2 rounded-lg shadow-lg`;
-
+  const cardImgClasses = `${cardSizes.base} ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} border-transparent border-[0.5px] md:border-2 rounded-lg shadow-lg`;
+  
   return (
     <div
       className={`flex flex-col justify-center ${bgGradient} max-w-50 p-2 md:m-2 md:px-10 md:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm`}

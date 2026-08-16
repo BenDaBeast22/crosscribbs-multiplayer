@@ -156,25 +156,16 @@ export default function Game() {
 
   const cardSizes = {
     base: "w-[54.075px] h-[75.6px] max-w-[54.075px] max-h-[75.6px]",
-    md: "md:w-[81.9px] md:h-[116.55px] md:max-w-[93.6px] md:max-h-[133.2px]",
+    sm: "md:w-[68px] md:h-[95px] md:max-w-[68px] md:max-h-[95px]",   //  kicks in at 768px, still stacked layout
+    md: "lg:w-[81.9px] lg:h-[116.55px] lg:max-w-[93.6px] lg:max-h-[133.2px]", // kicks in at 1024px, 3-col layout
     xl: "2xl:w-[93.6px] 2xl:h-[133.2px]",
   };
 
   return (
     <div className="bg-main-screen min-h-screen w-full flex flex-col">
       <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} turn={gameState.turn} paused={gameState.roundScoreVisible || gameState.gameOver} playerNames={playerNames} dealer={gameState.dealer} />
-      <div className="flex-1 flex flex-col md:flex-row relative items-center justify-center gap-5 md:gap-0 2xl:gap-7">
-        <div className="w-full md:w-1/3">
-          {/* <div className="flex justify-start mb-4 pt-2">
-            {!gameState.gameOver && (
-              <button
-                onClick={handleBackToMenu}
-                className="fixed top-4 left-4 z-10 bg-gray-600 hover:bg-gray-700 text-white font-bold py-1.5 px-4 rounded-lg text-sm transition-colors duration-200"
-              >
-                Back to Menu
-              </button>
-            )}
-          </div> */}
+      <div className="flex-1 flex flex-col lg:flex-row relative items-center justify-center gap-5 lg:gap-0 2xl:gap-7">
+        <div className="w-full lg:w-1/3">
           <div className="flex justify-center">
             <div className="flex flex-col items-center gap-10">
               <PlayersDisplay
@@ -195,10 +186,10 @@ export default function Game() {
             </div>
           </div>
         </div>
-        <div className="w-full md:w-1/3">
+        <div className="w-full lg:w-1/3">
           <Board board={gameState.board} lastMove={gameState.lastMove} playCard={playCard} turn={gameState.turn} cardSizes={cardSizes} />
         </div>
-        <div className="md:w-1/3">
+        <div className="w-full lg:w-1/3">
           <div className="flex justify-center">
             <div className="inline-flex flex-col items-center gap-10">
               <Crib crib={gameState.crib} dealer={gameState.dealer} cardSizes={cardSizes} />

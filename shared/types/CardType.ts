@@ -19,6 +19,7 @@ export interface CardType {
 
 export interface CardSizesType {
   base: string;
+  sm: string;
   md: string;
   xl: string;
 }

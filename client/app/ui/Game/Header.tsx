@@ -51,8 +51,15 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
 
   return (
     <div className="Header bg-game-panel flex flex-col">
-      <div className="flex items-center md:p-2">
-        <div className="left-buttons w-1/3 text-xs md:text-sm text-white p-2 flex items-center flex-nowrap gap-2">
+      {/* Row 1 — title, always alone */}
+      <h1 className="title text-white text-center text-lg md:text-2xl font-semibold pt-2 pb-1">
+        Cross Cribbs
+      </h1>
+
+      {/* Row 2 — controls group + score group. justify-center merges them (mobile/md); lg splits them apart */}
+      <div className="flex flex-wrap items-center justify-center lg:justify-between gap-2 md:gap-4 px-2 md:px-4 pb-2 text-xs md:text-sm">
+        {/* Controls group — always visible */}
+        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
           <button
             className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-2 md:px-4 rounded transition-colors duration-200 cursor-pointer"
             onClick={backToMenu}
@@ -60,7 +67,7 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
             Back to Menu
           </button>
           <button
-            className="hidden md:inline bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-4 rounded transition-colors duration-200 cursor-pointer"
+            className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-2 md:px-4 rounded transition-colors duration-200 cursor-pointer"
             onClick={() => setShowInstructions(true)}
             aria-haspopup="dialog"
             aria-expanded={showInstructions}
@@ -68,9 +75,8 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
             Instructions
           </button>
 
-          {/* turn timer */}
           <motion.div
-            onClick={triggerDisco} 
+            onClick={triggerDisco}
             animate={timeLeft <= 10 ? { scale: [1, 1.08, 1] } : { scale: 1 }}
             transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
             className={`flex items-center gap-1.5 py-1.5 px-2 md:px-4 rounded font-bold transition-colors duration-300 cursor-pointer ${
@@ -80,13 +86,9 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
             <svg width="16" height="16" viewBox="0 0 16 16" className="shrink-0">
               <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
               <circle
-                cx="8"
-                cy="8"
-                r="6.5"
-                fill="none"
+                cx="8" cy="8" r="6.5" fill="none"
                 stroke={timeLeft <= 10 ? "#f87171" : "#67e8f9"}
-                strokeWidth="2"
-                strokeLinecap="round"
+                strokeWidth="2" strokeLinecap="round"
                 strokeDasharray={2 * Math.PI * 6.5}
                 strokeDashoffset={2 * Math.PI * 6.5 * (1 - timeLeft / TURN_TIMER_SECONDS)}
                 transform="rotate(-90 8 8)"
@@ -96,10 +98,8 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
             <span>{timeLeft}s</span>
           </motion.div>
 
-          {/* NEW — turn indicator, right of the timer */}
           {playerNames.length > 0 && turn > 0 && turn <= playerNames.length && (
-            <div className="hidden md:flex items-center gap-1.5 text-[10px] md:text-xs shrink-0">
-              {/* <span className="text-white/60">Current turn:</span> */}
+            <div className="flex items-center gap-1.5 text-[10px] md:text-xs shrink-0">
               <span className={`w-2 h-2 rounded-full ${turn % 2 !== 0 ? "bg-cyan-400" : "bg-fuchsia-400"}`} />
               <span className="text-white/80 font-medium truncate max-w-20">{playerNames[turn - 1]}</span>
               <span className={turn % 2 !== 0 ? "text-cyan-400" : "text-fuchsia-400"}>
@@ -108,26 +108,25 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
               {dealer === turn && <span className="text-white/40 italic">· Dealer</span>}
             </div>
           )}
-
         </div>
-        <h1 className="title w-1/3 text-white text-center text-lg md:text-2xl font-semibold">Cross Cribbs</h1>
-        <div className="hidden md:flex total-score w-1/3 justify-end md:gap-4 text-[10px] md:text-xl font-medium md:mr-4 mr-2">
-          <span className="text-white">Total Score: </span>
+
+        {/* Score group — hidden on mobile (moves to its own row 3 instead), visible from md+ */}
+        <div className="hidden md:flex items-center gap-3 text-sm font-medium">
+          <span className="text-white">Total Score:</span>
           <span className="text-cyan-400">Row: {rowScore}</span>
-          <span className="text-fuchsia-400">Column: {colScore}</span>
-        </div>
-      </div>
-
-      <div className="md:hidden flex justify-center gap-3 text-sm italic mb-2">
-        <span className="text-white">Total Score: </span>
-        <span className="text-cyan-400">Row: {rowScore}</span>
         <span className="text-fuchsia-400">Column: {colScore}</span>
       </div>
-
-      {/* pegboard visualization under header */}
-      <ScorePegboard rowScore={rowScore} colScore={colScore} />
-
-      {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
     </div>
-  );
+
+    {/* Row 3 — score, mobile only */}
+    <div className="md:hidden flex justify-center gap-3 text-sm italic mb-2">
+      <span className="text-white">Total Score: </span>
+      <span className="text-cyan-400">Row: {rowScore}</span>
+      <span className="text-fuchsia-400">Column: {colScore}</span>
+    </div>
+
+    <ScorePegboard rowScore={rowScore} colScore={colScore} />
+    {showInstructions && <InstructionsModal onClose={() => setShowInstructions(false)} />}
+  </div>
+);
 }

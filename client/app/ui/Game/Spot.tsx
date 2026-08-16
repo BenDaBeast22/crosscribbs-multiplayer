@@ -52,10 +52,10 @@ export default function Spot({ pos, card, playCard, turn, cardSizes, isLastMove 
   const placeholderImage = "/cards/fronts/clubs_2.svg";
   // subtler hover and border, with rounded corners
   const hover = "hover:bg-stone-300";
-  // NEW — ring highlight when this spot was the most recent move
+  // ring highlight when this spot was the most recent move
   const lastMoveRing = isLastMove ? "outline outline-2 md:outline-4 outline-amber-400 outline-offset-1" : "";
-  const cardSpotStyles = `${isOver ? "bg-stone-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} border border-stone-300 rounded-md ${hover} ${lastMoveRing} transition duration-300 cursor-pointer`;
-
+  const cardSpotStyles = `${isOver ? "bg-stone-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} border border-stone-300 rounded-md ${hover} ${lastMoveRing} transition duration-300 cursor-pointer`;
+  
   if (card) {
     return (
       <td className={cardSpotStyles} onDragStart={(e) => (e.dataTransfer.effectAllowed = "move")}>
