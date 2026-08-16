@@ -155,16 +155,16 @@ export default function Game() {
   };
 
   const cardSizes = {
-    base: "w-[54.075px] h-[75.6px] max-w-[54.075px] max-h-[75.6px]",
-    sm: "md:w-[68px] md:h-[95px] md:max-w-[68px] md:max-h-[95px]",   //  kicks in at 768px, still stacked layout
-    md: "lg:w-[81.9px] lg:h-[116.55px] lg:max-w-[93.6px] lg:max-h-[133.2px]", // kicks in at 1024px, 3-col layout
+    base: "w-[54.075px] h-[75.6px] max-w-[54.075px] max-h-[75.6px] short:!w-[42px] short:!h-[59px] short:!max-w-[42px] short:!max-h-[59px]",
+    sm: "md:w-[68px] md:h-[95px] md:max-w-[68px] md:max-h-[95px]",
+    md: "lg:w-[81.9px] lg:h-[116.55px] lg:max-w-[93.6px] lg:max-h-[133.2px]",
     xl: "2xl:w-[93.6px] 2xl:h-[133.2px]",
   };
 
   return (
-    <div className="bg-main-screen min-h-screen w-full flex flex-col">
+    <div className="bg-main-screen min-h-screen w-full flex flex-col overflow-y-auto">
       <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} turn={gameState.turn} paused={gameState.roundScoreVisible || gameState.gameOver} playerNames={playerNames} dealer={gameState.dealer} />
-      <div className="flex-1 flex flex-col lg:flex-row relative items-center justify-center gap-5 lg:gap-0 2xl:gap-7">
+      <div className="flex-1 flex flex-col lg:flex-row short:flex-row relative items-center justify-center gap-5 lg:gap-0 short:gap-2 2xl:gap-7">
         <div className="w-full lg:w-1/3">
           <div className="flex justify-center">
             <div className="flex flex-col items-center gap-10">

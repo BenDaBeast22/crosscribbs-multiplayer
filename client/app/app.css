@@ -21,6 +21,8 @@
   --font-title: 'Outfit', sans-serif;
 }
 
+
+@custom-variant short (@media (max-height: 480px) and (orientation: landscape));
 /* Global background for main screens */
 html,
 body {

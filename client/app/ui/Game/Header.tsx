@@ -52,12 +52,12 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
   return (
     <div className="Header bg-game-panel flex flex-col">
       {/* Row 1 — title, always alone */}
-      <h1 className="title text-white text-center text-lg md:text-2xl font-semibold pt-2 pb-1">
+      <h1 className="title text-white text-center text-lg md:text-2xl short:text-base font-semibold pt-2 pb-1 short:py-0.5">
         Cross Cribbs
       </h1>
 
       {/* Row 2 — controls group + score group. justify-center merges them (mobile/md); lg splits them apart */}
-      <div className="flex flex-wrap items-center justify-center lg:justify-between gap-2 md:gap-4 px-2 md:px-4 pb-2 text-xs md:text-sm">
+      <div className="flex flex-wrap items-center justify-center lg:justify-between short:justify-between gap-2 md:gap-4 short:gap-1 px-2 md:px-4 short:px-2 pb-2 short:pb-1 text-xs md:text-sm short:text-[10px]">
         {/* Controls group — always visible */}
         <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
           <button
