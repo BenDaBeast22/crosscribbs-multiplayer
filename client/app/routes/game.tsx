@@ -26,22 +26,15 @@ export default function Game() {
   const playerId = localStorage.getItem("playerId");
   const [revealGameOver, setRevealGameOver] = useState(false);
 
+  // NEW STATE: Controls whether the popup modal is open on mobile viewports
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
   // Initialize refs to the CURRENT counts so a fresh page load / rejoin
   // doesn't fire sounds for cards that were already on the board.
   const prevBoardCountRef = useRef(gameState?.board.flat().filter(Boolean).length ?? 0);
   const prevCribLengthRef = useRef(gameState?.crib.length ?? 0);
 
-
-
-  // console.log("lobby id = ", lobbyId);
-  // console.log("local p names = ", playerNames);
-  // console.log("local num ps = ", numPlayers);
   useEffect(() => {
-    // if (!lobbyId) {
-    //   console.log("LOBBY: lobby id = ", lobbyId);
-    //   navigate("/multiplayer-setup");
-    // }
-
     socket.emit("rejoinGame", { lobbyId, playerId });
 
     console.log("My player ID:", playerId);
@@ -53,16 +46,8 @@ export default function Game() {
       setPlayers(state.players);
     };
 
-    // const handlePlayerUpdate = (updatedPlayers: PlayerType[]) => {
-    //   setPlayers(updatedPlayers);
-    // };
-
-    // socket.on("playerUpdate", handlePlayerUpdate);
-
-    // Attach listeners
     socket.on("gameStateUpdate", handleGameUpdate);
 
-    // Cleanup on unmount
     return () => {
       socket.off("gameStateUpdate", handleGameUpdate);
     };
@@ -89,7 +74,6 @@ export default function Game() {
     prevCribLengthRef.current = currentCribLength;
   }, [gameState.crib]);
 
-
   // Reset whenever gameOver goes false — covers starting a fresh game after resetGame()
   useEffect(() => {
     if (!gameState.gameOver) setRevealGameOver(false);
@@ -104,10 +88,6 @@ export default function Game() {
 
   console.log("playerNames = ", playerNames);
 
-  // if (!gameState.dealerSelectionComplete) {
-  //   return <DealerSelection dealerSelectionCards={gameState.dealerSelectionCards} playerNames={playerNames} />;
-  // }
-
   const handleResetGame = () => {
     const payload = { lobbyId: isMultiplayer ? lobbyId : undefined, playerId };
     socket.emit("resetGame", payload);
@@ -117,8 +97,7 @@ export default function Game() {
     handleResetGame();
     navigate("/");
   };
-  // The RoundScore "Next" button now needs to branch: normal round -> nextRound(),
-  // final round -> just reveal the GameOver screen locally instead of calling the server
+
   const handleRoundScoreNext = () => {
     if (gameState.gameOver) {
       setRevealGameOver(true);
@@ -126,17 +105,8 @@ export default function Game() {
       nextRound();
     }
   };
-  const playCard = (pos: BoardPosition, turn: number) => {
-    // Optimistic update: remove top card from your hand
-    // setPlayers((prev) =>
-    //   prev.map((p) => {
-    //     if ((p.num = turn)) {
-    //       return { ...p, hand: p.hand.slice(0, -1) }; // remove top card
-    //     }
-    //     return p;
-    //   }),
-    // );
 
+  const playCard = (pos: BoardPosition, turn: number) => {
     if (isMultiplayer) {
       const playerId = socket.id;
       socket.emit("playCard", { lobbyId, pos, playerId });
@@ -155,16 +125,32 @@ export default function Game() {
   };
 
   const cardSizes = {
-    base: "w-[54.075px] h-[75.6px] max-w-[54.075px] max-h-[75.6px] short:!w-[42px] short:!h-[59px] short:!max-w-[42px] short:!max-h-[59px]",
+    base: "w-[60px] h-[84px] max-w-[60px] max-h-[84px] short:!w-[48px] short:!h-[67.2px] short:!max-w-[48px] short:!max-h-[67.2px]",
     sm: "md:w-[68px] md:h-[95px] md:max-w-[68px] md:max-h-[95px]",
     md: "lg:w-[81.9px] lg:h-[116.55px] lg:max-w-[93.6px] lg:max-h-[133.2px]",
     xl: "2xl:w-[93.6px] 2xl:h-[133.2px]",
   };
 
   return (
-    <div className="bg-main-screen min-h-screen w-full flex flex-col overflow-y-auto">
-      <Header totalScores={gameState.totalScores} backToMenu={handleBackToMenu} turn={gameState.turn} paused={gameState.roundScoreVisible || gameState.gameOver} playerNames={playerNames} dealer={gameState.dealer} />
-      <div className="flex-1 flex flex-col lg:flex-row short:flex-row relative items-center justify-center gap-5 lg:gap-0 short:gap-2 2xl:gap-7">
+    <div className="bg-main-screen min-h-screen w-full flex flex-col overflow-y-auto relative">
+      <Header
+        totalScores={gameState.totalScores}
+        backToMenu={handleBackToMenu}
+        turn={gameState.turn}
+        paused={gameState.roundScoreVisible || gameState.gameOver}
+        playerNames={playerNames}
+        dealer={gameState.dealer}
+      />
+
+      {/* FLOATING ACTION BUTTON: Displays strictly on mobile layout screens (`lg:hidden`) */}
+      <button
+        onClick={() => setIsHistoryOpen(true)}
+        className="fixed bottom-4 right-4 z-40 lg:hidden bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg border border-slate-600 flex items-center gap-1.5 active:scale-95 transition-transform"
+      >
+        <span>📋</span> History
+      </button>
+
+      <div className="flex-1 flex flex-col lg:flex-row short:flex-row relative items-center justify-center gap-3 lg:gap-0 short:gap-2 2xl:gap-7">
         <div className="w-full lg:w-1/3">
           <div className="flex justify-center">
             <div className="flex flex-col items-center gap-10">
@@ -176,27 +162,53 @@ export default function Game() {
                 turn={gameState.turn}
                 crib={gameState.crib}
                 cardSizes={cardSizes}
-              ></PlayersDisplay>
-              {/* <TurnIndicator
-                className="hidden md:block"
-                turn={gameState.turn}
-                playerNames={playerNames}
-                dealer={gameState.dealer}
-              /> */}
+              />
             </div>
           </div>
         </div>
         <div className="w-full lg:w-1/3">
-          <Board board={gameState.board} lastMove={gameState.lastMove} playCard={playCard} turn={gameState.turn} cardSizes={cardSizes} />
+          <Board
+            board={gameState.board}
+            lastMove={gameState.lastMove}
+            playCard={playCard}
+            turn={gameState.turn}
+            cardSizes={cardSizes}
+          />
         </div>
         <div className="w-full lg:w-1/3">
           <div className="flex justify-center">
             <div className="inline-flex flex-col items-center gap-10">
               <Crib crib={gameState.crib} dealer={gameState.dealer} cardSizes={cardSizes} />
-              <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
+
+              {/* DESKTOP NATIVE VIEW: Hides standard list container on mobile */}
+              <div className="hidden lg:block w-full">
+                <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
+              </div>
             </div>
           </div>
         </div>
+
+        {/* MOBILE POPUP DIALOG INTERFACE (FIXED: Complete closing tags) */}
+        {isHistoryOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:hidden">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5 shadow-2xl relative flex flex-col max-h-[75vh]">
+              <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+                <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                  <span>📋</span> Round History
+                </h3>
+                <button
+                  onClick={() => setIsHistoryOpen(false)}
+                  className="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-full w-8 h-8 flex items-center justify-center font-semibold transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="overflow-y-auto flex-1 flex justify-center pb-2">
+                <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
+              </div>
+            </div>
+          </div>
+        )}
 
         {gameState.roundScoreVisible && !revealGameOver && (
           <RoundScore
@@ -215,14 +227,12 @@ export default function Game() {
         )}
         {gameState.gameOver && revealGameOver && (
           <GameOver
-            winner={gameState.winner}
             totalScores={gameState.totalScores}
+            playerNames={playerNames}
             resetGame={handleResetGame}
-            roundHistory={gameState.roundHistory}
-            onBackToMenu={handleBackToMenu}
+            backToMenu={handleBackToMenu}
           />
         )}
-        {/* {!gameState.gameOver && <BottomHud gameState={gameState} playerNames={playerNames} />} */}
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
   const outlineStyle = useMemo(() => {
     const color = player.num % 2 === 0 ? "outline-fuchsia-400" : "outline-cyan-400";
-    return isTurn ? `outline-3 md:outline-6 ${color}` : "outline-2 outline-stone-300";
+    return isTurn ? `outline-2 md:outline-6 ${color}` : "outline-[1px] md:outline-2 outline-stone-300";
   }, [player.num, isTurn]);
 
   const bgGradient = useMemo(() => "bg-gradient-to-br from-slate-100 to-slate-200", []);
@@ -64,28 +64,39 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
   const displayCardImage = card ? "" : "invisible";
 
   const cardImgClasses = `${cardSizes.base} ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} border-transparent border-[0.5px] md:border-2 rounded-lg shadow-lg`;
-  
+
   return (
     <div
-      className={`flex flex-col justify-center ${bgGradient} max-w-50 p-2 md:m-2 md:px-10 md:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm`}
+      className={`flex flex-col justify-center ${bgGradient} max-w-[130px] md:max-w-50 p-1 m-0 md:p-2 md:m-2 md:px-10 md:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm`}
     >
-      <div className="flex items-center justify-center mb-1 md:mb-3">
-        <h1 className="md:text-xl font-bold text-gray-800">{name}</h1>
+      <div className="flex items-center justify-center mb-0.5 md:mb-3">
+        {/* Responsive text sizes: text-sm on mobile, md:text-xl on desktop */}
+        <h1
+          className="w-full text-center text-xs md:text-xl font-bold text-gray-800 truncate max-w-[65px] md:max-w-none"
+          title={name}
+        >
+          {name}
+        </h1>
         {lobbyId && isPlayer && (
-          <span className="bg-green-400 text-black px-2 rounded-full text-xs ml-2 italic">You</span>
+          <span className="bg-green-400 text-black px-1 md:px-2 rounded-full text-[10px] md:text-xs ml-1 md:ml-2 italic">
+            You
+          </span>
         )}
         {player.disconnected && (
-          <span className="block bg-red-500 text-black rounded-full px-2 text-xs ml-2 italic">DC'd</span>
+          <span className="block bg-red-500 text-black rounded-full px-1 md:px-2 text-[10px] md:text-xs ml-1 md:ml-2 italic">
+            DC'd
+          </span>
         )}
       </div>
 
-      <div className="flex flex-col items-center space-y-0.5 md:space-y-2 max-w-16 md:max-w-none">
+      {/* Adjusted mobile max-width bounds from max-w-16 up to max-w-[100px] so the card sizes object doesn't get crushed */}
+      <div className="flex flex-col items-center space-y-0.5 md:space-y-2 max-w-[100px] md:max-w-none mx-auto">
         {/* Flip-card container */}
         <div
           className={`${displayCardImage} relative self-center cursor-pointer transition-transform hover:scale-105`}
           style={{ perspective: 1000 }}
-          draggable={isDraggable}          // moved here
-          onDragStart={handleDragStart}    // moved here
+          draggable={isDraggable} // moved here
+          onDragStart={handleDragStart} // moved here
         >
           <motion.div
             className="relative w-full h-full"
@@ -113,13 +124,14 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
           </motion.div>
         </div>
 
-        <p className={`${displayCardsLeft} text-xs md:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
+        {/* Scaled text font metrics down to text-[10px] for tight viewports */}
+        <p className={`${displayCardsLeft} text-[10px] md:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
 
         <button
           onClick={handleDiscard}
-          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold py-0.5 px-2 md:p-2 rounded md:text-sm cursor-pointer`}
+          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold text-[10px] py-0.5 px-1.5 md:p-2 rounded md:text-sm cursor-pointer whitespace-nowrap`}
         >
-          Discard to Crib
+          Discard
         </button>
       </div>
     </div>
