@@ -27,7 +27,7 @@ export default function PlayersDisplay({
       {numPlayers === 4 ? (
         <div className="flex flex-col">
           {/* Players row */}
-          <div className="flex flex-col lg:flex-row justify-center gap-4 lg:gap-3">
+          <div className="flex flex-col justify-center gap-4">
             <div className="flex flex-col gap-2">
               <span className="text-center font-medium text-white">Row Team:</span>
               {/* Row Team Players */}
