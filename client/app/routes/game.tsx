@@ -150,10 +150,10 @@ export default function Game() {
         <span>📋</span> History
       </button>
 
-      <div className="flex-1 flex flex-col lg:flex-row short:flex-row relative items-center justify-center gap-3 lg:gap-0 short:gap-2 2xl:gap-7">
+      <div className="flex-1 flex flex-col lg:flex-row short:flex-row relative items-center justify-center gap-0 md:gap-5 lg:gap-0 short:gap-2 2xl:gap-7">
         <div className="w-full lg:w-1/3">
           <div className="flex justify-center">
-            <div className="flex flex-col items-center gap-10">
+            <div className="flex flex-col items-center gap-10 mb-2 md:mb-0">
               <PlayersDisplay
                 lobbyId={lobbyId}
                 numPlayers={numPlayers}
