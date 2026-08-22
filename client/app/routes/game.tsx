@@ -26,6 +26,10 @@ export default function Game() {
   const playerId = localStorage.getItem("playerId");
   const [revealGameOver, setRevealGameOver] = useState(false);
 
+  // Delays score reporting in Header until modal is dismissed
+  const [displayedScores, setDisplayedScores] = useState<[number, number]>(initialGameState?.totalScores || [0, 0]);
+  const isScoreVisibleRef = useRef(initialGameState?.roundScoreVisible || false);
+
   // NEW STATE: Controls whether the popup modal is open on mobile viewports
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
@@ -44,6 +48,13 @@ export default function Game() {
       console.log("Game state updated", state);
       setGameState(state);
       setPlayers(state.players);
+
+      // If the summary screen is NOT open, update the header scores continuously
+      if (!state.roundScoreVisible) {
+        setDisplayedScores(state.totalScores);
+      }
+
+      isScoreVisibleRef.current = state.roundScoreVisible;
     };
 
     socket.on("gameStateUpdate", handleGameUpdate);
@@ -76,7 +87,10 @@ export default function Game() {
 
   // Reset whenever gameOver goes false — covers starting a fresh game after resetGame()
   useEffect(() => {
-    if (!gameState.gameOver) setRevealGameOver(false);
+    if (!gameState.gameOver) {
+      setRevealGameOver(false);
+      setDisplayedScores(gameState.totalScores);
+    }
   }, [gameState.gameOver]);
 
   let isMultiplayer = false;
@@ -99,6 +113,9 @@ export default function Game() {
   };
 
   const handleRoundScoreNext = () => {
+    // Fallback protection: ensure scores are aligned if someone skips or proceeds fast
+    setDisplayedScores(gameState.totalScores);
+
     if (gameState.gameOver) {
       setRevealGameOver(true);
     } else {
@@ -134,7 +151,7 @@ export default function Game() {
   return (
     <div className="bg-main-screen min-h-screen w-full flex flex-col overflow-y-auto relative">
       <Header
-        totalScores={gameState.totalScores}
+        totalScores={displayedScores}
         backToMenu={handleBackToMenu}
         turn={gameState.turn}
         paused={gameState.roundScoreVisible || gameState.gameOver}
@@ -188,7 +205,7 @@ export default function Game() {
           </div>
         </div>
 
-        {/* MOBILE POPUP DIALOG INTERFACE (FIXED: Complete closing tags) */}
+        {/* MOBILE POPUP DIALOG INTERFACE */}
         {isHistoryOpen && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:hidden">
             <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5 shadow-2xl relative flex flex-col max-h-[75vh]">
@@ -223,8 +240,12 @@ export default function Game() {
             heels={gameState.heels}
             cardSizes={cardSizes}
             isFinalRound={gameState.gameOver}
+            onAnimationComplete={() => {
+              setDisplayedScores(gameState.totalScores);
+            }}
           />
         )}
+
         {gameState.gameOver && revealGameOver && (
           <GameOver
             totalScores={gameState.totalScores}

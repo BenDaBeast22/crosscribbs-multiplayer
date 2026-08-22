@@ -3,7 +3,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { BoardType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
 import type { ScoreType } from "@cross-cribbs/shared-types/ScoreType";
-import { playRevealTickSound, playCribRevealSound, playWinnerSound, startRaceLoopSound, stopRaceLoopSound, playDiscardSound } from "~/utils/sounds";
+import {
+  playRevealTickSound,
+  playCribRevealSound,
+  playWinnerSound,
+  startRaceLoopSound,
+  stopRaceLoopSound,
+  playDiscardSound,
+} from "~/utils/sounds";
 
 type ChildProps = {
   nextRound: () => void;
@@ -17,6 +24,7 @@ type ChildProps = {
   heels: number;
   cardSizes: CardSizesType;
   isFinalRound?: boolean;
+  onAnimationComplete?: () => void;
 };
 
 const LINE_REVEAL_DELAY_MS = 700;
@@ -44,7 +52,8 @@ export default function RoundScore({
   board,
   heels,
   cardSizes,
-  isFinalRound
+  isFinalRound,
+  onAnimationComplete,
 }: ChildProps) {
   const rowLines = lineScores?.[0] ?? [];
   const colLines = lineScores?.[1] ?? [];
@@ -68,61 +77,68 @@ export default function RoundScore({
   const [raceCol, setRaceCol] = useState(hasLineBreakdown ? colTeamRoundScore : 0);
 
   // Stage progression: lines -> bonus -> race (separate effect) -> final
-useEffect(() => {
-  if (!hasLineBreakdown) return;
-  if (revealStep < TOTAL_LINES * 2) {
-    const t = setTimeout(() => {
-      setRevealStep((n) => n + 1);
-      playRevealTickSound(); 
-    }, LINE_REVEAL_DELAY_MS);
-    return () => clearTimeout(t);
-  } else if (!showBonus) {
-    const t = setTimeout(() => {
-      setShowBonus(true);
-      playCribRevealSound();
-    }, LINE_REVEAL_DELAY_MS);
-    return () => clearTimeout(t);
-  } else if (!raceStarted) {
-    const t = setTimeout(() => setRaceStarted(true), LINE_REVEAL_DELAY_MS);
-    return () => clearTimeout(t);
-  } else if (raceDone && !showFinal) {
-    const t = setTimeout(() => setShowFinal(true), LINE_REVEAL_DELAY_MS);
-    return () => clearTimeout(t);
-  }
-}, [revealStep, showBonus, raceStarted, raceDone, showFinal, hasLineBreakdown]);
+  useEffect(() => {
+    if (!hasLineBreakdown) return;
+    if (revealStep < TOTAL_LINES * 2) {
+      const t = setTimeout(() => {
+        setRevealStep((n) => n + 1);
+        playRevealTickSound();
+      }, LINE_REVEAL_DELAY_MS);
+      return () => clearTimeout(t);
+    } else if (!showBonus) {
+      const t = setTimeout(() => {
+        setShowBonus(true);
+        playCribRevealSound();
+      }, LINE_REVEAL_DELAY_MS);
+      return () => clearTimeout(t);
+    } else if (!raceStarted) {
+      const t = setTimeout(() => setRaceStarted(true), LINE_REVEAL_DELAY_MS);
+      return () => clearTimeout(t);
+    } else if (raceDone && !showFinal) {
+      const t = setTimeout(() => setShowFinal(true), LINE_REVEAL_DELAY_MS);
+      return () => clearTimeout(t);
+    }
+  }, [revealStep, showBonus, raceStarted, raceDone, showFinal, hasLineBreakdown]);
+
+  // Trigger callback once summary and calculations are fully finished showing
+  useEffect(() => {
+    if (showFinal && onAnimationComplete) {
+      onAnimationComplete();
+    }
+  }, [showFinal, onAnimationComplete]);
 
   // Subtract race: both counters tick down together; the smaller hits exactly 0
   // on the final tick, and whatever remains on the other side IS the point diff.
-useEffect(() => {
-  if (!raceStarted || raceDone || !hasLineBreakdown) return;
+  useEffect(() => {
+    if (!raceStarted || raceDone || !hasLineBreakdown) return;
 
-  startRaceLoopSound(); // NEW
+    startRaceLoopSound(); // NEW
 
-  const tickMs = RACE_DURATION_MS / RACE_TICKS;
-  const minVal = Math.min(rowTeamRoundScore, colTeamRoundScore);
-  const stepPerTick = minVal / RACE_TICKS;
+    const tickMs = RACE_DURATION_MS / RACE_TICKS;
+    const minVal = Math.min(rowTeamRoundScore, colTeamRoundScore);
+    const stepPerTick = minVal / RACE_TICKS;
 
-  let tick = 0;
-  const interval = setInterval(() => {
-    tick++;
-    if (tick >= RACE_TICKS) {
-      setRaceRow(Math.max(0, Math.round(rowTeamRoundScore - minVal)));
-      setRaceCol(Math.max(0, Math.round(colTeamRoundScore - minVal)));
+    let tick = 0;
+    const interval = setInterval(() => {
+      tick++;
+      if (tick >= RACE_TICKS) {
+        setRaceRow(Math.max(0, Math.round(rowTeamRoundScore - minVal)));
+        setRaceCol(Math.max(0, Math.round(colTeamRoundScore - minVal)));
+        clearInterval(interval);
+        setRaceDone(true);
+        stopRaceLoopSound();
+        playWinnerSound();
+        return;
+      }
+      setRaceRow(Math.max(0, rowTeamRoundScore - stepPerTick * tick));
+      setRaceCol(Math.max(0, colTeamRoundScore - stepPerTick * tick));
+    }, tickMs);
+
+    return () => {
       clearInterval(interval);
-      setRaceDone(true);
-      stopRaceLoopSound(); 
-      playWinnerSound();
-      return;
-    }
-    setRaceRow(Math.max(0, rowTeamRoundScore - stepPerTick * tick));
-    setRaceCol(Math.max(0, colTeamRoundScore - stepPerTick * tick));
-  }, tickMs);
-
-  return () => {
-    clearInterval(interval);
-    stopRaceLoopSound(); // also stop if component unmounts mid-race
-  };
-}, [raceStarted, raceDone, hasLineBreakdown, rowTeamRoundScore, colTeamRoundScore]);
+      stopRaceLoopSound(); // also stop if component unmounts mid-race
+    };
+  }, [raceStarted, raceDone, hasLineBreakdown, rowTeamRoundScore, colTeamRoundScore]);
 
   function skipAnimation() {
     setRevealStep(TOTAL_LINES * 2);
@@ -167,7 +183,10 @@ useEffect(() => {
       <div className="relative flex items-center justify-center mb-3">
         <h2 className="text-lg md:text-3xl text-white text-center">Round Summary</h2>
         {!showFinal && (
-          <button onClick={skipAnimation} className="absolute left-0 text-xs md:text-sm underline text-white/60 hover:text-white">
+          <button
+            onClick={skipAnimation}
+            className="absolute left-0 text-xs md:text-sm underline text-white/60 hover:text-white"
+          >
             Skip
           </button>
         )}
@@ -262,12 +281,9 @@ useEffect(() => {
                       {heels > 0 && <p className="text-orange-400 text-sm">His Heels: +{heels}pts</p>}
                     </div>
                   </div>
-                  
                 </div>
               </div>
             )}
-
-            
           </motion.div>
         )}
       </AnimatePresence>
