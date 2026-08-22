@@ -1,8 +1,7 @@
 // client/socket.ts
 import { io } from "socket.io-client";
 
-// export const socket = io();
-const socketUrl = import.meta.env.VITE_BACKEND_URL || "";
+const socketUrl = import.meta.env.VITE_BACKEND_URL || undefined;
 export const socket = io(socketUrl);
 
 // optional: log connection once
