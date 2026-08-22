@@ -20,8 +20,13 @@ export default function Game() {
   const navigate = useNavigate();
   const { lobbyId } = useParams();
   const { initialGameState } = location.state || {}; // get initial game state from lobby or menu
-  let { gameType, numPlayers, playerNames } = location.state || {}; // set local settings
+  //  NEW WAY (Keeps data safely in memory)
+  const { gameType } = location.state || {};
+  const [numPlayers, setNumPlayers] = useState<number>(location.state?.numPlayers || 2);
+  const [playerNames, setPlayerNames] = useState<string[]>(location.state?.playerNames || []);
+
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
+
   const [players, setPlayers] = useState<PlayerType[]>(initialGameState?.players || []);
   const playerId = localStorage.getItem("playerId");
   const [revealGameOver, setRevealGameOver] = useState(false);
@@ -44,10 +49,17 @@ export default function Game() {
     console.log("My player ID:", playerId);
     console.log("location.state: ", location.state);
 
+    //  NEW WAY
     const handleGameUpdate = (state: GameStateType) => {
       console.log("Game state updated", state);
       setGameState(state);
       setPlayers(state.players);
+
+      // Sync multiplayer lobby updates directly to state so they don't break on game over
+      if (state.lobby) {
+        setNumPlayers(state.lobby.numPlayers);
+        setPlayerNames(state.lobby.players.map((p) => p.name));
+      }
 
       // If the summary screen is NOT open, update the header scores continuously
       if (!state.roundScoreVisible) {
@@ -248,10 +260,11 @@ export default function Game() {
 
         {gameState.gameOver && revealGameOver && (
           <GameOver
+            winner={gameState.totalScores[0] >= gameState.totalScores[1] ? "Row" : "Column"} // 👈 Pass winner string
             totalScores={gameState.totalScores}
-            playerNames={playerNames}
             resetGame={handleResetGame}
-            backToMenu={handleBackToMenu}
+            roundHistory={gameState.roundHistory || []} // 👈 Added missing roundHistory prop with a fallback array
+            onBackToMenu={handleBackToMenu} // 👈 Fixed back to menu callback prop name
           />
         )}
       </div>
