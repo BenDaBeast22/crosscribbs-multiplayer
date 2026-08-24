@@ -26,8 +26,8 @@ export default function PlayersDisplay({
     <div className="w-full players-display text-xs md:text-base font-medium flex justify-center italic md:not-italic mt-2">
       {numPlayers === 4 ? (
         <div className="flex flex-col">
-          {/* Players row */}
-          <div className="flex flex-col justify-center gap-4">
+          {/* Side-by-side on mobile, stacked column on md screens and up */}
+          <div className="flex flex-row md:flex-col justify-center gap-3 md:gap-4">
             <div className="flex flex-col gap-2">
               <span className="text-center font-medium text-white">Row Team:</span>
               {/* Row Team Players */}

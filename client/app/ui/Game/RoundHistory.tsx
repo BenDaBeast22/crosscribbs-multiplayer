@@ -27,7 +27,7 @@ export default function RoundHistory({ roundHistory, hideLatest = false }: Child
   const reversedTotals = [...visibleTotals].reverse();
 
   return (
-    <div className="bg-game-panel w-full text-white p-4 rounded-lg shadow-lg max-h-112.5 min-h-75 xl:min-h-100 xl:max-h-120 2xl:min-h-112.5 2xl:max-h-125 overflow-y-auto">
+    <div className="bg-game-panel w-full text-white p-4 rounded-lg shadow-lg max-h-112.5 min-h-75 xl:min-h-100 xl:max-h-120 2xl:min-h-112.5 2xl:max-h-125 overflow-y-auto scale-90 lg:scale-100">
       <h3 className="text-lg font-bold mb-3 text-center">Round History</h3>
       <div className="space-y-3">
         {reversedHistory.map((round, index) => (

@@ -174,13 +174,13 @@ export default function Game() {
       {/* FLOATING ACTION BUTTON: Displays strictly on mobile layout screens (`lg:hidden`) */}
       <button
         onClick={() => setIsHistoryOpen(true)}
-        className="fixed bottom-4 right-4 z-40 lg:hidden bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg border border-slate-600 flex items-center gap-1.5 active:scale-95 transition-transform"
+        className="fixed bottom-4 right-4 z-40 md:hidden bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg border border-slate-600 flex items-center gap-1.5 active:scale-95 transition-transform"
       >
         <span>📋</span> History
       </button>
 
-      <div className="flex-1 flex flex-col lg:flex-row short:flex-row relative items-center justify-center gap-0 md:gap-5 lg:gap-0 short:gap-2 2xl:gap-7">
-        <div className="w-full lg:w-1/3">
+      <div className="flex-1 flex flex-col md:flex-row short:flex-row relative items-center justify-center gap-0 md:gap-5 lg:gap-0 short:gap-2 2xl:gap-7">
+        <div className="w-full md:w-2/10 lg:w-1/3">
           <div className="flex justify-center">
             <div className="flex flex-col items-center gap-10 mb-2 md:mb-0">
               <PlayersDisplay
@@ -195,7 +195,7 @@ export default function Game() {
             </div>
           </div>
         </div>
-        <div className="w-full lg:w-1/3">
+        <div className="w-full md:5/10 lg:w-1/3">
           <Board
             board={gameState.board}
             lastMove={gameState.lastMove}
@@ -204,13 +204,13 @@ export default function Game() {
             cardSizes={cardSizes}
           />
         </div>
-        <div className="w-full lg:w-1/3">
+        <div className="w-full md:w-3/10 lg:w-1/3">
           <div className="flex justify-center">
             <div className="inline-flex flex-col items-center gap-10">
               <Crib crib={gameState.crib} dealer={gameState.dealer} cardSizes={cardSizes} />
 
               {/* DESKTOP NATIVE VIEW: Hides standard list container on mobile */}
-              <div className="hidden lg:block w-full">
+              <div className="hidden md:block w-full">
                 <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
               </div>
             </div>
