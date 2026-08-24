@@ -69,7 +69,7 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
   return (
     <div className="Header bg-game-panel flex flex-col relative">
       {/* MOBILE BAR LAYOUT */}
-      <div className="md:hidden flex items-center justify-between px-3 pt-2 pb-1 text-xs select-none">
+      <div className="md:hidden flex items-center justify-between px-2 pt-2 pb-1 text-xs select-none">
         <button
           className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
           onClick={backToMenu}
@@ -89,23 +89,18 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
         </button>
       </div>
 
-      {/* DESKTOP BRANDING BAR */}
-      <h1 className="hidden md:block title text-white text-center text-lg md:text-2xl font-semibold pt-2 pb-1">
-        Cross Cribbs
-      </h1>
-
-      {/* CONTROLS TRACK BAR CONTAINER: Changed to a 3-column grid structure on desktop */}
-      <div className="flex flex-col md:grid md:grid-cols-3 items-center gap-2 md:gap-0 px-2 md:px-4 md:pb-2 text-xs md:text-sm">
-        {/* Left Column: Action buttons (Desktop Only) */}
-        <div className="hidden md:flex items-center gap-4 justify-self-start">
+      {/* DESKTOP TOP ROW: Buttons (Left) | Title (Center) | Total Scores (Right) */}
+      <div className="hidden md:grid grid-cols-3 items-center px-4 pt-3 pb-1">
+        {/* Left: Action Buttons */}
+        <div className="flex items-center gap-3 justify-self-start">
           <button
-            className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-4 rounded transition-colors duration-200 cursor-pointer"
+            className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-3.5 text-xs sm:text-sm rounded transition-colors duration-200 cursor-pointer"
             onClick={backToMenu}
           >
             Back to Menu
           </button>
           <button
-            className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-4 rounded transition-colors duration-200 cursor-pointer"
+            className="bg-gray-500 hover:bg-gray-600 font-bold py-1.5 px-3.5 text-xs sm:text-sm rounded transition-colors duration-200 cursor-pointer"
             onClick={() => setShowInstructions(true)}
             aria-haspopup="dialog"
             aria-expanded={showInstructions}
@@ -114,72 +109,76 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
           </button>
         </div>
 
-        {/* Center Column: Turn Indicator + Timer (Desktop Only) */}
-        <div className="hidden md:flex items-center gap-3 justify-self-center">
-          {playerNames.length > 0 && turn > 0 && turn <= playerNames.length && (
-            <div className="flex items-center gap-2 text-sm shrink-0">
-              <span className={`w-2 h-2 rounded-full ${turn % 2 !== 0 ? "bg-cyan-400" : "bg-fuchsia-400"}`} />
-              <span className="text-white/80 font-bold truncate max-w-28">{playerNames[turn - 1]}</span>
-              <span className={turn % 2 !== 0 ? "text-cyan-400" : "text-fuchsia-400"}>
-                ({turn % 2 !== 0 ? "Row" : "Column"})
-              </span>
-              {dealer === turn && <span className="text-white/40 italic">· Dealer</span>}
-            </div>
-          )}
+        {/* Center: Title */}
+        <h1 className="title text-white text-center text-xl md:text-2xl font-semibold justify-self-center">
+          Cross Cribbs
+        </h1>
 
-          {/* Desktop Centralized Timer */}
-          <motion.div
-            onClick={triggerDisco}
-            animate={timeLeft <= 10 ? { scale: [1, 1.08, 1] } : { scale: 1 }}
-            transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-            className={`flex items-center gap-1.5 py-1 px-3 rounded-full font-bold transition-colors duration-300 cursor-pointer ${
-              timeLeft <= 10
-                ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                : "bg-gray-700/80 text-cyan-300 border border-gray-600"
-            }`}
-          >
-            {renderTimerIcon()}
-            <span>{timeLeft}s</span>
-          </motion.div>
-        </div>
-
-        {/* Mobile-Only Combined View: Retained fallback for clean mobile output sizing */}
-        <div className="md:hidden flex items-center justify-center mb-1">
-          {playerNames.length > 0 && turn > 0 && turn <= playerNames.length && (
-            <div className="flex items-center gap-2 text-xs shrink-0 bg-black/10 rounded-full">
-              <span className={`w-2 h-2 rounded-full ${turn % 2 !== 0 ? "bg-cyan-400" : "bg-fuchsia-400"}`} />
-              <span className="text-white/80 font-medium truncate max-w-24">{playerNames[turn - 1]}</span>
-              <span className={turn % 2 !== 0 ? "text-cyan-400" : "text-fuchsia-400"}>
-                ({turn % 2 !== 0 ? "Row" : "Column"})
-              </span>
-              {dealer === turn && <span className="text-white/40 italic">· Dealer</span>}
-
-              <motion.div
-                onClick={triggerDisco}
-                animate={timeLeft <= 10 ? { scale: [1, 1.05, 1] } : { scale: 1 }}
-                transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-                className={`flex items-center gap-1 ml-2 py-0.5 px-1.5 rounded text-[11px] font-bold border transition-colors ${
-                  timeLeft <= 10
-                    ? "bg-red-500/20 border-red-500/40 text-red-400"
-                    : "bg-gray-700/50 border-gray-600 text-cyan-300"
-                }`}
-              >
-                {renderTimerIcon()}
-                <span>{timeLeft}s</span>
-              </motion.div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column: Score Panel (Desktop Only) */}
-        <div className="hidden md:flex items-center gap-3 text-sm font-medium justify-self-end">
+        {/* Right: Scores */}
+        <div className="flex items-center gap-3 text-sm font-medium justify-self-end">
           <span className="text-white">Total Score:</span>
           <span className="text-cyan-400">Row: {rowScore}</span>
           <span className="text-fuchsia-400">Column: {colScore}</span>
         </div>
       </div>
 
-      {/* Mobile Score Panel Row View */}
+      {/* DESKTOP SECOND ROW: Turn Indicator & Timer */}
+      <div className="hidden md:flex items-center justify-center gap-3 pb-2 pt-1">
+        {playerNames.length > 0 && turn > 0 && turn <= playerNames.length && (
+          <div className="flex items-center gap-2 text-sm shrink-0">
+            <span className={`w-2 h-2 rounded-full ${turn % 2 !== 0 ? "bg-cyan-400" : "bg-fuchsia-400"}`} />
+            <span className="text-white/80 font-bold truncate max-w-28">{playerNames[turn - 1]}</span>
+            <span className={turn % 2 !== 0 ? "text-cyan-400" : "text-fuchsia-400"}>
+              ({turn % 2 !== 0 ? "Row" : "Column"})
+            </span>
+            {dealer === turn && <span className="text-white/40 italic">· Dealer</span>}
+          </div>
+        )}
+
+        <motion.div
+          onClick={triggerDisco}
+          animate={timeLeft <= 10 ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+          transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
+          className={`flex items-center gap-1.5 py-1 px-3 rounded-full font-bold transition-colors duration-300 cursor-pointer ${
+            timeLeft <= 10
+              ? "bg-red-500/20 text-red-400 border border-red-500/30"
+              : "bg-gray-700/80 text-cyan-300 border border-gray-600"
+          }`}
+        >
+          {renderTimerIcon()}
+          <span>{timeLeft}s</span>
+        </motion.div>
+      </div>
+
+      {/* MOBILE-ONLY INFO BAR */}
+      <div className="md:hidden flex items-center justify-center mb-1">
+        {playerNames.length > 0 && turn > 0 && turn <= playerNames.length && (
+          <div className="flex items-center gap-2 text-xs shrink-0 bg-black/10 rounded-full">
+            <span className={`w-2 h-2 rounded-full ${turn % 2 !== 0 ? "bg-cyan-400" : "bg-fuchsia-400"}`} />
+            <span className="text-white/80 font-medium truncate max-w-24">{playerNames[turn - 1]}</span>
+            <span className={turn % 2 !== 0 ? "text-cyan-400" : "text-fuchsia-400"}>
+              ({turn % 2 !== 0 ? "Row" : "Column"})
+            </span>
+            {dealer === turn && <span className="text-white/40 italic">· Dealer</span>}
+
+            <motion.div
+              onClick={triggerDisco}
+              animate={timeLeft <= 10 ? { scale: [1, 1.05, 1] } : { scale: 1 }}
+              transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
+              className={`flex items-center gap-1 ml-2 py-0.5 px-1.5 rounded text-[11px] font-bold border transition-colors ${
+                timeLeft <= 10
+                  ? "bg-red-500/20 border-red-500/40 text-red-400"
+                  : "bg-gray-700/50 border-gray-600 text-cyan-300"
+              }`}
+            >
+              {renderTimerIcon()}
+              <span>{timeLeft}s</span>
+            </motion.div>
+          </div>
+        )}
+      </div>
+
+      {/* MOBILE SCORE PANEL ROW VIEW */}
       <div className="md:hidden flex justify-center gap-3 text-xs italic mb-1.5">
         <span className="text-white/60">Total Score: </span>
         <span className="text-cyan-400">Row: {rowScore}</span>
