@@ -32,7 +32,8 @@ export default function PlayerSetup({ numPlayers, onSetPlayerNames, onBack }: Ch
               id={`player${index + 1}`}
               value={name.toString()}
               onChange={(e) => handleNameChange(index, e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100" style={{"--tw-ring-color": "#F3A712"} as React.CSSProperties}
+              className="w-full px-4 py-3 rounded-lg bg-white text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100"
+              style={{ "--tw-ring-color": "#F3A712" } as React.CSSProperties}
               maxLength={16}
               placeholder={`Player ${index + 1} name`}
             />
@@ -44,15 +45,13 @@ export default function PlayerSetup({ numPlayers, onSetPlayerNames, onBack }: Ch
           onClick={() => onSetPlayerNames(playerNames)}
           disabled={!allNamesEntered}
           className={`btn-menu ${
-            allNamesEntered
-              ? "btn-menu-primary"
-              : "opacity-50 cursor-not-allowed bg-gray-400 text-gray-600"
+            allNamesEntered ? "btn-menu-primary" : "opacity-50 cursor-not-allowed bg-gray-400 text-gray-600"
           }`}
         >
           Start Game
         </button>
+        <BackButton handler={onBack} />
       </div>
-      <BackButton handler={onBack} />
     </div>
   );
 }

@@ -61,9 +61,9 @@ export default function GameSetup() {
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
-        className="text-center pt-16 pb-15"
+        className="text-center py-5"
       >
-        <h1 className="text-6xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
+        <h1 className="text-5xl sm:text-6xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
       </motion.div>
 
       {/* Blur lives here, on a plain div that NEVER animates */}
@@ -127,4 +127,3 @@ export default function GameSetup() {
     </div>
   );
 }
-
