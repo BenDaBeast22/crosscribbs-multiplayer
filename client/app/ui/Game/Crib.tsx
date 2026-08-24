@@ -14,7 +14,7 @@ export default function Crib({ crib, dealer, cardSizes }: CribProps) {
 
   return (
     /* Tightened padding to p-2 on mobile and applied a uniform 90% scale drop via scale-90 sm:scale-100 */
-    <div className="bg-game-panel p-2 md:p-4 rounded-lg shadow-lg scale-90 lg:scale-100 transition-transform origin-center">
+    <div className="bg-game-panel p-2 md:p-4 rounded-lg shadow-lg scale-80 md:scale-90 lg:scale-100 transition-transform origin-center">
       {/* Downscaled the margin bottom class to mb-1.5 */}
       <h3 className="text-white text-center font-bold text-xs md:text-lg mb-1.5">Crib: {dealerTeam}</h3>
       {/* Reduced element track gaps from space-x-3 down to space-x-1.5 */}

@@ -174,7 +174,7 @@ export default function Game() {
       {/* FLOATING ACTION BUTTON: Displays strictly on mobile layout screens (`lg:hidden`) */}
       <button
         onClick={() => setIsHistoryOpen(true)}
-        className="fixed bottom-4 right-4 z-40 md:hidden bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 px-4 rounded-full shadow-lg border border-slate-600 flex items-center gap-1.5 active:scale-95 transition-transform"
+        className="fixed bottom-3 right-3 z-40 md:hidden bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs py-2 px-4 rounded-full shadow-lg border border-slate-600 flex items-center gap-1.5 active:scale-95 transition-transform"
       >
         <span>📋</span> History
       </button>
