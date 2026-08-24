@@ -58,7 +58,7 @@ export default function PlayersDisplay({
             <div className="flex flex-col gap-2">
               <span className="text-center font-medium text-white">Column Team:</span>
               {/* Column Team Players */}
-              <div className="flex flex-row gap-2 lg:gap-0"> 
+              <div className="flex flex-row gap-2 lg:gap-0">
                 <Player
                   name={playerNames[1]}
                   player={players[1]}

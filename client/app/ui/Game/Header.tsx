@@ -181,8 +181,8 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
 
             {/* Total Score Inline */}
             <div className="flex items-center gap-1.5 font-semibold text-[11px]">
-              <span className="text-cyan-400">Row: {rowScore}</span>
-              <span className="text-fuchsia-400">Column: {colScore}</span>
+              <span className="text-cyan-400">R: {rowScore}</span>
+              <span className="text-fuchsia-400">C: {colScore}</span>
             </div>
           </div>
         )}
