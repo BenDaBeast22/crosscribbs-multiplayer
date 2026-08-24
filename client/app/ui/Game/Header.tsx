@@ -150,22 +150,23 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
         </motion.div>
       </div>
 
-      {/* MOBILE-ONLY INFO BAR */}
-      <div className="md:hidden flex items-center justify-center mb-1">
+      {/* MOBILE-ONLY COMBINED ROW: Player Turn + Timer + Divider + Total Score */}
+      <div className="md:hidden flex items-center justify-center gap-2 px-2 mb-1.5 text-xs">
         {playerNames.length > 0 && turn > 0 && turn <= playerNames.length && (
-          <div className="flex items-center gap-2 text-xs shrink-0 bg-black/10 rounded-full">
+          <div className="flex items-center gap-1.5 shrink-0 bg-black/10 py-0.5 px-2 rounded-full">
             <span className={`w-2 h-2 rounded-full ${turn % 2 !== 0 ? "bg-cyan-400" : "bg-fuchsia-400"}`} />
-            <span className="text-white/80 font-medium truncate max-w-24">{playerNames[turn - 1]}</span>
+            <span className="text-white/80 font-medium truncate max-w-20">{playerNames[turn - 1]}</span>
             <span className={turn % 2 !== 0 ? "text-cyan-400" : "text-fuchsia-400"}>
-              ({turn % 2 !== 0 ? "Row" : "Column"})
+              ({turn % 2 !== 0 ? "R" : "C"})
             </span>
-            {dealer === turn && <span className="text-white/40 italic">· Dealer</span>}
+            {dealer === turn && <span className="text-white/40 italic">· D</span>}
 
+            {/* Timer */}
             <motion.div
               onClick={triggerDisco}
               animate={timeLeft <= 10 ? { scale: [1, 1.05, 1] } : { scale: 1 }}
               transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-              className={`flex items-center gap-1 ml-2 py-0.5 px-1.5 rounded text-[11px] font-bold border transition-colors ${
+              className={`flex items-center gap-1 ml-1 py-0.5 px-1.5 rounded text-[11px] font-bold border transition-colors ${
                 timeLeft <= 10
                   ? "bg-red-500/20 border-red-500/40 text-red-400"
                   : "bg-gray-700/50 border-gray-600 text-cyan-300"
@@ -174,15 +175,17 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
               {renderTimerIcon()}
               <span>{timeLeft}s</span>
             </motion.div>
+
+            {/* Divider */}
+            <span className="h-3 border-l border-white/20 mx-0.5" aria-hidden="true" />
+
+            {/* Total Score Inline */}
+            <div className="flex items-center gap-1.5 font-semibold text-[11px]">
+              <span className="text-cyan-400">Row: {rowScore}</span>
+              <span className="text-fuchsia-400">Column: {colScore}</span>
+            </div>
           </div>
         )}
-      </div>
-
-      {/* MOBILE SCORE PANEL ROW VIEW */}
-      <div className="md:hidden flex justify-center gap-3 text-xs italic mb-1.5">
-        <span className="text-white/60">Total Score: </span>
-        <span className="text-cyan-400">Row: {rowScore}</span>
-        <span className="text-fuchsia-400">Column: {colScore}</span>
       </div>
 
       <ScorePegboard rowScore={rowScore} colScore={colScore} />
