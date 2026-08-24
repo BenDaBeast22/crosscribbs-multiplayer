@@ -1,32 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import ServerLoading from "~/ui/Game/ServerLoading";
-import { ensureServerReady } from "~/connections/serverStatus";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 export default function MultiplayerSetup() {
   const navigate = useNavigate();
   const [fadingOut, setFadingOut] = useState(false);
-  const [serverAwake, setServerAwake] = useState(false);
 
   const handlePlay = () => {
     // trigger fade animation before navigating
     setFadingOut(true);
     setTimeout(() => navigate("/menu"), 300);
   };
-
-  useEffect(() => {
-    async function setup() {
-      if (!serverAwake) {
-        await ensureServerReady();
-        setServerAwake(true);
-      }
-    }
-
-    setup();
-  }, []);
-
-  if (!serverAwake) return <ServerLoading />;
 
   return (
     <motion.div
@@ -35,7 +19,7 @@ export default function MultiplayerSetup() {
       transition={{ duration: 0.3 }}
       className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4"
     >
-      <motion.div 
+      <motion.div
         initial={{ y: -30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, damping: 15 }}
@@ -43,17 +27,17 @@ export default function MultiplayerSetup() {
       >
         <h1 className="text-8xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
       </motion.div>
-      <motion.div 
+      <motion.div
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.15 }}
         className="bg-panel panel-card card-max flex flex-col mt-3"
       >
         <div className="space-y-5">
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handlePlay} 
+            onClick={handlePlay}
             className="btn-menu btn-menu-primary"
           >
             Play
@@ -66,4 +50,3 @@ export default function MultiplayerSetup() {
     </motion.div>
   );
 }
-
