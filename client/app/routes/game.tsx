@@ -20,10 +20,8 @@ export default function Game() {
   const navigate = useNavigate();
   const { lobbyId } = useParams();
   const { initialGameState } = location.state || {}; // get initial game state from lobby or menu
-  //  NEW WAY (Keeps data safely in memory)
-  const { gameType } = location.state || {};
-  const [numPlayers, setNumPlayers] = useState<number>(location.state?.numPlayers || 2);
-  const [playerNames, setPlayerNames] = useState<string[]>(location.state?.playerNames || []);
+  let [numPlayers, setNumPlayers] = useState<number>(location.state?.numPlayers || 2);
+  let [playerNames, setPlayerNames] = useState<string[]>(location.state?.playerNames || []);
 
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
 
@@ -49,7 +47,6 @@ export default function Game() {
     console.log("My player ID:", playerId);
     console.log("location.state: ", location.state);
 
-    //  NEW WAY
     const handleGameUpdate = (state: GameStateType) => {
       console.log("Game state updated", state);
       setGameState(state);
