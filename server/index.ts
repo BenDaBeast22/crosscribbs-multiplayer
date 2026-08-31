@@ -24,7 +24,6 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-
 // Serve the built Vite client
 // __dirname at runtime = server/dist/server, so go up to project root
 const frontendPath = path.join(process.cwd(), "..", "client", "dist");
@@ -270,6 +269,17 @@ io.on("connection", (socket) => {
         socket.emit("gameStateUpdate", game.getGameState());
       }
     }
+  });
+
+  socket.on("sendChatMessage", ({ lobbyId, playerId, playerName, text }) => {
+    const message = { id: crypto.randomUUID(), playerId, playerName, text, timestamp: Date.now() };
+    if (lobbyId) io.to(lobbyId).emit("chatMessage", message);
+    else socket.emit("chatMessage", message); // local/solo play
+  });
+
+  socket.on("sendEmote", ({ lobbyId, emote }) => {
+    if (lobbyId) io.to(lobbyId).emit("emoteReceived", { emote });
+    else socket.emit("emoteReceived", { emote });
   });
 
   socket.on("disconnect", () => {

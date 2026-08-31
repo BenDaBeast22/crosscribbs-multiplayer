@@ -5,6 +5,8 @@ import GameOver from "~/ui/Game/GameOver";
 import TurnIndicator from "~/ui/Game/TurnIndicator";
 import RoundHistory from "~/ui/Game/RoundHistory";
 import Crib from "~/ui/Game/Crib";
+import Chat from "~/ui/Game/Chat";
+import EmoteOverlay from "~/ui/Game/EmoteOverlay";
 import { useEffect, useRef, useState } from "react";
 import type { GameStateType, LobbyType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
@@ -33,7 +35,7 @@ export default function Game() {
   const [displayedScores, setDisplayedScores] = useState<[number, number]>(initialGameState?.totalScores || [0, 0]);
   const isScoreVisibleRef = useRef(initialGameState?.roundScoreVisible || false);
 
-  // NEW STATE: Controls whether the popup modal is open on mobile viewports
+  // Controls whether the popup modal is open on mobile viewports
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   // Initialize refs to the CURRENT counts so a fresh page load / rejoin
@@ -111,6 +113,8 @@ export default function Game() {
 
   console.log("playerNames = ", playerNames);
 
+  const currentPlayerName = players.find((p) => p.id === playerId)?.name || playerNames[gameState.turn] || "You";
+
   const handleResetGame = () => {
     const payload = { lobbyId: isMultiplayer ? lobbyId : undefined, playerId };
     socket.emit("resetGame", payload);
@@ -168,6 +172,9 @@ export default function Game() {
         dealer={gameState.dealer}
       />
 
+      {/* Floating emote animations render above everything, but never block clicks */}
+      {isMultiplayer && <EmoteOverlay />}
+
       {/* FLOATING ACTION BUTTON: Displays strictly on mobile layout screens (`lg:hidden`) */}
       <button
         onClick={() => setIsHistoryOpen(true)}
@@ -175,6 +182,16 @@ export default function Game() {
       >
         <span>📋</span> History
       </button>
+
+      {/* Chat + emote picker — multiplayer only, bottom-left so it doesn't collide with the History FAB */}
+      {isMultiplayer && (
+        <Chat
+          lobbyId={lobbyId}
+          playerId={playerId ?? ""}
+          playerName={currentPlayerName}
+          isMultiplayer={isMultiplayer}
+        />
+      )}
 
       <div className="flex-1 flex flex-col md:flex-row short:flex-row relative items-center justify-center gap-0 md:gap-5 lg:gap-0 short:gap-2 2xl:gap-7">
         <div className="w-full md:w-2/10 lg:w-1/3">
