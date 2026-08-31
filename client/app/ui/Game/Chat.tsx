@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../../connections/socket";
+import { playMessageNotificationSound, playMessageSentSound } from "~/utils/sounds";
 
 type ChatMessageType = {
   id: string;
@@ -29,7 +30,10 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
   useEffect(() => {
     const handleIncoming = (msg: ChatMessageType) => {
       setMessages((prev) => [...prev, msg]);
-      if (!isOpen) setUnread((u) => u + 1);
+      if (msg.playerId !== playerId) {
+        playMessageNotificationSound();
+        if (!isOpen) setUnread((u) => u + 1);
+      }
     };
     socket.on("chatMessage", handleIncoming);
     return () => {
@@ -53,6 +57,7 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
       playerName,
       text,
     });
+    playMessageSentSound();
     setDraft("");
   };
 
@@ -64,6 +69,7 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
       emote,
     });
     setShowEmotes(false);
+    playMessageSentSound();
   };
 
   return (

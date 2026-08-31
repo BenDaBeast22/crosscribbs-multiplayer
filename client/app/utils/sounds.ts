@@ -1,14 +1,14 @@
-const placeSound =
-  typeof Audio !== "undefined" ? new Audio("/sounds/card-place.mp3") : null;
-const discardSound =
-  typeof Audio !== "undefined" ? new Audio("/sounds/card-discard.mp3") : null;
+const placeSound = typeof Audio !== "undefined" ? new Audio("/sounds/card-place.mp3") : null;
+const discardSound = typeof Audio !== "undefined" ? new Audio("/sounds/card-discard.mp3") : null;
 
 const tickSound = typeof Audio !== "undefined" ? new Audio("/sounds/reveal-tick.mp3") : null;
 const cribRevealSound = typeof Audio !== "undefined" ? new Audio("/sounds/crib-reveal.mp3") : null;
 const winnerSound = typeof Audio !== "undefined" ? new Audio("/sounds/winner-fanfare.mp3") : null;
 const raceLoopSound = typeof Audio !== "undefined" ? new Audio("/sounds/race-loop.mp3") : null;
-if (raceLoopSound) raceLoopSound.loop = true;
+const messageSent = typeof Audio !== "undefined" ? new Audio("/sounds/message-sent.m4a") : null;
+const messageNotification = typeof Audio !== "undefined" ? new Audio("/sounds/message-notification.mp3") : null;
 
+if (raceLoopSound) raceLoopSound.loop = true;
 
 function play(base: HTMLAudioElement | null, volume = 0.5) {
   if (!base) return;
@@ -39,6 +39,14 @@ export function playCribRevealSound() {
 
 export function playWinnerSound() {
   play(winnerSound, 0.6);
+}
+
+export function playMessageSentSound() {
+  play(messageSent, 1);
+}
+
+export function playMessageNotificationSound() {
+  play(messageNotification, 0.5);
 }
 
 export function startRaceLoopSound() {
