@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { socket } from "../../connections/socket";
+import { playEmoteSound } from "~/utils/sounds";
 
 type ActiveEmote = { id: string; emote: string; left: number };
 
@@ -10,6 +11,7 @@ export default function EmoteOverlay() {
 
   useEffect(() => {
     const handleEmote = (data: { emote: string }) => {
+      playEmoteSound(data.emote);
       const id = `emote-${Date.now()}-${emoteCounter++}`;
       const left = 20 + Math.random() * 60; // 20%–80% across the screen
       setActiveEmotes((prev) => [...prev, { id, emote: data.emote, left }]);

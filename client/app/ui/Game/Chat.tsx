@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../../connections/socket";
-import { playMessageNotificationSound, playMessageSentSound } from "~/utils/sounds";
+import { playEmoteSound, playMessageNotificationSound, playMessageSentSound } from "~/utils/sounds";
 
 type ChatMessageType = {
   id: string;
@@ -17,7 +17,7 @@ type ChatProps = {
   isMultiplayer: boolean;
 };
 
-const EMOTES = ["👍", "😂", "😮", "😡", "🎉", "🤔", "🃏", "🔥"];
+const EMOTES = ["👍", "😂", "😮", "😡", "🤔", "🙄", "🤫", "🎉"];
 
 export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: ChatProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,7 +69,7 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
       emote,
     });
     setShowEmotes(false);
-    playMessageSentSound();
+    playEmoteSound(emote);
   };
 
   return (
