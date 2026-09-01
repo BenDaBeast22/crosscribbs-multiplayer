@@ -1,8 +1,6 @@
 import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import { motion } from "framer-motion";
-import { useCallback } from "react";
-import { socket } from "~/connections/socket";
 import { getPlayer } from "~/helpers";
 
 interface CribProps {

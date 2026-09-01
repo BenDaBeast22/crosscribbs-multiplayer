@@ -163,7 +163,7 @@ export default function Game() {
   const cardSizes = {
     base: "w-[50px] h-[70px] max-w-[60px] max-h-[84px] short:!w-[48px] short:!h-[67.2px] short:!max-w-[48px] short:!max-h-[67.2px]",
     sm: "md:w-[68px] md:h-[95px] md:max-w-[68px] md:max-h-[95px]",
-    md: "lg:w-[81.9px] lg:h-[116.55px] lg:max-w-[93.6px] lg:max-h-[133.2px]",
+    md: "lg:w-[74.8px] lg:h-[104.5px] lg:max-w-[93.6px] lg:max-h-[133.2px]",
     xl: "2xl:w-[93.6px] 2xl:h-[133.2px]",
   };
 
