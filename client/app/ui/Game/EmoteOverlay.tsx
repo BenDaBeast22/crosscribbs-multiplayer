@@ -10,8 +10,8 @@ export default function EmoteOverlay() {
   const [activeEmotes, setActiveEmotes] = useState<ActiveEmote[]>([]);
 
   useEffect(() => {
-    const handleEmote = (data: { emote: string }) => {
-      playEmoteSound(data.emote);
+    const handleEmote = (data: { emote: string; randomNum: number }) => {
+      playEmoteSound(data.emote, data.randomNum);
       const id = `emote-${Date.now()}-${emoteCounter++}`;
       const left = 20 + Math.random() * 60; // 20%–80% across the screen
       setActiveEmotes((prev) => [...prev, { id, emote: data.emote, left }]);

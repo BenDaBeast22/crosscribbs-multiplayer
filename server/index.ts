@@ -278,8 +278,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendEmote", ({ lobbyId, emote }) => {
-    if (lobbyId) io.to(lobbyId).emit("emoteReceived", { emote });
-    else socket.emit("emoteReceived", { emote });
+    const randomNum = Math.random();
+    if (lobbyId) io.to(lobbyId).emit("emoteReceived", { emote, randomNum });
+    else socket.emit("emoteReceived", { emote, randomNum });
   });
 
   socket.on("disconnect", () => {

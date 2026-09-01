@@ -10,6 +10,7 @@ const messageNotification = typeof Audio !== "undefined" ? new Audio("/sounds/me
 
 // emote sound effects
 const thumbsUpSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/noice.m4a") : null;
+const niceJobTeamSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/nice-job-team.mp3") : null;
 const laughEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/laugh.m4a") : null;
 const naniEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/nani.mp3") : null;
 const angryEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/wryyy.mp3") : null;
@@ -79,10 +80,14 @@ export function playMessageNotificationSound() {
   play(messageNotification, 0.5);
 }
 
-export function playEmoteSound(emote: string) {
+export function playEmoteSound(emote: string, randomNum: number) {
   switch (emote) {
     case "👍":
-      play(thumbsUpSound, 1);
+      if (randomNum < 0.5) {
+        play(thumbsUpSound, 1);
+      } else {
+        play(niceJobTeamSound, 0.5);
+      }
       break;
     case "😂":
       play(laughEmoteSound, 1);
@@ -94,8 +99,7 @@ export function playEmoteSound(emote: string) {
       play(angryEmoteSound, 1);
       break;
     case "🤔":
-      if (Math.random() < 0.3) {
-        console.log(Math.random());
+      if (randomNum < 0.3) {
         play(hmmmFullEmoteSound, 0.6);
       } else {
         play(hmmmEmoteSound, 0.4);

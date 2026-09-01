@@ -69,7 +69,6 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
       emote,
     });
     setShowEmotes(false);
-    playEmoteSound(emote);
   };
 
   return (
@@ -153,7 +152,7 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
                 className="text-lg hover:scale-110 transition-transform shrink-0"
                 title="Emotes"
               >
-                😊
+                😄
               </button>
               <input
                 value={draft}
