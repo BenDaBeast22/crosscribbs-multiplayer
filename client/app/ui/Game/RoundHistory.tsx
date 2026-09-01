@@ -25,13 +25,19 @@ export default function RoundHistory({ roundHistory, hideLatest = false }: Child
 
   const reversedHistory = [...visibleHistory].reverse();
   const reversedTotals = [...visibleTotals].reverse();
+  const roundHistoryContainerStyles =
+    "bg-game-panel w-full p-4 rounded-lg text-white min-h-87 max-h-87 2xl:min-h-112.5 2xl:max-h-125 overflow-y-auto space-y-2.5";
 
   if (reversedHistory.length === 0) {
-    return <div className="w-full text-center py-8 text-slate-400 text-sm italic">No rounds played yet.</div>;
+    return (
+      <div className={roundHistoryContainerStyles}>
+        <div className="w-full text-center py-8 text-slate-400 text-sm italic">No rounds played yet.</div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-game-panel w-full p-4 rounded-lg shadow-lg text-white max-h-112.5 min-h-75 xl:min-h-100 xl:max-h-120 2xl:min-h-112.5 2xl:max-h-125 overflow-y-auto space-y-2.5">
+    <div className={roundHistoryContainerStyles}>
       <h3 className="text-lg font-bold mb-3 text-center hidden sm:block">Round History</h3>
       {reversedHistory.map((round, index) => {
         const currentTotals = reversedTotals[index];

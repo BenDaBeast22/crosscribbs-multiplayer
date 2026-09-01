@@ -225,8 +225,8 @@ export default function Game() {
           />
         </div>
         <div className="w-full md:w-3/10 lg:w-1/3">
-          <div className="flex justify-center">
-            <div className="inline-flex flex-col items-center gap-4">
+          <div className="flex justify-center items-center">
+            <div className="inline-flex flex-col items-center gap-5">
               <Crib
                 crib={gameState.crib}
                 dealer={gameState.dealer}
