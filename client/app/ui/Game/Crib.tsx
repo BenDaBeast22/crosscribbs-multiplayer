@@ -82,9 +82,9 @@ export default function Crib({
         </div>
         <button
           onClick={handleDiscard}
-          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold text-[10px] py-0.5 px-1.5 lg:p-2 rounded lg:text-sm cursor-pointer whitespace-nowrap`}
+          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold text-[10px] py-0.5 px-1.5 lg:p-2 mt-3 rounded lg:text-sm cursor-pointer whitespace-nowrap`}
         >
-          Discard
+          Discard To Crib
         </button>
       </div>
     </div>

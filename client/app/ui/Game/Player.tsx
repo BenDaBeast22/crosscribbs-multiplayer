@@ -16,8 +16,7 @@ type ChildProps = {
 };
 
 function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, cardSizes }: ChildProps) {
-  const { hand, discardedToCrib } = player;
-  const localPlayerId = localStorage.getItem("playerId");
+  const { hand } = player;
 
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
   const backImgSrc = `/cards/backs/red2.svg`;
@@ -29,12 +28,6 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
     },
     [player],
   );
-
-  const handleDiscard = useCallback(() => {
-    if (card) {
-      socket.emit("discardToCrib", { lobbyId, numPlayers, player, playerId, localPlayerId, card });
-    }
-  }, [card, player, playerId, lobbyId, numPlayers]);
 
   const isMultiplayer = !!lobbyId;
   const isTurn = player.num === turn;
@@ -51,15 +44,6 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
   // NEW — whether the card's FACE should be showing right now
   const showFront = isMultiplayer ? isPlayer && !!card : isTurn && !!card;
   const frontImgSrc = card ? card.frontImgSrc : backImgSrc;
-
-  const displayDiscardButton = () => {
-    if (isMultiplayer) {
-      return isPlayer && isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
-    }
-    return isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
-  };
-
-  const displayDiscardButtonClass = displayDiscardButton() ? "" : "invisible";
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
@@ -126,13 +110,6 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
         {/* Scaled text font metrics down to text-[10px] for tight viewports */}
         <p className={`${displayCardsLeft} text-[10px] lg:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
-
-        <button
-          onClick={handleDiscard}
-          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold text-[10px] py-0.5 px-1.5 lg:p-2 rounded lg:text-sm cursor-pointer whitespace-nowrap`}
-        >
-          Discard
-        </button>
       </div>
     </div>
   );
