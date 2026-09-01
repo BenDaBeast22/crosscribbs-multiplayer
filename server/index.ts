@@ -258,10 +258,10 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("discardToCrib", ({ lobbyId, numPlayers, player, card, playerId, localPlayerId }) => {
+  socket.on("discardToCrib", ({ lobbyId, numPlayers, playerId, localPlayerId }) => {
     const game = getGame(localPlayerId, lobbyId);
     if (!game) return;
-    const success = game.discardToCrib(numPlayers, player, card, playerId);
+    const success = game.discardToCrib(numPlayers, playerId);
     if (success) {
       if (lobbyId) {
         io.to(lobbyId).emit("gameStateUpdate", game.getGameState());

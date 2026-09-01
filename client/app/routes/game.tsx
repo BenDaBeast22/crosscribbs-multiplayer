@@ -145,6 +145,12 @@ export default function Game() {
     }
   };
 
+  const discardToCrib = (lobbyId: string | undefined, numPlayers: number) => {
+    const playerId = socket.id;
+    const localPlayerId = localStorage.getItem("playerId");
+    socket.emit("discardToCrib", { lobbyId, numPlayers, playerId, localPlayerId });
+  };
+
   const nextRound = () => {
     console.log("isMultiplayer = ", isMultiplayer);
     if (isMultiplayer) {
@@ -221,7 +227,17 @@ export default function Game() {
         <div className="w-full md:w-3/10 lg:w-1/3">
           <div className="flex justify-center">
             <div className="inline-flex flex-col items-center gap-10">
-              <Crib crib={gameState.crib} dealer={gameState.dealer} cardSizes={cardSizes} />
+              <Crib
+                crib={gameState.crib}
+                dealer={gameState.dealer}
+                cardSizes={cardSizes}
+                players={gameState.players}
+                turn={gameState.turn}
+                playerId={socket.id}
+                lobbyId={lobbyId}
+                numPlayers={numPlayers}
+                discardToCrib={discardToCrib}
+              />
 
               {/* DESKTOP NATIVE VIEW: Hides standard list container on mobile */}
               <div className="hidden md:block w-full">

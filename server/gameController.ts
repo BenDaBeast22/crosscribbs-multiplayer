@@ -180,9 +180,11 @@ export default class GameController implements GameStateType {
     return true;
   }
 
-  discardToCrib(numPlayers: number, player: PlayerType, card: CardType, playerId?: string): boolean {
-    if (player.num !== this.turn) return false;
+  discardToCrib(numPlayers: number, playerId?: string): boolean {
+    console.log("discard function");
     if (this.lobby && playerId !== this.currentPlayerId) return false; // if multi ensure matching playerId for correct turn id
+    const player = this.getPlayer(this.turn);
+    if (player.num !== this.turn) return false;
 
     if (numPlayers === 2 && player.discardedToCrib.length >= 2) {
       return false;
@@ -192,17 +194,14 @@ export default class GameController implements GameStateType {
     }
 
     // discard card to crib
+    const card = player.hand.pop();
+    if (!card) return false;
     this.crib.push(card);
-    const serverPlayer = this.getPlayer(player.num);
-    serverPlayer.discardedToCrib.push(card);
+    player.discardedToCrib.push(card);
 
-    // remove card from Players hand
-    let hand: CardType[] = serverPlayer.hand;
-    hand.pop();
     this.updateSelectedCard();
-
     // Change turns if last card
-    if (!hand.length) this.nextTurn();
+    if (!player.hand.length) this.nextTurn();
 
     return true;
   }
@@ -268,8 +267,8 @@ export default class GameController implements GameStateType {
     }
     // Score the total using round scores
     const tally = tallyScores(this.board, cutCard ?? undefined);
-    this.roundScores = tally.totals;       // unchanged behavior for existing bonus/win logic
-    this.lineScores = tally.lines;         // NEW — per-row/column breakdown for the client
+    this.roundScores = tally.totals; // unchanged behavior for existing bonus/win logic
+    this.lineScores = tally.lines; // NEW — per-row/column breakdown for the client
     const [rowRoundScore, columnRoundScore] = this.roundScores;
 
     if (this.dealer === 1 || this.dealer === 3) {
@@ -283,7 +282,8 @@ export default class GameController implements GameStateType {
     const rowPoints = rowRoundScore.total;
     const columnPoints = columnRoundScore.total;
     const pointDiff = Math.abs(rowPoints - columnPoints);
-    const roundWinner: "Row" | "Column" | "Tie" = rowPoints === columnPoints ? "Tie" : rowPoints > columnPoints ? "Row" : "Column";
+    const roundWinner: "Row" | "Column" | "Tie" =
+      rowPoints === columnPoints ? "Tie" : rowPoints > columnPoints ? "Row" : "Column";
 
     this.roundHistory.push({
       round: this.currentRound,
