@@ -1,7 +1,7 @@
 import Player from "./Player";
 import { socket } from "../../connections/socket";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
-import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
+import type { CardType } from "@cross-cribbs/shared-types/CardType";
 
 type ChildProps = {
   players: PlayerType[];
@@ -10,18 +10,9 @@ type ChildProps = {
   lobbyId: string | undefined;
   turn: number;
   crib: CardType[];
-  cardSizes: CardSizesType;
 };
 
-export default function PlayersDisplay({
-  players,
-  playerNames,
-  numPlayers,
-  lobbyId,
-  turn,
-  crib,
-  cardSizes,
-}: ChildProps) {
+export default function PlayersDisplay({ players, playerNames, numPlayers, lobbyId, turn, crib }: ChildProps) {
   return (
     <div className="w-full players-display text-xs md:text-base font-medium flex justify-center italic md:not-italic mt-1.5 mb-3">
       {numPlayers === 4 ? (
@@ -40,7 +31,6 @@ export default function PlayersDisplay({
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
-                  cardSizes={cardSizes}
                 />
                 <Player
                   name={playerNames[2]}
@@ -50,7 +40,6 @@ export default function PlayersDisplay({
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
-                  cardSizes={cardSizes}
                 />
               </div>
             </div>
@@ -67,7 +56,6 @@ export default function PlayersDisplay({
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
-                  cardSizes={cardSizes}
                 />
                 <Player
                   name={playerNames[3]}
@@ -77,7 +65,6 @@ export default function PlayersDisplay({
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
-                  cardSizes={cardSizes}
                 />
               </div>
             </div>
@@ -96,7 +83,6 @@ export default function PlayersDisplay({
               numPlayers={numPlayers}
               lobbyId={lobbyId}
               playerId={socket.id}
-              cardSizes={cardSizes}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -109,7 +95,6 @@ export default function PlayersDisplay({
               numPlayers={numPlayers}
               lobbyId={lobbyId}
               playerId={socket.id}
-              cardSizes={cardSizes}
             />
           </div>
         </div>

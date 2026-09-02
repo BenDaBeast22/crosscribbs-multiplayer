@@ -51,7 +51,7 @@ export default function Crib({ crib, dealer, players, turn, playerId, lobbyId, n
             return (
               <motion.img
                 key={i}
-                className="h-[calc(11vh*0.55)] md:h-[calc(13vh*0.75)] lg:h-[calc(13vh*0.6)] xl:h-[calc(13vh*0.9)] aspect-[2.5/3.5] rounded-md shadow-lg object-contain"
+                className="h-[calc(11vh*0.55)] md:h-[calc(13vh*0.75)] lg:h-[calc(13vh*0.5)] xl:h-[calc(13vh*0.6)] 2xl:h-[calc(13vh*0.8)] aspect-[2.5/3.5] rounded-md shadow-lg object-contain"
                 src={backImgSrc}
                 alt=""
                 initial={false}

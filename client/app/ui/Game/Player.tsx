@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
-import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
+import type { CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 
 type ChildProps = {
@@ -11,10 +11,18 @@ type ChildProps = {
   numPlayers: number;
   lobbyId: string | undefined;
   playerId: string | undefined;
-  cardSizes: CardSizesType;
 };
 
-function PlayerComponent({ name, player, turn, lobbyId, playerId, cardSizes }: ChildProps) {
+// Player hand cards are shown smaller than board cards — multiplier is relative
+// to the board's own per-card height (boardMaxHeight / 5 rows): 11vh mobile, 13vh md/lg
+const PLAYER_CARD_SCALE = {
+  base: 0.55, // mobile
+  md: 0.75,
+  lg: 0.6,
+  xl: 0.9,
+};
+
+function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) {
   const { hand } = player;
 
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
@@ -45,8 +53,8 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, cardSizes }: C
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
-  /* Compact on mobile (36px x 50.4px base) while delegating medium/large scaling to cardSizes */
-  const cardImgClasses = `w-[36px] h-[50.4px] ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
+  /* Sized off the board's own per-card height (11vh / 13vh) scaled down by PLAYER_CARD_SCALE */
+  const cardImgClasses = `h-[calc(11vh*${PLAYER_CARD_SCALE.base})] md:h-[calc(13vh*${PLAYER_CARD_SCALE.md})] lg:h-[calc(13vh*${PLAYER_CARD_SCALE.lg})] xl:h-[calc(13vh*${PLAYER_CARD_SCALE.xl})] aspect-[2.5/3.5] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
 
   return (
     <div
