@@ -17,7 +17,7 @@ type ChildProps = {
 // to the board's own per-card height (boardMaxHeight / 5 rows): 11vh mobile, 13vh md/lg
 const PLAYER_CARD_SCALE = {
   base: 0.55, // mobile
-  md: 0.75,
+  md: 0.6,
   lg: 0.6,
   xl: 0.9,
 };

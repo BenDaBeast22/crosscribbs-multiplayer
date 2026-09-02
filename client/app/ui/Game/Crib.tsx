@@ -14,6 +14,16 @@ interface CribProps {
   discardToCrib: (lobbyId: string | undefined, numPlayers: number) => void;
 }
 
+// Player hand cards are shown smaller than board cards — multiplier is relative
+// to the board's own per-card height (boardMaxHeight / 5 rows): 11vh mobile, 13vh md/lg
+const PLAYER_CARD_SCALE = {
+  base: 0.55, // mobile
+  md: 0.55,
+  lg: 0.55,
+  xl: 0.65,
+  xxl: 0.8,
+};
+
 export default function Crib({ crib, dealer, players, turn, playerId, lobbyId, numPlayers, discardToCrib }: CribProps) {
   const backImgSrc = `/cards/backs/red2.svg`;
   const dealerTeam = dealer ? (dealer % 2 !== 0 ? "Row" : "Column") : "";
@@ -40,6 +50,7 @@ export default function Crib({ crib, dealer, players, turn, playerId, lobbyId, n
   };
 
   const displayDiscardButtonClass = displayDiscardButton() ? "" : "invisible";
+  const cardImgClasses = `h-[calc(11vh*${PLAYER_CARD_SCALE.base})] md:h-[calc(13vh*${PLAYER_CARD_SCALE.md})] lg:h-[calc(13vh*${PLAYER_CARD_SCALE.lg})] xl:h-[calc(13vh*${PLAYER_CARD_SCALE.xl})] 2xl:h-[calc(13vh*${PLAYER_CARD_SCALE.xxl})] aspect-[2.5/3.5] rounded-md shadow-lg object-contain`;
 
   return (
     <div className="lg:w-full bg-game-panel p-2 md:p-4 rounded-lg shadow-lg">
@@ -51,7 +62,7 @@ export default function Crib({ crib, dealer, players, turn, playerId, lobbyId, n
             return (
               <motion.img
                 key={i}
-                className="h-[calc(11vh*0.55)] md:h-[calc(13vh*0.75)] lg:h-[calc(13vh*0.5)] xl:h-[calc(13vh*0.6)] 2xl:h-[calc(13vh*0.8)] aspect-[2.5/3.5] rounded-md shadow-lg object-contain"
+                className={cardImgClasses}
                 src={backImgSrc}
                 alt=""
                 initial={false}
