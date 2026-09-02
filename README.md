@@ -1,12 +1,19 @@
-# Cross Cribbs Online
-<img width="1901" height="909" alt="image" src="https://github.com/user-attachments/assets/47d540e7-085f-4ee9-ac6a-4bfc08e1f2e3" />
+# Cross Cribbs Online 
+<img width="1908" height="937" alt="crib 2026 sep 2" src="https://github.com/user-attachments/assets/10fb4798-928a-4801-bf9d-34cc22e7f2aa" />
+
+
+Update V3: September 2026
 
 # Features
-Local and online multiplayer cross cribb board game
-1v1 and 2v2
 
+Local and online multiplayer game based on the Cross Cribb board game
+
+1v1 and 2v2 modes
+
+## Play Online
 https://crosscribbs-multiplayer.onrender.com/
 
+(May take some time to startup Render)
 
-# Most updated version here (discord-app branch)
+### Or here (dev branch)
 https://crosscribbs-multiplayer-s79b.onrender.com/ 
