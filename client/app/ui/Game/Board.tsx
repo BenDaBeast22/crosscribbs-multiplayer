@@ -19,7 +19,7 @@ type ChildProps = {
 
 export default function Board({ board, lastMove, playCard, turn, cardSizes }: ChildProps) {
   return (
-    <div className="w-full h-full flex items-center justify-center p-2">
+    <div className="w-full h-full flex items-center justify-center">
       {/* 
         By anchoring to height (max-h-[55vh] / max-h-[65vh]) with aspect-[5/7], 
         the board automatically scales its width down to keep cards at a balanced size.

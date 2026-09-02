@@ -168,7 +168,7 @@ export default function Game() {
   };
 
   return (
-    <div className="bg-main-screen min-h-screen w-full flex flex-col overflow-y-auto relative">
+    <div className="bg-main-screen h-[100dvh] w-full flex flex-col overflow-hidden relative select-none">
       <Header
         totalScores={displayedScores}
         backToMenu={handleBackToMenu}
@@ -181,15 +181,15 @@ export default function Game() {
       {/* Floating emote animations render above everything, but never block clicks */}
       {isMultiplayer && <EmoteOverlay />}
 
-      {/* FLOATING ACTION BUTTON: Displays strictly on mobile layout screens (`lg:hidden`) */}
+      {/* FLOATING ACTION BUTTON: Displays strictly on screens narrower than desktop (`lg:hidden`) */}
       <button
         onClick={() => setIsHistoryOpen(true)}
-        className="fixed bottom-3 right-3 z-40 md:hidden bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs py-2 px-4 rounded-full shadow-lg border border-slate-600 flex items-center gap-1.5 active:scale-95 transition-transform"
+        className="fixed bottom-3 right-3 z-40 lg:hidden bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs py-2 px-4 rounded-full shadow-lg border border-slate-600 flex items-center gap-1.5 active:scale-95 transition-transform"
       >
         <span>📋</span> History
       </button>
 
-      {/* Chat + emote picker — multiplayer only, bottom-left so it doesn't collide with the History FAB */}
+      {/* Chat + emote picker — multiplayer only, bottom-left */}
       {isMultiplayer && (
         <Chat
           lobbyId={lobbyId}
@@ -199,23 +199,23 @@ export default function Game() {
         />
       )}
 
-      <div className="flex-1 flex flex-col md:flex-row short:flex-row relative items-center justify-center gap-0 md:gap-5 lg:gap-0 short:gap-2 2xl:gap-7">
-        <div className="w-full md:w-2/10 lg:w-1/3">
-          <div className="flex justify-center">
-            <div className="flex flex-col items-center gap-10 mb-2 md:mb-0">
-              <PlayersDisplay
-                lobbyId={lobbyId}
-                numPlayers={numPlayers}
-                playerNames={playerNames}
-                players={players}
-                turn={gameState.turn}
-                crib={gameState.crib}
-                cardSizes={cardSizes}
-              />
-            </div>
-          </div>
+      {/* Main Responsive Grid Layout */}
+      <div className="flex-1 w-full h-full flex flex-col lg:flex-row items-center justify-between md:p-2 gap-2 lg:gap-4 overflow-hidden">
+        {/* Top / Left: Players Display */}
+        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center shrink-0 mb-1">
+          <PlayersDisplay
+            lobbyId={lobbyId}
+            numPlayers={numPlayers}
+            playerNames={playerNames}
+            players={players}
+            turn={gameState.turn}
+            crib={gameState.crib}
+            cardSizes={cardSizes}
+          />
         </div>
-        <div className="w-full md:5/10 lg:w-1/3">
+
+        {/* Center: Board Container - Constrained by dynamic aspect ratio and screen height */}
+        <div className="flex-1 w-full max-w-[min(90vw,65vh)] aspect-square flex items-center justify-center">
           <Board
             board={gameState.board}
             lastMove={gameState.lastMove}
@@ -224,80 +224,78 @@ export default function Game() {
             cardSizes={cardSizes}
           />
         </div>
-        <div className="w-full md:w-3/10 lg:w-1/3">
-          <div className="flex justify-center items-center">
-            <div className="inline-flex flex-col items-center gap-5">
-              <Crib
-                crib={gameState.crib}
-                dealer={gameState.dealer}
-                cardSizes={cardSizes}
-                players={gameState.players}
-                turn={gameState.turn}
-                playerId={socket.id}
-                lobbyId={lobbyId}
-                numPlayers={numPlayers}
-                discardToCrib={discardToCrib}
-              />
 
-              {/* DESKTOP NATIVE VIEW: Hides standard list container on mobile */}
-              <div className="hidden md:block w-full">
-                <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
-              </div>
+        {/* Bottom / Right: Crib & History */}
+        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center shrink-0 gap-3">
+          <Crib
+            crib={gameState.crib}
+            dealer={gameState.dealer}
+            cardSizes={cardSizes}
+            players={gameState.players}
+            turn={gameState.turn}
+            playerId={socket.id}
+            lobbyId={lobbyId}
+            numPlayers={numPlayers}
+            discardToCrib={discardToCrib}
+          />
+
+          {/* Inline history displays strictly on desktop (`lg:block`) */}
+          <div className="hidden md:block w-full">
+            <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
+          </div>
+        </div>
+      </div>
+
+      {/* MOBILE / PORTRAIT TABLET POPUP DIALOG INTERFACE */}
+      {isHistoryOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:hidden">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5 shadow-2xl relative flex flex-col max-h-[75vh]">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+              <h3 className="text-white font-bold text-lg flex items-center gap-2">
+                <span>📋</span> Round History
+              </h3>
+              <button
+                onClick={() => setIsHistoryOpen(false)}
+                className="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-full w-8 h-8 flex items-center justify-center font-semibold transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 flex justify-center pb-2">
+              <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
             </div>
           </div>
         </div>
+      )}
 
-        {/* MOBILE POPUP DIALOG INTERFACE */}
-        {isHistoryOpen && (
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 lg:hidden">
-            <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm p-5 shadow-2xl relative flex flex-col max-h-[75vh]">
-              <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
-                <h3 className="text-white font-bold text-lg flex items-center gap-2">
-                  <span>📋</span> Round History
-                </h3>
-                <button
-                  onClick={() => setIsHistoryOpen(false)}
-                  className="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-full w-8 h-8 flex items-center justify-center font-semibold transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="overflow-y-auto flex-1 flex justify-center pb-2">
-                <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
-              </div>
-            </div>
-          </div>
-        )}
+      {gameState.roundScoreVisible && !revealGameOver && (
+        <RoundScore
+          nextRound={handleRoundScoreNext}
+          roundScores={gameState.roundScores}
+          lineScores={gameState.lineScores}
+          totalScores={gameState.totalScores}
+          cribScore={gameState.cribScore}
+          dealer={gameState.dealer}
+          crib={gameState.crib}
+          board={gameState.board}
+          heels={gameState.heels}
+          cardSizes={cardSizes}
+          isFinalRound={gameState.gameOver}
+          onAnimationComplete={() => {
+            setDisplayedScores(gameState.totalScores);
+          }}
+        />
+      )}
 
-        {gameState.roundScoreVisible && !revealGameOver && (
-          <RoundScore
-            nextRound={handleRoundScoreNext}
-            roundScores={gameState.roundScores}
-            lineScores={gameState.lineScores}
-            totalScores={gameState.totalScores}
-            cribScore={gameState.cribScore}
-            dealer={gameState.dealer}
-            crib={gameState.crib}
-            board={gameState.board}
-            heels={gameState.heels}
-            cardSizes={cardSizes}
-            isFinalRound={gameState.gameOver}
-            onAnimationComplete={() => {
-              setDisplayedScores(gameState.totalScores);
-            }}
-          />
-        )}
-
-        {gameState.gameOver && revealGameOver && (
-          <GameOver
-            winner={gameState.totalScores[0] >= gameState.totalScores[1] ? "Row" : "Column"} // 👈 Pass winner string
-            totalScores={gameState.totalScores}
-            resetGame={handleResetGame}
-            roundHistory={gameState.roundHistory || []} // 👈 Added missing roundHistory prop with a fallback array
-            onBackToMenu={handleBackToMenu} // 👈 Fixed back to menu callback prop name
-          />
-        )}
-      </div>
+      {gameState.gameOver && revealGameOver && (
+        <GameOver
+          winner={gameState.totalScores[0] >= gameState.totalScores[1] ? "Row" : "Column"}
+          totalScores={gameState.totalScores}
+          resetGame={handleResetGame}
+          roundHistory={gameState.roundHistory || []}
+          onBackToMenu={handleBackToMenu}
+        />
+      )}
     </div>
   );
 }

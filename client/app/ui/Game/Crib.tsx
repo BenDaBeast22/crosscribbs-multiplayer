@@ -53,24 +53,25 @@ export default function Crib({
   const displayDiscardButtonClass = displayDiscardButton() ? "" : "invisible";
 
   return (
-    /* Tightened padding to p-2 on mobile and applied a uniform 90% scale drop via scale-90 sm:scale-100 */
-    <div className="bg-game-panel p-2 md:p-4 rounded-lg shadow-lg scale-80 md:scale-90 lg:scale-100 transition-transform origin-center">
-      {/* Downscaled the margin bottom class to mb-1.5 */}
-      <h3 className="text-white text-center font-bold text-xs md:text-lg mb-1.5">Crib: {dealerTeam}</h3>
-      {/* Reduced element track gaps from space-x-3 down to space-x-1.5 */}
-      <div className="flex flex-col space-x-1.5">
-        <div className="flex space-x-1 md:space-x-2">
+    <div className="bg-game-panel px-2 py-1.5 md:p-3 lg:p-4 rounded-lg shadow-lg flex flex-col items-center shrink-0 max-w-full">
+      <h3 className="text-white text-center font-bold text-[11px] md:text-sm lg:text-lg mb-0.5 md:mb-1">
+        Crib: {dealerTeam}
+      </h3>
+
+      <div className="flex flex-col items-center gap-1 w-full">
+        <div className="flex justify-center gap-1 md:gap-2">
           {Array.from({ length: MAX_CARDS }).map((_, i) => {
-            const card = crib[i]; // get the card if it exists
+            const card = crib[i];
             return (
               <motion.img
-                key={i} // stable per-slot key, never changes — safe to animate
-                className={`${cardSizes.base} ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} rounded-md shadow-lg`}
+                key={i}
+                /* Sized smaller on base mobile screens (36px x 50px) to guarantee vertical fit */
+                className={`w-[36px] h-[50.4px] ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} rounded shadow-md shrink-0`}
                 src={backImgSrc}
                 alt=""
                 initial={false}
                 animate={
-                  card ? { opacity: 1, scale: 1, y: 0, rotate: 0 } : { opacity: 0, scale: 0.4, y: -24, rotate: -8 }
+                  card ? { opacity: 1, scale: 1, y: 0, rotate: 0 } : { opacity: 0, scale: 0.4, y: -16, rotate: -8 }
                 }
                 transition={{ type: "spring", stiffness: 380, damping: 22 }}
                 style={{ pointerEvents: card ? "auto" : "none" }}
@@ -78,9 +79,10 @@ export default function Crib({
             );
           })}
         </div>
+
         <button
           onClick={handleDiscard}
-          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold text-[10px] py-0.5 px-1.5 lg:p-2 mt-3 rounded lg:text-sm cursor-pointer whitespace-nowrap`}
+          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold text-[10px] md:text-xs lg:text-sm  px-2 md:py-1 md:px-3 mt-0.5 rounded cursor-pointer whitespace-nowrap transition-colors`}
         >
           Discard To Crib
         </button>

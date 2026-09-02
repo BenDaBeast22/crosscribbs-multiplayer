@@ -2,7 +2,6 @@ import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
-import { socket } from "~/connections/socket";
 
 type ChildProps = {
   name: string;
@@ -15,7 +14,7 @@ type ChildProps = {
   cardSizes: CardSizesType;
 };
 
-function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, cardSizes }: ChildProps) {
+function PlayerComponent({ name, player, turn, lobbyId, playerId, cardSizes }: ChildProps) {
   const { hand } = player;
 
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
@@ -41,46 +40,44 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
 
   const bgGradient = useMemo(() => "bg-gradient-to-br from-slate-100 to-slate-200", []);
 
-  // NEW — whether the card's FACE should be showing right now
   const showFront = isMultiplayer ? isPlayer && !!card : isTurn && !!card;
   const frontImgSrc = card ? card.frontImgSrc : backImgSrc;
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
-  const cardImgClasses = `${cardSizes.base} ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
+  /* Compact on mobile (36px x 50.4px base) while delegating medium/large scaling to cardSizes */
+  const cardImgClasses = `w-[36px] h-[50.4px] ${cardSizes.sm} ${cardSizes.md} ${cardSizes.xl} border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
 
   return (
     <div
-      className={`flex flex-col justify-center ${bgGradient} max-w-[130px] lg:max-w-50 p-1 m-0 lg:p-2 lg:m-2 lg:px-10 lg:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm`}
+      className={`flex flex-col justify-center ${bgGradient} max-w-[95px] lg:max-w-50 p-1 m-0 lg:p-2 lg:m-2 lg:px-10 lg:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm shrink-0`}
     >
       <div className="flex items-center justify-center mb-0.5 lg:mb-3">
-        {/* Responsive text sizes: text-sm on mobile, lg:text-xl on desktop */}
         <h1
-          className="w-full text-center text-xs lg:text-xl font-bold text-gray-800 truncate max-w-[65px] lg:max-w-none"
+          className="w-full text-center text-[11px] lg:text-xl font-bold text-gray-800 truncate max-w-[55px] lg:max-w-none"
           title={name}
         >
           {name}
         </h1>
         {lobbyId && isPlayer && (
-          <span className="bg-green-400 text-black px-1 lg:px-2 rounded-full text-[10px] lg:text-xs ml-1 lg:ml-2 italic">
+          <span className="bg-green-400 text-black px-1 lg:px-2 rounded-full text-[9px] lg:text-xs ml-1 lg:ml-2 italic font-semibold">
             You
           </span>
         )}
         {player.disconnected && (
-          <span className="block bg-red-500 text-black rounded-full px-1 lg:px-2 text-[10px] lg:text-xs ml-1 lg:ml-2 italic">
+          <span className="block bg-red-500 text-white rounded-full px-1 lg:px-2 text-[9px] lg:text-xs ml-1 lg:ml-2 italic">
             DC'd
           </span>
         )}
       </div>
 
-      {/* Adjusted mobile max-width bounds from max-w-16 up to max-w-[100px] so the card sizes object doesn't get crushed */}
-      <div className="flex flex-col items-center space-y-0.5 lg:space-y-2 max-w-[100px] lg:max-w-none mx-auto">
+      <div className="flex flex-col items-center space-y-0.5 lg:space-y-2 max-w-[90px] lg:max-w-none mx-auto">
         {/* Flip-card container */}
         <div
           className={`${displayCardImage} relative self-center cursor-pointer transition-transform hover:scale-105`}
           style={{ perspective: 1000 }}
-          draggable={isDraggable} // moved here
-          onDragStart={handleDragStart} // moved here
+          draggable={isDraggable}
+          onDragStart={handleDragStart}
         >
           <motion.div
             className="relative w-full h-full"
@@ -108,8 +105,7 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
           </motion.div>
         </div>
 
-        {/* Scaled text font metrics down to text-[10px] for tight viewports */}
-        <p className={`${displayCardsLeft} text-[10px] lg:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
+        <p className={`${displayCardsLeft} text-[9px] lg:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
       </div>
     </div>
   );
