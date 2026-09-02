@@ -200,9 +200,9 @@ export default function Game() {
       )}
 
       {/* Main Responsive Grid Layout */}
-      <div className="flex-1 w-full h-full min-h-0 flex flex-col lg:flex-row items-center justify-center lg:justify-center max-w-[1600px] mx-auto md:p-2 gap-2 lg:gap-4 overflow-hidden">
-        {/* Top / Left: Players Display */}
-        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center shrink-0 mb-1">
+      <div className="flex-1 w-full h-full min-h-0 flex flex-col lg:flex-row items-center lg:justify-around justify-center mx-auto md:p-2 gap-2 overflow-hidden">
+        {/* Left: Players Display — fixed 1/4 width on lg+ */}
+        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center mb-1 lg:mb-0">
           <PlayersDisplay
             lobbyId={lobbyId}
             numPlayers={numPlayers}
@@ -214,8 +214,8 @@ export default function Game() {
           />
         </div>
 
-        {/* Center: Board Container - Constrained by dynamic aspect ratio and screen height */}
-        <div className=" w-full min-h-0 flex items-center justify-center">
+        {/* Center: Board — fixed vh-based size, never grows/shrinks with row width */}
+        <div className="shrink-0 flex items-center justify-center">
           <Board
             board={gameState.board}
             lastMove={gameState.lastMove}
@@ -225,8 +225,8 @@ export default function Game() {
           />
         </div>
 
-        {/* Bottom / Right: Crib & History */}
-        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center shrink-0 gap-3">
+        {/* Right: Crib & History — fixed 1/4 width on lg+, matches left column */}
+        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center gap-3">
           <Crib
             crib={gameState.crib}
             dealer={gameState.dealer}
@@ -237,8 +237,6 @@ export default function Game() {
             numPlayers={numPlayers}
             discardToCrib={discardToCrib}
           />
-
-          {/* Inline history displays strictly on desktop (`lg:block`) */}
           <div className="hidden lg:block w-full">
             <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
           </div>

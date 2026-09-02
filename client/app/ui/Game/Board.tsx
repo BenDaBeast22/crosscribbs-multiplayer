@@ -20,11 +20,11 @@ type ChildProps = {
 export default function Board({ board, lastMove, playCard, turn, cardSizes }: ChildProps) {
   return (
     <div className="w-full h-full flex items-center justify-center">
-      {/* 
-        By anchoring to height (max-h-[55vh] / max-h-[65vh]) with aspect-[5/7], 
-        the board automatically scales its width down to keep cards at a balanced size.
+      {/*
+        Height-only sizing — board never stretches to fill leftover width.
+        Side columns in Game.tsx absorb that space instead.
       */}
-      <div className="grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2 h-full max-h-[55vh] md:max-h-[65vh] xl:max-h-[70vh] aspect-5/7 items-center justify-center mx-auto">
+      <div className="grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2 h-full max-h-[50vh] md:max-h-[65vh] xl:max-h-[70vh] aspect-5/7 items-center justify-center">
         {board.map((row, r) =>
           row.map((card, c) => {
             const isLastMove = !!lastMove && lastMove[0] === r && lastMove[1] === c;
