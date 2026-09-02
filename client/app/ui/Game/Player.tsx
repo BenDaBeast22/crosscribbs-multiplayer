@@ -13,15 +13,6 @@ type ChildProps = {
   playerId: string | undefined;
 };
 
-// Player hand cards are shown smaller than board cards — multiplier is relative
-// to the board's own per-card height (boardMaxHeight / 5 rows): 11vh mobile, 13vh md/lg
-const PLAYER_CARD_SCALE = {
-  base: 0.55, // mobile
-  md: 0.6,
-  lg: 0.6,
-  xl: 0.9,
-};
-
 // Matches PLAYER_COLORS order in PlayerSetup.tsx — keep these in sync.
 // Row team (even player.num) shares a blue family, Column team (odd) shares a
 // pink family — same-team players are visually related, different shade per player.
@@ -59,7 +50,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) 
   const displayCardImage = card ? "" : "invisible";
 
   /* Sized off the board's own per-card height (11vh / 13vh) scaled down by PLAYER_CARD_SCALE */
-  const cardImgClasses = `h-[calc(11vh*${PLAYER_CARD_SCALE.base})] md:h-[calc(13vh*${PLAYER_CARD_SCALE.md})] lg:h-[calc(13vh*${PLAYER_CARD_SCALE.lg})] xl:h-[calc(13vh*${PLAYER_CARD_SCALE.xl})] aspect-[2.5/3.5] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
+  const cardImgClasses = `h-[6.05vh] md:h-[7.15vh] lg:h-[7.15vh] xl:h-[8.45vh] 2xl:h-[10.4vh] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
 
   return (
     <div
