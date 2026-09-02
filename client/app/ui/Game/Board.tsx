@@ -20,7 +20,7 @@ export default function Board({ board, lastMove, playCard, turn }: ChildProps) {
           Tighter 3px gap baseline for small mobile screens.
       */}
       <div
-        className="
+        className="crib-board
           grid grid-cols-5 
           gap-[clamp(3px,1cqw,10px)]
           @container 

@@ -31,6 +31,7 @@ export default function RoundHistory({ roundHistory, hideLatest = false }: Child
   if (reversedHistory.length === 0) {
     return (
       <div className={roundHistoryContainerStyles}>
+        <h3 className="text-lg font-bold mb-3 text-center hidden sm:block">Round History</h3>
         <div className="w-full text-center py-8 text-slate-400 text-sm italic">No rounds played yet.</div>
       </div>
     );

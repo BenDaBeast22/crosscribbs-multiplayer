@@ -241,7 +241,7 @@ export default function Game() {
         </div>
 
         {/* Right: Crib & History — fixed 1/4 width on lg+, matches left column */}
-        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center gap-3 mt-2 lg:mt-0">
+        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center gap-5 xl:gap-7 mt-2 lg:mt-0">
           <Crib
             crib={gameState.crib}
             dealer={gameState.dealer}

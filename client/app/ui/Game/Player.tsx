@@ -50,7 +50,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) 
   const displayCardImage = card ? "" : "invisible";
 
   /* Sized off the board's own per-card height (11vh / 13vh) scaled down by PLAYER_CARD_SCALE */
-  const cardImgClasses = `h-[6.05vh] md:h-[7.15vh] lg:h-[7.15vh] xl:h-[8.45vh] 2xl:h-[10.4vh] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
+  const cardImgClasses = `h-[7.05vh] md:h-[7.15vh] lg:h-[7.15vh] xl:h-[8.45vh] 2xl:h-[10.4vh] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
 
   return (
     <div
