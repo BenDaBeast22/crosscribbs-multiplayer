@@ -70,6 +70,7 @@ export default class GameController implements GameStateType {
       for (const [index, player] of players.entries()) {
         this.players[index].id = player.id;
         this.players[index].playerId = player.playerId;
+        this.players[index].name = player.name;
       }
       this.numPlayers = lobby.numPlayers; // set multiplayer numPlayers
     }

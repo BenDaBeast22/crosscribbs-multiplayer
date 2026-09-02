@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import GameController from "./gameController.js";
 import { getGame, lobbies, games, Player } from "./classes/gameHelpers.js";
-import { startDisconnectCountdown } from "./serverHelper.js";
+import { attachSocketUser, startDisconnectCountdown } from "./serverHelper.js";
 
 const disconnectedPlayers: Record<string, NodeJS.Timeout> = {};
 
@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
       id: lobbyId,
     };
     socket.join(lobbyId);
-    socket.data.lobbyId = lobbyId;
+    attachSocketUser(socket, lobbyId, playerId, username);
     callback({ lobbyId });
     console.log(`lobby created: lobby id: ${lobbyId}`);
     io.to(lobbyId).emit("lobbyUpdate", lobbies[lobbyId]);
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
 
     lobby.players.push({ id: socket.id, name: username, playerId: playerId });
     socket.join(lobbyId);
-    socket.data.lobbyId = lobbyId;
+    attachSocketUser(socket, lobbyId, playerId, username);
     callback({ lobbyId });
     io.to(lobbyId).emit("lobbyUpdate", lobby);
   });
@@ -111,10 +111,12 @@ io.on("connection", (socket) => {
 
     const player = lobby.players.find((p) => p.playerId === playerId);
     if (!player) return;
+    // Update lobby player ref
     player.id = socket.id; // update socket
     player.disconnected = false;
     player.disconnectExpiresAt = undefined;
-    socket.data.lobbyId = lobbyId;
+    // Reattach user data to socket session
+    attachSocketUser(socket, lobbyId, player.playerId, player.name);
     //  Clear disconnect countdown
     if (disconnectedPlayers[playerId]) {
       clearInterval(disconnectedPlayers[playerId]);
@@ -184,7 +186,8 @@ io.on("connection", (socket) => {
     // Clear disconnect state
     player.disconnected = false;
     player.disconnectExpiresAt = undefined;
-    socket.data.lobbyId = lobbyId;
+    // Reattach user data to socket session
+    attachSocketUser(socket, lobbyId, player.playerId, player.name);
     // Rejoin socket room
     socket.join(lobbyId);
 
@@ -271,10 +274,22 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("sendChatMessage", ({ lobbyId, playerId, playerName, text }) => {
-    const message = { id: crypto.randomUUID(), playerId, playerName, text, timestamp: Date.now() };
-    if (lobbyId) io.to(lobbyId).emit("chatMessage", message);
-    else socket.emit("chatMessage", message); // local/solo play
+  socket.on("sendChatMessage", ({ lobbyId, text }) => {
+    if (!text?.trim()) return;
+
+    const message = {
+      id: crypto.randomUUID(),
+      playerId: socket.data.playerId, // Use socket session data
+      playerName: socket.data.playerName, // Prevents spoofing and pretending to be other player
+      text: text.trim(),
+      timestamp: Date.now(),
+    };
+
+    if (lobbyId) {
+      io.to(lobbyId).emit("chatMessage", message);
+    } else {
+      socket.emit("chatMessage", message);
+    }
   });
 
   socket.on("sendEmote", ({ lobbyId, emote }) => {

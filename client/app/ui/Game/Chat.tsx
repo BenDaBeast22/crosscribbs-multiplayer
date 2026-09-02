@@ -39,14 +39,14 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
     return () => {
       socket.off("chatMessage", handleIncoming);
     };
-  }, [isOpen]);
+  }, [playerId, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
       setUnread(0);
       scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
     }
-  }, [isOpen, messages]);
+  }, [isOpen, messages.length]);
 
   const sendMessage = () => {
     const text = draft.trim();
@@ -96,7 +96,7 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
             className="
               fixed z-50 border border-slate-700 shadow-2xl flex flex-col
               inset-x-0 bottom-0 rounded-t-2xl max-h-[70vh]
-              md:inset-x-auto md:bottom-16 md:left-3 md:w-80 md:rounded-2xl md:max-h-[60vh]
+              md:inset-x-auto md:bottom-16 md:left-3 md:w-80 md:rounded-2xl md:max-h-[30vh]
               bg-slate-900 md:backdrop-blur-none
             "
           >
