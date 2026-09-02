@@ -14,6 +14,7 @@ const niceJobTeamSound = typeof Audio !== "undefined" ? new Audio("/sounds/emote
 const laughEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/laugh.m4a") : null;
 const naniEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/nani.mp3") : null;
 const angryEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/wryyy.mp3") : null;
+const trumpWallSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/trump_wall.mp3") : null;
 const hmmmEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/hmmm.mp3") : null;
 const hmmmFullEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/hmmm-full.mp3") : null;
 const rollEyesEmoteSound = typeof Audio !== "undefined" ? new Audio("/sounds/emotes/muda.mp3") : null;
@@ -96,7 +97,11 @@ export function playEmoteSound(emote: string, randomNum: number) {
       play(naniEmoteSound, 0.5);
       break;
     case "😡":
-      play(angryEmoteSound, 1);
+      if (randomNum < 0.5) {
+        play(angryEmoteSound, 1);
+      } else {
+        play(trumpWallSound, 0.5);
+      }
       break;
     case "🤔":
       if (randomNum < 0.3) {
