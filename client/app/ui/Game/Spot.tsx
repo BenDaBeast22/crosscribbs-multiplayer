@@ -54,14 +54,14 @@ export default function Spot({ pos, card, playCard, turn, isLastMove }: ChildPro
             transition={{ type: "spring", stiffness: 400, damping: 24 }}
             className="w-full h-full object-contain pointer-events-none drop-shadow-md select-none rounded-[8%]"
             src={card.frontImgSrc}
-            alt={`${card.rank} of ${card.suit}`}
+            alt={`${card.name} of ${card.suit}`}
             draggable={false}
           />
         ) : (
           <img
             className="w-full h-full object-contain pointer-events-none drop-shadow-md select-none rounded-[8%]"
             src={card.frontImgSrc}
-            alt={`${card.rank} of ${card.suit}`}
+            alt={`${card.name} of ${card.suit}`}
             draggable={false}
           />
         )}
