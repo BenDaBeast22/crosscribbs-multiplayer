@@ -50,7 +50,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, cardSizes }: C
 
   return (
     <div
-      className={`flex flex-col justify-center ${bgGradient} max-w-[95px] lg:max-w-50 p-1 m-0 lg:p-2 lg:m-2 lg:px-10 lg:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm shrink-0`}
+      className={`flex flex-col justify-center ${bgGradient} max-w-[95px] lg:max-w-50 p-1 m-0 xl:p-2 lg:m-2 lg:px-5 lg:py-2 xl:px-10 xl:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm shrink-0`}
     >
       <div className="flex items-center justify-center mb-0.5 lg:mb-3">
         <h1

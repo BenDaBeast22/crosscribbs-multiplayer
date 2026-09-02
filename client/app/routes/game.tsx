@@ -200,7 +200,7 @@ export default function Game() {
       )}
 
       {/* Main Responsive Grid Layout */}
-      <div className="flex-1 w-full h-full flex flex-col lg:flex-row items-center justify-between md:p-2 gap-2 lg:gap-4 overflow-hidden">
+      <div className="flex-1 w-full h-full min-h-0 flex flex-col lg:flex-row items-center justify-center lg:justify-center max-w-[1600px] mx-auto md:p-2 gap-2 lg:gap-4 overflow-hidden">
         {/* Top / Left: Players Display */}
         <div className="w-full lg:w-1/4 flex flex-col items-center justify-center shrink-0 mb-1">
           <PlayersDisplay
@@ -215,7 +215,7 @@ export default function Game() {
         </div>
 
         {/* Center: Board Container - Constrained by dynamic aspect ratio and screen height */}
-        <div className="flex-1 w-full max-w-[min(90vw,65vh)] aspect-square flex items-center justify-center">
+        <div className=" w-full min-h-0 flex items-center justify-center">
           <Board
             board={gameState.board}
             lastMove={gameState.lastMove}
@@ -230,7 +230,6 @@ export default function Game() {
           <Crib
             crib={gameState.crib}
             dealer={gameState.dealer}
-            cardSizes={cardSizes}
             players={gameState.players}
             turn={gameState.turn}
             playerId={socket.id}
@@ -240,7 +239,7 @@ export default function Game() {
           />
 
           {/* Inline history displays strictly on desktop (`lg:block`) */}
-          <div className="hidden md:block w-full">
+          <div className="hidden lg:block w-full">
             <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
           </div>
         </div>
