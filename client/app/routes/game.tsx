@@ -200,7 +200,7 @@ export default function Game() {
       )}
 
       {/* Main Responsive Grid Layout */}
-      <div className="flex-1 w-full h-full min-h-0 flex flex-col lg:flex-row items-center justify-evenly lg:justify-around  mx-auto md:p-2 overflow-hidden">
+      <div className="flex-1 w-full h-full min-h-0 flex flex-col items-center justify-evenly lg:flex-row lg:justify-around  mx-auto md:p-2 overflow-hidden">
         {/* Left: Players Display — fixed 1/4 width on lg+ */}
         <div className="w-full lg:w-1/4 flex flex-col items-center justify-center mb-1 lg:mb-0">
           <PlayersDisplay

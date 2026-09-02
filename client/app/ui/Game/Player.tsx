@@ -22,6 +22,11 @@ const PLAYER_CARD_SCALE = {
   xl: 0.9,
 };
 
+// Matches PLAYER_COLORS order in PlayerSetup.tsx — keep these in sync.
+// Row team (even player.num) shares a blue family, Column team (odd) shares a
+// pink family — same-team players are visually related, different shade per player.
+const PLAYER_OUTLINE_COLORS = ["outline-cyan-400", "outline-fuchsia-400", "outline-blue-800", "outline-pink-800"];
+
 function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) {
   const { hand } = player;
 
@@ -42,7 +47,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) 
   const isDraggable = isTurn && (!lobbyId || isPlayer);
 
   const outlineStyle = useMemo(() => {
-    const color = player.num % 2 === 0 ? "outline-fuchsia-400" : "outline-cyan-400";
+    const color = PLAYER_OUTLINE_COLORS[player.num - 1];
     return isTurn ? `outline-2 lg:outline-6 ${color}` : "outline-[1px] lg:outline-2 outline-stone-300";
   }, [player.num, isTurn]);
 
