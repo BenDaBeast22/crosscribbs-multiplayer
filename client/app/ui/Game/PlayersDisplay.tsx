@@ -14,7 +14,7 @@ type ChildProps = {
 
 export default function PlayersDisplay({ players, playerNames, numPlayers, lobbyId, turn, crib }: ChildProps) {
   return (
-    <div className="w-full players-display text-xs md:text-base font-medium flex justify-center italic md:not-italic mt-1.5 mb-3">
+    <div className="w-full players-display text-xs md:text-base font-medium flex justify-center italic md:not-italic mt-1 mb-3">
       {numPlayers === 4 ? (
         <div className="flex flex-col">
           {/* Side-by-side on mobile, stacked column on lg screens and up */}
