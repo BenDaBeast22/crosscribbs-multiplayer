@@ -76,36 +76,39 @@ export default function Game() {
     };
   }, []);
 
-  if (!gameState) {
-    return <div>Loading game...</div>;
-  }
-
-  // for sounds
   useEffect(() => {
-    const currentBoardCount = gameState.board.flat().filter(Boolean).length;
-    if (currentBoardCount > prevBoardCountRef.current) {
+    const currentBoardCount = gameState?.board.flat().filter(Boolean).length ?? 0;
+
+    if (gameState && currentBoardCount > prevBoardCountRef.current) {
       playCardPlaceSound();
     }
 
     prevBoardCountRef.current = currentBoardCount;
-  }, [gameState.board]);
+  }, [gameState?.board]);
 
   useEffect(() => {
-    const currentCribLength = gameState.crib.length;
-    if (currentCribLength > prevCribLengthRef.current) {
+    const currentCribLength = gameState?.crib.length ?? 0;
+
+    if (gameState && currentCribLength > prevCribLengthRef.current) {
       playDiscardSound();
     }
 
     prevCribLengthRef.current = currentCribLength;
-  }, [gameState.crib]);
+  }, [gameState?.crib]);
 
-  // Reset whenever gameOver goes false — covers starting a fresh game after resetGame()
   useEffect(() => {
+    if (!gameState) return;
+
     if (!gameState.gameOver) {
       setRevealGameOver(false);
       setDisplayedScores(gameState.totalScores);
     }
-  }, [gameState.gameOver]);
+  }, [gameState?.gameOver]);
+
+  // NOW it's safe to conditionally return
+  if (!gameState) {
+    return <div>Loading game...</div>;
+  }
 
   let isMultiplayer = false;
 
