@@ -1,52 +1,47 @@
 /*
 - Board component:
-  - Renders a 5x5 grid of spots
-  - Each spot can accept a card
+  - Renders a 5x5 responsive grid of spots
+  - Height-constrained so cards scale down naturally without growing too large
 */
 
 import Spot from "./Spot";
-import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
+import type { CardSizesType } from "@cross-cribbs/shared-types/CardType";
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
 import type { BoardType } from "@cross-cribbs/shared-types/GameControllerTypes";
 
 type ChildProps = {
   board: BoardType;
-  lastMove: BoardPosition | null; 
+  lastMove: BoardPosition | null;
   turn: number;
   playCard: (pos: BoardPosition, turn: number) => void;
   cardSizes: CardSizesType;
 };
 
 export default function Board({ board, lastMove, playCard, turn, cardSizes }: ChildProps) {
-  let displayBoard = [];
-  for (let r = 0; r < 5; r++) {
-    let row = [];
-    for (let c = 0; c < 5; c++) {
-      const isLastMove = !!lastMove && lastMove[0] === r && lastMove[1] === c; 
-      row.push(
-        <Spot
-          pos={[r, c]}
-          card={board[r][c]}
-          key={`${r}, ${c}`}
-          playCard={playCard}
-          turn={turn}
-          cardSizes={cardSizes}
-          isLastMove={isLastMove}
-        />,
-      );
-    }
-    displayBoard.push(
-      <tr className="w-full" key={r}>
-        {row}
-      </tr>,
-    );
-  }
-
   return (
-    <div className="w-full">
-      <table className="w-full flex justify-center border-separate border-spacing-[3px]">
-        <tbody>{displayBoard}</tbody>
-      </table>
+    <div className="w-full h-full flex items-center justify-center p-2">
+      {/* 
+        By anchoring to height (max-h-[55vh] / max-h-[65vh]) with aspect-[5/7], 
+        the board automatically scales its width down to keep cards at a balanced size.
+      */}
+      <div className="grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2 h-full max-h-[55vh] md:max-h-[65vh] aspect-5/7 items-center justify-center mx-auto">
+        {board.map((row, r) =>
+          row.map((card, c) => {
+            const isLastMove = !!lastMove && lastMove[0] === r && lastMove[1] === c;
+            return (
+              <Spot
+                pos={[r, c]}
+                card={card}
+                key={`${r}-${c}`}
+                playCard={playCard}
+                turn={turn}
+                cardSizes={cardSizes}
+                isLastMove={isLastMove}
+              />
+            );
+          }),
+        )}
+      </div>
     </div>
   );
 }
