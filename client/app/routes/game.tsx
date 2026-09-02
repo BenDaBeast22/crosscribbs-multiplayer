@@ -21,7 +21,8 @@ export default function Game() {
   const location = useLocation();
   const navigate = useNavigate();
   const { lobbyId } = useParams();
-  const { initialGameState } = location.state || {}; // get initial game state from lobby or menu
+  const { initialGameState } = location.state || {};
+
   let [numPlayers, setNumPlayers] = useState<number>(location.state?.numPlayers || 2);
   let [playerNames, setPlayerNames] = useState<string[]>(location.state?.playerNames || []);
 
@@ -79,12 +80,13 @@ export default function Game() {
     return <div>Loading game...</div>;
   }
 
-  //for sounds
+  // for sounds
   useEffect(() => {
     const currentBoardCount = gameState.board.flat().filter(Boolean).length;
     if (currentBoardCount > prevBoardCountRef.current) {
       playCardPlaceSound();
     }
+
     prevBoardCountRef.current = currentBoardCount;
   }, [gameState.board]);
 
@@ -93,6 +95,7 @@ export default function Game() {
     if (currentCribLength > prevCribLengthRef.current) {
       playDiscardSound();
     }
+
     prevCribLengthRef.current = currentCribLength;
   }, [gameState.crib]);
 
@@ -105,6 +108,7 @@ export default function Game() {
   }, [gameState.gameOver]);
 
   let isMultiplayer = false;
+
   if (gameState.lobby) {
     numPlayers = gameState.lobby.numPlayers;
     playerNames = gameState.lobby.players.map((p) => p.name);
@@ -116,7 +120,11 @@ export default function Game() {
   const currentPlayerName = players.find((p) => p.id === playerId)?.name || playerNames[gameState.turn] || "You";
 
   const handleResetGame = () => {
-    const payload = { lobbyId: isMultiplayer ? lobbyId : undefined, playerId };
+    const payload = {
+      lobbyId: isMultiplayer ? lobbyId : undefined,
+      playerId,
+    };
+
     socket.emit("resetGame", payload);
   };
 
@@ -148,11 +156,18 @@ export default function Game() {
   const discardToCrib = (lobbyId: string | undefined, numPlayers: number) => {
     const playerId = socket.id;
     const localPlayerId = localStorage.getItem("playerId");
-    socket.emit("discardToCrib", { lobbyId, numPlayers, playerId, localPlayerId });
+
+    socket.emit("discardToCrib", {
+      lobbyId,
+      numPlayers,
+      playerId,
+      localPlayerId,
+    });
   };
 
   const nextRound = () => {
     console.log("isMultiplayer = ", isMultiplayer);
+
     if (isMultiplayer) {
       socket.emit("nextRound", { lobbyId });
     } else {
@@ -168,7 +183,7 @@ export default function Game() {
   };
 
   return (
-    <div className="bg-main-screen h-[100dvh] w-full flex flex-col overflow-hidden relative select-none">
+    <div className="bg-main-screen min-h-[100dvh] w-full flex flex-col relative select-none">
       <Header
         totalScores={displayedScores}
         backToMenu={handleBackToMenu}
@@ -200,7 +215,7 @@ export default function Game() {
       )}
 
       {/* Main Responsive Grid Layout */}
-      <div className="flex-1 w-full h-full min-h-0 flex flex-col items-center justify-evenly lg:flex-row lg:justify-around  mx-auto md:p-2 overflow-hidden">
+      <div className="flex-1 w-full min-h-0 flex flex-col items-center justify-evenly lg:flex-row lg:justify-around lg:gap-0 lg:py-2 mx-auto md:p-2">
         {/* Left: Players Display — fixed 1/4 width on lg+ */}
         <div className="w-full lg:w-1/4 flex flex-col items-center justify-center mb-1 lg:mb-0">
           <PlayersDisplay
@@ -214,7 +229,7 @@ export default function Game() {
           />
         </div>
 
-        {/* Center: Board — fixed vh-based size, never grows/shrinks with row width */}
+        {/* Center: Board */}
         <div className="shrink-0 flex items-center justify-center">
           <Board
             board={gameState.board}
@@ -237,6 +252,7 @@ export default function Game() {
             numPlayers={numPlayers}
             discardToCrib={discardToCrib}
           />
+
           <div className="hidden lg:block w-full">
             <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
           </div>
@@ -251,6 +267,7 @@ export default function Game() {
               <h3 className="text-white font-bold text-lg flex items-center gap-2">
                 <span>📋</span> Round History
               </h3>
+
               <button
                 onClick={() => setIsHistoryOpen(false)}
                 className="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-full w-8 h-8 flex items-center justify-center font-semibold transition-colors"
@@ -258,6 +275,7 @@ export default function Game() {
                 ✕
               </button>
             </div>
+
             <div className="overflow-y-auto flex-1 flex justify-center pb-2">
               <RoundHistory roundHistory={gameState.roundHistory} hideLatest={gameState.roundScoreVisible} />
             </div>

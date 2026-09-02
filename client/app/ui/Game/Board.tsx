@@ -11,7 +11,7 @@ type ChildProps = {
 
 export default function Board({ board, lastMove, playCard, turn }: ChildProps) {
   return (
-    <div className="w-full h-full flex items-center justify-center p-2 min-h-0 min-w-0">
+    <div className="w-full h-full flex items-center justify-center lg:p-2 min-h-0 min-w-0">
       {/* 
         Mobile Optimized Sizing:
         - w-[clamp(220px,min(72vw,55vh),580px)]: 
