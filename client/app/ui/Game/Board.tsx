@@ -11,12 +11,26 @@ type ChildProps = {
 
 export default function Board({ board, lastMove, playCard, turn }: ChildProps) {
   return (
-    <div className="w-full h-full flex items-center justify-center p-2">
+    <div className="w-full h-full flex items-center justify-center p-2 min-h-0 min-w-0">
       {/* 
-        Width and height are bounded simultaneously via min(vw, vh).
-        This eliminates Safari layout engine ambiguity on initial render.
+        Mobile Optimized Sizing:
+        - w-[clamp(220px,min(72vw,55vh),580px)]: 
+          Reduces mobile width target from 85vw -> 72vw and lowers floor to 220px.
+        - gap-[clamp(3px,1cqw,10px)]: 
+          Tighter 3px gap baseline for small mobile screens.
       */}
-      <div className="grid grid-cols-5 gap-1 sm:gap-1.5 md:gap-2 w-[min(88vw,48vh)] md:w-[min(70vw,60vh)] lg:w-[min(50vw,68vh)] aspect-[5/7] items-center justify-center shrink-0">
+      <div
+        className="
+          grid grid-cols-5 
+          gap-[clamp(3px,1cqw,10px)]
+          @container 
+          w-[clamp(220px,min(72vw,55vh),580px)] 
+          aspect-[5/7] 
+          items-center justify-center 
+          shrink-0 
+          select-none
+        "
+      >
         {board.map((row, r) =>
           row.map((card, c) => {
             const isLastMove = !!lastMove && lastMove[0] === r && lastMove[1] === c;
