@@ -10,6 +10,9 @@ client/build/
 # server
 /server/dist
 
+# client
+client/dist
+
 .specstory/
 .cursorindexingignore/
 .cursorindexingignore

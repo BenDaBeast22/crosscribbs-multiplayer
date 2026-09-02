@@ -33,6 +33,8 @@ export default class GameController implements GameStateType {
   dealerSelectionComplete: boolean;
   cribScore: ScoreType | null;
   heels: number; // if his heels was scored this round
+  lineScores: [ScoreType[], ScoreType[]] | null;
+  lastMove: BoardPosition | null;
 
   constructor(numPlayers = 2, lobby: LobbyType | null = null) {
     this.lobby = lobby;
@@ -58,7 +60,8 @@ export default class GameController implements GameStateType {
     this.dealerSelectionComplete = false;
     this.cribScore = null;
     this.heels = 0;
-
+    this.lineScores = null;
+    this.lastMove = null;
     this.initializePlayers();
 
     // if multiplayer, assign socket IDs
@@ -165,6 +168,7 @@ export default class GameController implements GameStateType {
 
     const [r, c] = pos;
     this.board[r][c] = this.selectedCard;
+    this.lastMove = pos;
 
     const player = this.getPlayer(this.turn);
     player.hand.pop();
@@ -176,9 +180,11 @@ export default class GameController implements GameStateType {
     return true;
   }
 
-  discardToCrib(numPlayers: number, player: PlayerType, card: CardType, playerId?: string): boolean {
-    if (player.num !== this.turn) return false;
+  discardToCrib(numPlayers: number, playerId?: string): boolean {
+    console.log("discard function");
     if (this.lobby && playerId !== this.currentPlayerId) return false; // if multi ensure matching playerId for correct turn id
+    const player = this.getPlayer(this.turn);
+    if (player.num !== this.turn) return false;
 
     if (numPlayers === 2 && player.discardedToCrib.length >= 2) {
       return false;
@@ -188,17 +194,14 @@ export default class GameController implements GameStateType {
     }
 
     // discard card to crib
+    const card = player.hand.pop();
+    if (!card) return false;
     this.crib.push(card);
-    const serverPlayer = this.getPlayer(player.num);
-    serverPlayer.discardedToCrib.push(card);
+    player.discardedToCrib.push(card);
 
-    // remove card from Players hand
-    let hand: CardType[] = serverPlayer.hand;
-    hand.pop();
     this.updateSelectedCard();
-
     // Change turns if last card
-    if (!hand.length) this.nextTurn();
+    if (!player.hand.length) this.nextTurn();
 
     return true;
   }
@@ -260,10 +263,12 @@ export default class GameController implements GameStateType {
 
       // There is no helper function to score a single hand, so I will mock a board
       const cribBoard: BoardType = [cribHand, [], [], [], []];
-      this.cribScore = tallyScores(cribBoard)[0]; // only care about the row score
+      this.cribScore = tallyScores(cribBoard).totals[0]; // was tallyScores(cribBoard)[0]
     }
     // Score the total using round scores
-    this.roundScores = tallyScores(this.board, cutCard ?? undefined);
+    const tally = tallyScores(this.board, cutCard ?? undefined);
+    this.roundScores = tally.totals; // unchanged behavior for existing bonus/win logic
+    this.lineScores = tally.lines; // NEW — per-row/column breakdown for the client
     const [rowRoundScore, columnRoundScore] = this.roundScores;
 
     if (this.dealer === 1 || this.dealer === 3) {
@@ -277,7 +282,8 @@ export default class GameController implements GameStateType {
     const rowPoints = rowRoundScore.total;
     const columnPoints = columnRoundScore.total;
     const pointDiff = Math.abs(rowPoints - columnPoints);
-    const roundWinner: "Row" | "Column" = rowPoints >= columnPoints ? "Row" : "Column";
+    const roundWinner: "Row" | "Column" | "Tie" =
+      rowPoints === columnPoints ? "Tie" : rowPoints > columnPoints ? "Row" : "Column";
 
     this.roundHistory.push({
       round: this.currentRound,
@@ -287,8 +293,9 @@ export default class GameController implements GameStateType {
       winner: roundWinner,
     });
 
-    if (rowPoints >= columnPoints) this.totalScores[0] += pointDiff;
-    else this.totalScores[1] += pointDiff;
+    if (rowPoints > columnPoints) this.totalScores[0] += pointDiff;
+    else if (columnPoints > rowPoints) this.totalScores[1] += pointDiff;
+    // tie: neither total changes
 
     if (this.totalScores[0] >= 31) {
       this.gameOver = true;
@@ -304,12 +311,14 @@ export default class GameController implements GameStateType {
     if (this.gameOver) return false;
     this.startingTurn = this.startingTurn >= this.numPlayers ? 1 : this.startingTurn + 1;
     this.board = newBoard();
+    this.lastMove = null;
     this.roundScoreVisible = false;
     this.numSpotsLeft = 24;
     this.roundOver = false;
     this.deck = newDeck();
     this.currentRound++;
     this.crib = [];
+    this.lineScores = null;
     if (this.dealer) {
       this.dealer = this.dealer >= this.numPlayers ? 1 : this.dealer + 1;
     }
@@ -321,6 +330,7 @@ export default class GameController implements GameStateType {
   resetGame(): void {
     this.startingTurn = 1;
     this.board = newBoard();
+    this.lastMove = null;
     this.roundScoreVisible = false;
     this.numSpotsLeft = 24;
     this.roundOver = false;
@@ -331,6 +341,7 @@ export default class GameController implements GameStateType {
     this.roundHistory = [];
     this.currentRound = 1;
     this.dealer = 1;
+    this.lineScores = null;
     this.initializeGame();
   }
 
@@ -338,6 +349,7 @@ export default class GameController implements GameStateType {
     return {
       lobby: this.lobby,
       board: this.board,
+      lastMove: this.lastMove,
       startingTurn: this.turn,
       turn: this.turn,
       players: this.players,
@@ -357,6 +369,7 @@ export default class GameController implements GameStateType {
       dealerSelectionComplete: this.dealerSelectionComplete,
       cribScore: this.cribScore,
       heels: this.heels,
+      lineScores: this.lineScores,
     };
   }
 

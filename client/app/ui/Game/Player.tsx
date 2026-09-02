@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from "react";
-import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
+import { motion } from "framer-motion";
+import type { CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
-import { socket } from "~/connections/socket";
 
 type ChildProps = {
   name: string;
@@ -11,20 +11,19 @@ type ChildProps = {
   numPlayers: number;
   lobbyId: string | undefined;
   playerId: string | undefined;
-  cardSizes: CardSizesType;
 };
 
-function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, cardSizes }: ChildProps) {
-  const { hand, discardedToCrib } = player;
+// Matches PLAYER_COLORS order in PlayerSetup.tsx — keep these in sync.
+// Row team (even player.num) shares a blue family, Column team (odd) shares a
+// pink family — same-team players are visually related, different shade per player.
+const PLAYER_OUTLINE_COLORS = ["outline-cyan-400", "outline-fuchsia-400", "outline-blue-800", "outline-pink-800"];
 
-  // for local should use playerId to get game
-  const localPlayerId = localStorage.getItem("playerId");
+function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) {
+  const { hand } = player;
 
-  // Top card
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
   const backImgSrc = `/cards/backs/red2.svg`;
 
-  // Drag start handler
   const handleDragStart = useCallback(
     (e: React.DragEvent<HTMLImageElement>) => {
       e.dataTransfer.effectAllowed = "move";
@@ -33,88 +32,89 @@ function PlayerComponent({ name, player, turn, lobbyId, numPlayers, playerId, ca
     [player],
   );
 
-  // Discard handler
-  const handleDiscard = useCallback(() => {
-    if (card) {
-      socket.emit("discardToCrib", { lobbyId, numPlayers, player, playerId, localPlayerId, card });
-    }
-  }, [card, player, playerId, lobbyId, numPlayers]);
-
-  // Derived states
   const isMultiplayer = !!lobbyId;
   const isTurn = player.num === turn;
   const isPlayer = playerId === player.id;
   const isDraggable = isTurn && (!lobbyId || isPlayer);
 
   const outlineStyle = useMemo(() => {
-    const color = player.num % 2 === 0 ? "outline-fuchsia-400" : "outline-cyan-400";
-    return isTurn ? `outline-3 md:outline-6 ${color}` : "outline-2 outline-stone-300";
+    const color = PLAYER_OUTLINE_COLORS[player.num - 1];
+    return isTurn ? `outline-2 lg:outline-6 ${color}` : "outline-[1px] lg:outline-2 outline-stone-300";
   }, [player.num, isTurn]);
 
   const bgGradient = useMemo(() => "bg-gradient-to-br from-slate-100 to-slate-200", []);
 
-  const getCardImgSrc = () => {
-    if (isMultiplayer) {
-      return isPlayer && card ? card.frontImgSrc : backImgSrc;
-    }
-    return isTurn && card ? card.frontImgSrc : backImgSrc;
-  };
-
-  const displayDiscardButton = () => {
-    if (isMultiplayer) {
-      return isPlayer && isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
-    }
-    console.log("isTurn == ", isTurn);
-    console.log(
-      "isTurn && numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1 = ",
-      isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1),
-    );
-
-    return isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
-  };
-
-  // const cardImgSrc = isTurn && card ? card.frontImgSrc : backImgSrc;
-  // const displayDiscardButton = isTurn && (numPlayers === 2 ? discardedToCrib.length < 2 : discardedToCrib.length < 1);
-  const displayDiscardButtonClass = displayDiscardButton() ? "" : "invisible";
+  const showFront = isMultiplayer ? isPlayer && !!card : isTurn && !!card;
+  const frontImgSrc = card ? card.frontImgSrc : backImgSrc;
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
+  /* Sized off the board's own per-card height (11vh / 13vh) scaled down by PLAYER_CARD_SCALE */
+  const cardImgClasses = `h-[7.05vh] md:h-[7.15vh] lg:h-[7.15vh] xl:h-[8.45vh] 2xl:h-[10.4vh] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
+
   return (
     <div
-      className={`flex flex-col justify-center ${bgGradient} max-w-50 p-2 md:m-2 md:px-10 md:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm`}
+      className={`flex flex-col justify-center ${bgGradient} max-w-[95px] lg:max-w-50 p-1 m-0 xl:p-2 lg:m-2 lg:px-5 lg:py-2 xl:px-10 xl:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm shrink-0`}
     >
-      <div className="flex items-center justify-center mb-1 md:mb-3">
-        <h1 className="md:text-xl font-bold text-gray-800">{name}</h1>
+      <div className="flex items-center justify-center mb-0.5 lg:mb-3">
+        <h1
+          className="w-full text-center text-[11px] lg:text-xl font-bold text-gray-800 truncate max-w-[55px] lg:max-w-none"
+          title={name}
+        >
+          {name}
+        </h1>
         {lobbyId && isPlayer && (
-          <span className="bg-green-400 text-black px-2 rounded-full text-xs ml-2 italic">You</span>
+          <span className="bg-green-400 text-black px-1 lg:px-2 rounded-full text-[9px] lg:text-xs ml-1 lg:ml-2 italic font-semibold">
+            You
+          </span>
         )}
         {player.disconnected && (
-          <span className="block bg-red-500 text-black rounded-full px-2 text-xs ml-2 italic">DC'd</span>
+          <span className="block bg-red-500 text-white rounded-full px-1 lg:px-2 text-[9px] lg:text-xs ml-1 lg:ml-2 italic">
+            DC'd
+          </span>
         )}
       </div>
 
-      <div className="flex flex-col items-center space-y-0.5 md:space-y-2 max-w-16 md:max-w-none">
-        <img
-          className={`${displayCardImage} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} self-center hover:border-gray-400 border-transparent border-[0.5px] md:border-2 cursor-pointer rounded-lg shadow-lg transition-transform hover:scale-105`}
-          src={getCardImgSrc()}
-          alt=""
+      <div className="flex flex-col items-center space-y-0.5 lg:space-y-2 max-w-[90px] lg:max-w-none mx-auto">
+        {/* Flip-card container */}
+        <div
+          className={`${displayCardImage} relative self-center cursor-pointer transition-transform hover:scale-105`}
+          style={{ perspective: 1000 }}
           draggable={isDraggable}
           onDragStart={handleDragStart}
-        />
-        <p className={`${displayCardsLeft} text-xs md:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
-
-        <button
-          onClick={handleDiscard}
-          className={`${displayDiscardButtonClass} bg-red-500 hover:bg-red-700 text-white font-bold py-0.5 px-2 md:p-2 rounded md:text-sm cursor-pointer`}
         >
-          Discard to Crib
-        </button>
+          <motion.div
+            className="relative w-full h-full"
+            style={{ transformStyle: "preserve-3d" }}
+            animate={{ rotateY: showFront ? 180 : 0 }}
+            transition={{ duration: showFront ? 0.45 : 0, ease: "easeInOut" }}
+          >
+            {/* Back face */}
+            <img
+              className={`${cardImgClasses} absolute inset-0 hover:border-gray-400`}
+              style={{ backfaceVisibility: "hidden" }}
+              src={backImgSrc}
+              alt=""
+              draggable={false}
+            />
+            {/* Front face */}
+            <img
+              className={`${cardImgClasses} absolute inset-0 hover:border-gray-400`}
+              style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+              src={frontImgSrc}
+              alt=""
+              draggable={false}
+            />
+            <img className={`${cardImgClasses} invisible`} src={backImgSrc} alt="" />
+          </motion.div>
+        </div>
+
+        <p className={`${displayCardsLeft} text-[9px] lg:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
       </div>
     </div>
   );
 }
 
-// Memoize Player to prevent rerenders when unrelated props change
 export default React.memo(PlayerComponent, (prev, next) => {
   return (
     prev.player.hand === next.player.hand &&

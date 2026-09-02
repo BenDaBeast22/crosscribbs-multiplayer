@@ -1,6 +1,7 @@
 import type { CardType } from "./CardType.js";
 import type { PlayerType } from "./PlayerType.js";
 import type { ScoreType } from "./ScoreType.js";
+import type { BoardPosition } from "./BoardTypes.js";
 
 export interface LobbyPlayerType {
   id: string;
@@ -32,7 +33,7 @@ export interface RoundHistoryType {
   rowScore: number;
   columnScore: number;
   pointDiff: number;
-  winner: "Row" | "Column";
+  winner: "Row" | "Column" | "Tie";
 }
 
 export interface GameStateType {
@@ -57,6 +58,10 @@ export interface GameStateType {
   dealerSelectionComplete: boolean;
   cribScore: ScoreType | null;
   heels: number; // 0 or 2
+  lineScores: [ScoreType[], ScoreType[]] | null; // NEW — 5 per-line scores per team
+  lastMove: BoardPosition | null;
+
+
   // added ai fields maybe should use instead
 
   // players: PlayerType[];

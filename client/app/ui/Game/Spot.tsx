@@ -1,75 +1,86 @@
-/*
-- Spot component:
-  - Handles drag and drop functionality
-  - Shows either an empty spot or a played card
-  - Manages card placement logic
-*/
-
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
-import type { CardSizesType, CardType } from "@cross-cribbs/shared-types/CardType";
+import type { CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
-import { useState } from "react";
+import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 type ChildProps = {
   pos: BoardPosition;
   card: CardType | null;
   turn: number;
-  cardSizes: CardSizesType;
   playCard: (pos: BoardPosition, turn: number) => void;
+  isLastMove?: boolean;
 };
 
-export default function Spot({ pos, card, playCard, turn, cardSizes }: ChildProps) {
+export default function Spot({ pos, card, playCard, turn, isLastMove }: ChildProps) {
   const [isOver, setIsOver] = useState(false);
 
-  function handleDragOver(e: any) {
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
     e.stopPropagation();
     e.preventDefault();
     setIsOver(true);
   }
 
-  function handleDragLeave(e: any) {
+  function handleDragLeave(e: React.DragEvent<HTMLDivElement>) {
     e.stopPropagation();
     e.preventDefault();
     setIsOver(false);
   }
 
-  function handleDrop(e: any) {
+  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     e.preventDefault();
+    setIsOver(false);
     const playerData = e.dataTransfer.getData("application/player");
     if (!playerData) return;
-    if (playerData) {
-      const player: PlayerType = JSON.parse(playerData);
-      console.log("Dropped player:", player);
-      if (player.num !== turn) {
-        return;
-      }
-    }
+
+    const player: PlayerType = JSON.parse(playerData);
+    if (player.num !== turn) return;
+
     playCard(pos, turn);
   }
 
-  const placeholderImage = "/cards/fronts/clubs_2.svg";
-  // subtler hover and border, with rounded corners
-  const hover = "hover:bg-stone-300";
+  // Last move ring scales dynamically based on viewport size
+  const lastMoveRing = isLastMove ? "ring-2 sm:ring-3 ring-amber-400 rounded-[8%]" : "";
 
-  const cardSpotStyles = `${isOver ? "bg-stone-300" : "bg-stone-200"} ${cardSizes.base} ${cardSizes.md} ${cardSizes.xl} border border-stone-300 rounded-md ${hover} transition duration-300 cursor-pointer`;
-
+  // Occupied Spot
   if (card) {
     return (
-      <td className={cardSpotStyles} onDragStart={(e) => (e.dataTransfer.effectAllowed = "move")}>
-        <img className="h-full" src={card.frontImgSrc} alt="" draggable="false" />
-      </td>
+      <div className={`relative w-full aspect-[2.5/3.5] flex items-center justify-center isolate ${lastMoveRing}`}>
+        {isLastMove ? (
+          <motion.img
+            key={`${pos[0]}-${pos[1]}`}
+            initial={{ scale: 1.15, opacity: 0.6 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 24 }}
+            className="w-full h-full object-contain pointer-events-none drop-shadow-md select-none rounded-[8%]"
+            src={card.frontImgSrc}
+            alt={`${card.name} of ${card.suit}`}
+            draggable={false}
+          />
+        ) : (
+          <img
+            className="w-full h-full object-contain pointer-events-none drop-shadow-md select-none rounded-[8%]"
+            src={card.frontImgSrc}
+            alt={`${card.name} of ${card.suit}`}
+            draggable={false}
+          />
+        )}
+      </div>
     );
   }
-  // Show placeholder if no card played
+
+  // Empty Spot (border scales down on smaller screens for cleaner presentation)
+  const emptySpotStyles = `relative w-full aspect-[2.5/3.5] rounded-[8%] border-[1.5px] sm:border-2 border-dashed ${
+    isOver ? "border-amber-400 bg-amber-400/15 scale-[1.02]" : "border-slate-500/30 bg-slate-800/20"
+  } hover:border-slate-400/50 hover:bg-slate-700/20 transition-all duration-150 cursor-pointer`;
+
   return (
-    <td
-      className={cardSpotStyles}
+    <div
+      className={emptySpotStyles}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onClick={() => playCard(pos, turn)}
-    >
-      <img className="h-full invisible" src={placeholderImage} alt="" draggable="false" />
-    </td>
+    />
   );
 }

@@ -9,8 +9,9 @@
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
     "build-server": "cd server && npm run build",
     "build": "cd client && npm run build",
+    "build:all": "npm run build && npm run build-server",
     "start-server": "cd server && npm run start",
-    "start": "cd client && npm start",
+    "start": "npm run start-server",
     "typecheck": "react-router typegen && tsc"
   },
   "devDependencies": {
