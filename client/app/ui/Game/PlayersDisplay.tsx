@@ -23,7 +23,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
             <div className="flex flex-col gap-2">
               <span className="text-center font-medium text-white">Row Team:</span>
               {/* Row Team Players */}
-              <div className="flex flex-row gap-2">
+              <div className="flex flex-row gap-2 lg:gap-4 justify-center">
                 <Player
                   name={playerNames[0]}
                   player={players[0]}
@@ -50,7 +50,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
             <div className="flex flex-col gap-2">
               <span className="text-center font-medium text-white">Column Team:</span>
               {/* Column Team Players */}
-              <div className="flex flex-row gap-2 lg:gap-0">
+              <div className="flex flex-row gap-2 lg:gap-4 justify-center">
                 <Player
                   name={playerNames[1]}
                   player={players[1]}
@@ -78,7 +78,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
       ) : (
         // 2 player layout
         <div className="flex flex-row gap-4 lg:gap-2">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 lg:gap-4">
             <span className="text-center font-medium text-white">Row:</span>
             <Player
               name={playerNames[0]}
@@ -91,7 +91,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
               dealer={dealer}
             />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 lg:gap-4">
             <span className="text-center font-medium text-white">Column:</span>
             <Player
               name={playerNames[1]}

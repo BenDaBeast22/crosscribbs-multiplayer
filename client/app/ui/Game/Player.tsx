@@ -2,7 +2,6 @@ import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import type { CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
-import { getPlayerColor } from "~/helpers";
 
 type ChildProps = {
   name: string;
@@ -15,9 +14,14 @@ type ChildProps = {
   dealer: number | null;
 };
 
-const PLAYER_OUTLINE_COLORS = ["outline-cyan-400", "outline-fuchsia-400", "outline-blue-800", "outline-pink-800"];
+const PLAYER_COLORS = [
+  { outline: "outline-cyan-400", dot: "bg-cyan-400" },
+  { outline: "outline-fuchsia-400", dot: "bg-fuchsia-400" },
+  { outline: "outline-blue-800", dot: "bg-blue-800" },
+  { outline: "outline-pink-800", dot: "bg-pink-800" },
+];
 
-function PlayerComponent({ name, player, turn, numPlayers, lobbyId, playerId, dealer }: ChildProps) {
+function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: ChildProps) {
   const { hand } = player;
 
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
@@ -36,85 +40,99 @@ function PlayerComponent({ name, player, turn, numPlayers, lobbyId, playerId, de
   const isPlayer = playerId === player.id;
   const isDraggable = isTurn && (!lobbyId || isPlayer);
   const isDealer = dealer !== null && dealer === player.num;
+  const colors = PLAYER_COLORS[player.num - 1];
 
   const outlineStyle = useMemo(() => {
-    const color = PLAYER_OUTLINE_COLORS[player.num - 1];
-    return isTurn ? `outline-2 lg:outline-6 ${color}` : "outline-[1px] lg:outline-2 outline-stone-300";
-  }, [player.num, isTurn]);
-
-  const bgGradient = useMemo(() => "bg-gradient-to-br from-slate-100 to-slate-200", []);
+    return isTurn ? `outline-2 lg:outline-4 ${colors.outline}` : "outline-1 outline-slate-300/60";
+  }, [colors.outline, isTurn]);
 
   const showFront = isMultiplayer ? isPlayer && !!card : isTurn && !!card;
   const frontImgSrc = card ? card.frontImgSrc : backImgSrc;
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
-  const cardImgClasses = `h-[7.05vh] md:h-[7.15vh] lg:h-[7.15vh] xl:h-[8.45vh] 2xl:h-[10.4vh] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
+  /* Bumped up ~35-45% from the previous sizing so cards read clearly again */
+  const cardImgClasses = `h-[9.5vh] md:h-[10.5vh] lg:h-[10.5vh] xl:h-[12.5vh] 2xl:h-[15vh] object-contain rounded-lg shadow-md`;
 
   return (
     <div
-      className={`flex flex-col justify-center ${bgGradient} max-w-[95px] lg:max-w-50 p-1 m-0 xl:p-2 lg:m-2 lg:px-5 lg:py-2 xl:px-10 xl:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm shrink-0`}
+      className={`flex flex-col items-center bg-gradient-to-br from-slate-100 to-slate-200 w-[76px] lg:w-36 px-1.5 py-1.5 lg:px-3 lg:py-2.5 rounded-xl ${outlineStyle} outline transition-all duration-300 shadow-lg shrink-0 overflow-hidden`}
     >
-      <div className="flex items-center justify-center mb-0.5 lg:mb-3 ">
-        <h1
-          className="w-full text-center text-[11px] lg:text-xl font-bold text-gray-800 truncate max-w-[55px] lg:max-w-none"
-          title={name}
-        >
+      {/*
+        Header — 3-column grid keeps the name mathematically centered no matter
+        how many badges are active. Left slot (dot) and right slot (badges) are
+        both fixed-width and equal, so the center column's centering never drifts.
+      */}
+      <div className="grid grid-cols-[14px_1fr_14px] lg:grid-cols-[16px_1fr_16px] items-center w-full mb-1 lg:mb-2">
+        <span className={`w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full ${colors.dot}`} aria-hidden="true" />
+
+        <h1 className="min-w-0 text-center text-xs lg:text-base font-bold text-gray-800 truncate px-0.5" title={name}>
           {name}
         </h1>
-        {isDealer && (
-          <span className="bg-amber-400 text-black px-1 lg:px-2 rounded-full text-[9px] lg:text-xs ml-1 lg:ml-2 font-semibold">
-            Dealer
-          </span>
-        )}
-        {lobbyId && isPlayer && (
-          <span className="bg-green-400 text-black px-1 lg:px-2 rounded-full text-[9px] lg:text-xs ml-1 lg:ml-2 italic font-semibold">
-            You
-          </span>
-        )}
-        {player.disconnected && (
-          <span className="block bg-red-500 text-white rounded-full px-1 lg:px-2 text-[9px] lg:text-xs ml-1 lg:ml-2 italic">
-            DC'd
-          </span>
-        )}
-      </div>
 
-      <div className="flex flex-col items-center space-y-0.5 lg:space-y-2 max-w-[90px] lg:max-w-none mx-auto">
-        {/* Flip-card container */}
-        <div
-          className={`${displayCardImage} relative self-center cursor-pointer transition-transform hover:scale-105`}
-          style={{ perspective: 1000 }}
-          draggable={isDraggable}
-          onDragStart={handleDragStart}
-        >
-          <motion.div
-            className="relative w-full h-full"
-            style={{ transformStyle: "preserve-3d" }}
-            animate={{ rotateY: showFront ? 180 : 0 }}
-            transition={{ duration: showFront ? 0.45 : 0, ease: "easeInOut" }}
-          >
-            {/* Back face */}
-            <img
-              className={`${cardImgClasses} absolute inset-0 hover:border-gray-400`}
-              style={{ backfaceVisibility: "hidden" }}
-              src={backImgSrc}
-              alt=""
-              draggable={false}
-            />
-            {/* Front face */}
-            <img
-              className={`${cardImgClasses} absolute inset-0 hover:border-gray-400`}
-              style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-              src={frontImgSrc}
-              alt=""
-              draggable={false}
-            />
-            <img className={`${cardImgClasses} invisible`} src={backImgSrc} alt="" />
-          </motion.div>
+        {/* Right slot: badges stack here if present, otherwise stays empty to balance the dot */}
+        <div className="flex items-center justify-end gap-0.5">
+          {isDealer && (
+            <span
+              className="w-3.5 h-3.5 lg:w-4 lg:h-4 rounded-full bg-amber-400 text-black text-[7px] lg:text-[8px] font-bold flex items-center justify-center"
+              title="Dealer"
+            >
+              D
+            </span>
+          )}
+          {lobbyId && isPlayer && (
+            <span
+              className="w-3.5 h-3.5 lg:w-4 lg:h-4 rounded-full bg-emerald-400 text-black text-[7px] lg:text-[8px] font-bold flex items-center justify-center"
+              title="You"
+            >
+              Y
+            </span>
+          )}
+          {player.disconnected && (
+            <span
+              className="w-3.5 h-3.5 lg:w-4 lg:h-4 rounded-full bg-red-500 text-white text-[7px] lg:text-[8px] font-bold flex items-center justify-center"
+              title="Disconnected"
+            >
+              !
+            </span>
+          )}
         </div>
-
-        <p className={`${displayCardsLeft} text-[9px] lg:text-base font-medium text-gray-700`}>Cards: {hand.length}</p>
       </div>
+
+      {/* Flip-card container */}
+      <div
+        className={`${displayCardImage} relative cursor-pointer transition-transform hover:scale-105`}
+        style={{ perspective: 1000 }}
+        draggable={isDraggable}
+        onDragStart={handleDragStart}
+      >
+        <motion.div
+          className="relative w-full h-full"
+          style={{ transformStyle: "preserve-3d" }}
+          animate={{ rotateY: showFront ? 180 : 0 }}
+          transition={{ duration: showFront ? 0.45 : 0, ease: "easeInOut" }}
+        >
+          {/* Back face */}
+          <img
+            className={`${cardImgClasses} absolute inset-0`}
+            style={{ backfaceVisibility: "hidden" }}
+            src={backImgSrc}
+            alt=""
+            draggable={false}
+          />
+          {/* Front face */}
+          <img
+            className={`${cardImgClasses} absolute inset-0`}
+            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+            src={frontImgSrc}
+            alt=""
+            draggable={false}
+          />
+          <img className={`${cardImgClasses} invisible`} src={backImgSrc} alt="" />
+        </motion.div>
+      </div>
+
+      <p className={`${displayCardsLeft} text-[8px] lg:text-xs font-medium text-gray-600 mt-1`}>{hand.length} left</p>
     </div>
   );
 }
