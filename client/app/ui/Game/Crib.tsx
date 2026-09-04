@@ -3,11 +3,11 @@ import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 
 import { motion } from "framer-motion";
 
-import { getPlayer } from "~/helpers";
+import { getPlayer, getTeamLabel } from "~/helpers";
 
 interface CribProps {
   crib: CardType[];
-  dealer: number | null;
+  dealer: number;
   players: PlayerType[];
   turn: number;
   playerId: string | undefined;
@@ -18,21 +18,13 @@ interface CribProps {
 
 export default function Crib({ crib, dealer, players, turn, playerId, lobbyId, numPlayers, discardToCrib }: CribProps) {
   const backImgSrc = `/cards/backs/red2.svg`;
-
-  const dealerTeam = dealer ? (dealer % 2 !== 0 ? "Row" : "Column") : "";
-
+  const dealerTeam = getTeamLabel(dealer);
   const MAX_CARDS = 4;
-
   const isMultiplayer = !!lobbyId;
-
   const player = getPlayer(players, turn);
-
   const isPlayer = playerId === player.id;
-
   const isTurn = player.num === turn;
-
   const { hand, discardedToCrib } = player;
-
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
 
   const handleDiscard = () => {

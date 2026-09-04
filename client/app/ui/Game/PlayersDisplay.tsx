@@ -10,9 +10,10 @@ type ChildProps = {
   lobbyId: string | undefined;
   turn: number;
   crib: CardType[];
+  dealer: number | null;
 };
 
-export default function PlayersDisplay({ players, playerNames, numPlayers, lobbyId, turn, crib }: ChildProps) {
+export default function PlayersDisplay({ players, playerNames, numPlayers, lobbyId, turn, crib, dealer }: ChildProps) {
   return (
     <div className="w-full players-display text-xs md:text-base font-medium flex justify-center italic md:not-italic mt-1 mb-3">
       {numPlayers === 4 ? (
@@ -31,6 +32,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
+                  dealer={dealer}
                 />
                 <Player
                   name={playerNames[2]}
@@ -40,6 +42,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
+                  dealer={dealer}
                 />
               </div>
             </div>
@@ -56,6 +59,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
+                  dealer={dealer}
                 />
                 <Player
                   name={playerNames[3]}
@@ -65,6 +69,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
                   numPlayers={numPlayers}
                   lobbyId={lobbyId}
                   playerId={socket.id}
+                  dealer={dealer}
                 />
               </div>
             </div>
@@ -83,6 +88,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
               numPlayers={numPlayers}
               lobbyId={lobbyId}
               playerId={socket.id}
+              dealer={dealer}
             />
           </div>
           <div className="flex flex-col gap-2">
@@ -95,6 +101,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
               numPlayers={numPlayers}
               lobbyId={lobbyId}
               playerId={socket.id}
+              dealer={dealer}
             />
           </div>
         </div>

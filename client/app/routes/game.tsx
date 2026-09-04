@@ -7,6 +7,7 @@ import RoundHistory from "~/ui/Game/RoundHistory";
 import Crib from "~/ui/Game/Crib";
 import Chat from "~/ui/Game/Chat";
 import EmoteOverlay from "~/ui/Game/EmoteOverlay";
+import RoundStartPopup from "~/ui/Game/RoundStartPopup";
 import { useEffect, useRef, useState } from "react";
 import type { GameStateType, LobbyType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
@@ -38,6 +39,10 @@ export default function Game() {
 
   // Controls whether the popup modal is open on mobile viewports
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
+  // Controls the round-start / dealer-and-first-player popup
+  const [showRoundStart, setShowRoundStart] = useState(false);
+  const prevDealerRef = useRef<number | null | undefined>(undefined);
 
   // Initialize refs to the CURRENT counts so a fresh page load / rejoin
   // doesn't fire sounds for cards that were already on the board.
@@ -105,6 +110,17 @@ export default function Game() {
     }
   }, [gameState?.gameOver]);
 
+  // Show the round-start popup whenever the dealer changes (new round), as long as
+  // we're not mid round-score-summary or game-over (those overlays take priority)
+  useEffect(() => {
+    if (!gameState || gameState.gameOver || gameState.roundScoreVisible) return;
+
+    if (prevDealerRef.current !== gameState.dealer) {
+      prevDealerRef.current = gameState.dealer;
+      setShowRoundStart(true);
+    }
+  }, [gameState?.dealer, gameState?.roundScoreVisible, gameState?.gameOver]);
+
   // NOW it's safe to conditionally return
   if (!gameState) {
     return <div>Loading game...</div>;
@@ -121,6 +137,7 @@ export default function Game() {
   console.log("playerNames = ", playerNames);
 
   const currentPlayerName = players.find((p) => p.id === playerId)?.name || playerNames[gameState.turn] || "You";
+  const isFirstRound = (gameState.roundHistory?.length ?? 0) === 0;
 
   const handleResetGame = () => {
     const payload = {
@@ -199,6 +216,17 @@ export default function Game() {
       {/* Floating emote animations render above everything, but never block clicks */}
       {isMultiplayer && <EmoteOverlay />}
 
+      {/* Round-start popup: shows dealer, who goes first, and score. Coin flip on round 1 */}
+      <RoundStartPopup
+        isOpen={showRoundStart}
+        onDismiss={() => setShowRoundStart(false)}
+        dealer={gameState.dealer}
+        numPlayers={numPlayers}
+        playerNames={playerNames}
+        totalScores={displayedScores}
+        isFirstRound={isFirstRound}
+      />
+
       {/* FLOATING ACTION BUTTON: Displays strictly on screens narrower than desktop (`lg:hidden`) */}
       <button
         onClick={() => setIsHistoryOpen(true)}
@@ -228,7 +256,7 @@ export default function Game() {
             players={players}
             turn={gameState.turn}
             crib={gameState.crib}
-            cardSizes={cardSizes}
+            dealer={gameState.dealer}
           />
         </div>
 

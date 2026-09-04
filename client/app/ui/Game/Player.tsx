@@ -2,6 +2,7 @@ import React, { useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import type { CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
+import { getPlayerColor } from "~/helpers";
 
 type ChildProps = {
   name: string;
@@ -11,14 +12,12 @@ type ChildProps = {
   numPlayers: number;
   lobbyId: string | undefined;
   playerId: string | undefined;
+  dealer: number | null;
 };
 
-// Matches PLAYER_COLORS order in PlayerSetup.tsx — keep these in sync.
-// Row team (even player.num) shares a blue family, Column team (odd) shares a
-// pink family — same-team players are visually related, different shade per player.
 const PLAYER_OUTLINE_COLORS = ["outline-cyan-400", "outline-fuchsia-400", "outline-blue-800", "outline-pink-800"];
 
-function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) {
+function PlayerComponent({ name, player, turn, numPlayers, lobbyId, playerId, dealer }: ChildProps) {
   const { hand } = player;
 
   const card = hand.length > 0 ? hand[hand.length - 1] : null;
@@ -36,6 +35,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) 
   const isTurn = player.num === turn;
   const isPlayer = playerId === player.id;
   const isDraggable = isTurn && (!lobbyId || isPlayer);
+  const isDealer = dealer !== null && dealer === player.num;
 
   const outlineStyle = useMemo(() => {
     const color = PLAYER_OUTLINE_COLORS[player.num - 1];
@@ -49,20 +49,24 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId }: ChildProps) 
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
-  /* Sized off the board's own per-card height (11vh / 13vh) scaled down by PLAYER_CARD_SCALE */
   const cardImgClasses = `h-[7.05vh] md:h-[7.15vh] lg:h-[7.15vh] xl:h-[8.45vh] 2xl:h-[10.4vh] object-contain border-transparent border-[0.5px] lg:border-2 rounded-lg shadow-lg`;
 
   return (
     <div
       className={`flex flex-col justify-center ${bgGradient} max-w-[95px] lg:max-w-50 p-1 m-0 xl:p-2 lg:m-2 lg:px-5 lg:py-2 xl:px-10 xl:py-3 rounded-lg ${outlineStyle} transition-all duration-300 shadow-xl backdrop-blur-sm shrink-0`}
     >
-      <div className="flex items-center justify-center mb-0.5 lg:mb-3">
+      <div className="flex items-center justify-center mb-0.5 lg:mb-3 ">
         <h1
           className="w-full text-center text-[11px] lg:text-xl font-bold text-gray-800 truncate max-w-[55px] lg:max-w-none"
           title={name}
         >
           {name}
         </h1>
+        {isDealer && (
+          <span className="bg-amber-400 text-black px-1 lg:px-2 rounded-full text-[9px] lg:text-xs ml-1 lg:ml-2 font-semibold">
+            Dealer
+          </span>
+        )}
         {lobbyId && isPlayer && (
           <span className="bg-green-400 text-black px-1 lg:px-2 rounded-full text-[9px] lg:text-xs ml-1 lg:ml-2 italic font-semibold">
             You
@@ -120,6 +124,7 @@ export default React.memo(PlayerComponent, (prev, next) => {
     prev.player.hand === next.player.hand &&
     prev.turn === next.turn &&
     prev.player.num === next.player.num &&
-    prev.crib === next.crib
+    prev.crib === next.crib &&
+    prev.dealer === next.dealer
   );
 });

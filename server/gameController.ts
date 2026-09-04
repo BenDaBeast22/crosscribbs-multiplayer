@@ -27,7 +27,7 @@ export default class GameController implements GameStateType {
   winner: "Row" | "Column" | null;
   roundHistory: RoundHistoryType[];
   currentRound: number;
-  dealer: number | null;
+  dealer: number;
   crib: CardType[];
   dealerSelectionCards: CardType[] | null;
   dealerSelectionComplete: boolean;
@@ -75,8 +75,9 @@ export default class GameController implements GameStateType {
       this.numPlayers = lobby.numPlayers; // set multiplayer numPlayers
     }
 
-    // Initialize the game
-    // this.startDealerSelection();
+    //Now that we have numPlayers set gamer starting dealer and turn
+    this.dealer = Math.floor(Math.random() * this.numPlayers) + 1;
+    this.startingTurn = this.dealer >= this.numPlayers ? 1 : this.dealer + 1;
     this.initializeGame();
   }
 
@@ -310,7 +311,8 @@ export default class GameController implements GameStateType {
   nextRound(): boolean {
     console.log("next round");
     if (this.gameOver) return false;
-    this.startingTurn = this.startingTurn >= this.numPlayers ? 1 : this.startingTurn + 1;
+    this.dealer = this.dealer >= this.numPlayers ? 1 : this.dealer + 1;
+    this.startingTurn = this.dealer >= this.numPlayers ? 1 : this.dealer + 1;
     this.board = newBoard();
     this.lastMove = null;
     this.roundScoreVisible = false;
@@ -320,16 +322,14 @@ export default class GameController implements GameStateType {
     this.currentRound++;
     this.crib = [];
     this.lineScores = null;
-    if (this.dealer) {
-      this.dealer = this.dealer >= this.numPlayers ? 1 : this.dealer + 1;
-    }
     this.initializeGame();
     console.log("nr = true");
     return true;
   }
 
   resetGame(): void {
-    this.startingTurn = 1;
+    this.dealer = Math.floor(Math.random() * this.numPlayers) + 1;
+    this.startingTurn = this.dealer >= this.numPlayers ? 1 : this.dealer + 1;
     this.board = newBoard();
     this.lastMove = null;
     this.roundScoreVisible = false;
