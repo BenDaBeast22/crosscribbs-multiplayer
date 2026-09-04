@@ -77,8 +77,8 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
         </div>
       ) : (
         // 2 player layout
-        <div className="flex flex-row gap-4 lg:gap-2">
-          <div className="flex flex-col gap-2 lg:gap-4">
+        <div className="flex flex-row gap-2 lg:gap-4">
+          <div className="flex flex-col gap-2">
             <span className="text-center font-medium text-white">Row:</span>
             <Player
               name={playerNames[0]}
@@ -91,7 +91,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
               dealer={dealer}
             />
           </div>
-          <div className="flex flex-col gap-2 lg:gap-4">
+          <div className="flex flex-col gap-2">
             <span className="text-center font-medium text-white">Column:</span>
             <Player
               name={playerNames[1]}
