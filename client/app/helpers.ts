@@ -19,6 +19,12 @@ export function getPlayerColor(playerNum: number) {
   const color = palette[positionInTeam] ?? palette[palette.length - 1];
   return { team: isRow ? ("Row" as const) : ("Column" as const), isRow, color };
 }
+
+export function getPlayerRingClass(playerNum: number): string {
+  const { color } = getPlayerColor(playerNum);
+  return `ring-${color}`;
+}
+
 export function getPlayer(players: PlayerType[], playerNumber: number): PlayerType {
   switch (playerNumber) {
     case 1:

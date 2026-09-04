@@ -6,6 +6,7 @@ import type { CardSizesType } from "@cross-cribbs/shared-types/CardType";
 type ChildProps = {
   board: BoardType;
   lastMove: BoardPosition | null;
+  lastMovePlayerNum: number | null;
   turn: number;
   playCard: (pos: BoardPosition, turn: number) => void;
   cardSizes?: CardSizesType;
@@ -53,14 +54,7 @@ function RowCircle({ num }: { num: number }) {
       role="img"
       aria-label={`Row ${num}`}
     >
-      <circle
-        cx="12"
-        cy="12"
-        r="9.5"
-        fill="rgba(0, 0, 0, 0.18)"
-        stroke="rgba(34, 211, 238, 0.3)"
-        strokeWidth="1.25"
-      />
+      <circle cx="12" cy="12" r="9.5" fill="rgba(0, 0, 0, 0.18)" stroke="rgba(34, 211, 238, 0.3)" strokeWidth="1.25" />
       <text
         x="12"
         y="12"
@@ -77,7 +71,7 @@ function RowCircle({ num }: { num: number }) {
   );
 }
 
-export default function Board({ board, lastMove, playCard, turn }: ChildProps) {
+export default function Board({ board, lastMove, lastMovePlayerNum, playCard, turn }: ChildProps) {
   return (
     <div className="w-full h-full flex items-center justify-center lg:p-2 min-h-0 min-w-0">
       {/*
@@ -134,6 +128,7 @@ export default function Board({ board, lastMove, playCard, turn }: ChildProps) {
                   playCard={playCard}
                   turn={turn}
                   isLastMove={isLastMove}
+                  lastMovePlayerNum={lastMovePlayerNum}
                 />
               );
             }),

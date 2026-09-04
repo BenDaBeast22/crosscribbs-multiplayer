@@ -60,7 +60,7 @@ export interface GameStateType {
   heels: number; // 0 or 2
   lineScores: [ScoreType[], ScoreType[]] | null; // NEW — 5 per-line scores per team
   lastMove: BoardPosition | null;
-
+  lastMovePlayerNum: number | null;
 
   // added ai fields maybe should use instead
 

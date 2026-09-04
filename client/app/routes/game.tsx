@@ -1,15 +1,13 @@
 import Board from "~/ui/Game/Board";
-import Player from "~/ui/Game/Player.js";
 import RoundScore from "~/ui/Game/RoundScore";
 import GameOver from "~/ui/Game/GameOver";
-import TurnIndicator from "~/ui/Game/TurnIndicator";
 import RoundHistory from "~/ui/Game/RoundHistory";
 import Crib from "~/ui/Game/Crib";
 import Chat from "~/ui/Game/Chat";
 import EmoteOverlay from "~/ui/Game/EmoteOverlay";
 import RoundStartPopup from "~/ui/Game/RoundStartPopup";
 import { useEffect, useRef, useState } from "react";
-import type { GameStateType, LobbyType } from "@cross-cribbs/shared-types/GameControllerTypes";
+import type { GameStateType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import type { BoardPosition } from "@cross-cribbs/shared-types/BoardTypes";
 import { socket } from "../connections/socket";
@@ -164,7 +162,7 @@ export default function Game() {
     }
   };
 
-  const playCard = (pos: BoardPosition, turn: number) => {
+  const playCard = (pos: BoardPosition) => {
     if (isMultiplayer) {
       const playerId = socket.id;
       socket.emit("playCard", { lobbyId, pos, playerId });
@@ -248,7 +246,7 @@ export default function Game() {
       {/* Main Responsive Grid Layout */}
       <div className="flex-1 w-full min-h-0 flex flex-col lg:flex-row items-center justify-evenly lg:justify-around lg:gap-0 lg:py-2 mx-auto md:p-2">
         {/* Players Display — full width above the board on mobile, left column on lg+ */}
-        <div className="w-full lg:w-1/4 lg:order-1 flex flex-col items-center justify-center mb-1 lg:mb-0">
+        <div className="w-full lg:w-1/4 lg:order-1 flex flex-col items-center justify-center">
           <PlayersDisplay
             lobbyId={lobbyId}
             numPlayers={numPlayers}
@@ -265,6 +263,7 @@ export default function Game() {
           <Board
             board={gameState.board}
             lastMove={gameState.lastMove}
+            lastMovePlayerNum={gameState.lastMovePlayerNum}
             playCard={playCard}
             turn={gameState.turn}
             cardSizes={cardSizes}

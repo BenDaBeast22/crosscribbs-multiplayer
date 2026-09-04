@@ -3,6 +3,7 @@ import type { CardType } from "@cross-cribbs/shared-types/CardType";
 import type { PlayerType } from "@cross-cribbs/shared-types/PlayerType";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { getPlayerRingClass } from "~/helpers";
 
 type ChildProps = {
   pos: BoardPosition;
@@ -10,9 +11,10 @@ type ChildProps = {
   turn: number;
   playCard: (pos: BoardPosition, turn: number) => void;
   isLastMove?: boolean;
+  lastMovePlayerNum: number | null;
 };
 
-export default function Spot({ pos, card, playCard, turn, isLastMove }: ChildProps) {
+export default function Spot({ pos, card, playCard, turn, isLastMove, lastMovePlayerNum }: ChildProps) {
   const [isOver, setIsOver] = useState(false);
 
   function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
@@ -40,7 +42,9 @@ export default function Spot({ pos, card, playCard, turn, isLastMove }: ChildPro
   }
 
   // Last move ring scales dynamically based on viewport size
-  const lastMoveRing = isLastMove ? "ring-2 sm:ring-3 ring-amber-400 rounded-[8%]" : "";
+  console.log("last move player num = ", lastMovePlayerNum);
+  const lastMoveRing =
+    isLastMove && lastMovePlayerNum ? `ring-2 md:ring-3 ${getPlayerRingClass(lastMovePlayerNum)} rounded-md` : "";
 
   // Occupied Spot
   if (card) {
