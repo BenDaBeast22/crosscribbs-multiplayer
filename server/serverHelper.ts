@@ -44,3 +44,11 @@ export function startDisconnectCountdown(
   // Store interval so we can cancel it on reconnect
   disconnectedPlayers[player.id] = interval;
 }
+
+export function attachSocketUser(socket: any, lobbyId: string, playerId: any, playerName: any) {
+  if (lobbyId) socket.data.lobbyId = lobbyId;
+  if (playerId) socket.data.playerId = playerId;
+  socket.data.lobbyId = lobbyId;
+  socket.data.playerId = playerId;
+  socket.data.playerName = playerName;
+}
