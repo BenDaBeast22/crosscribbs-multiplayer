@@ -13,97 +13,58 @@ type ChildProps = {
   dealer: number | null;
 };
 
-export default function PlayersDisplay({ players, playerNames, numPlayers, lobbyId, turn, crib, dealer }: ChildProps) {
+function Divider() {
   return (
-    <div className="w-full players-display text-xs md:text-base font-medium flex justify-center italic md:not-italic mt-1 mb-3">
-      {numPlayers === 4 ? (
-        <div className="flex flex-col">
-          {/* Side-by-side on mobile, stacked column on lg screens and up */}
-          <div className="flex flex-row lg:flex-col justify-center gap-3 md:gap-4">
-            <div className="flex flex-col gap-2">
-              <span className="text-center font-medium text-white">Row Team:</span>
-              {/* Row Team Players */}
-              <div className="flex flex-row gap-2 lg:gap-4 justify-center">
-                <Player
-                  name={playerNames[0]}
-                  player={players[0]}
-                  turn={turn}
-                  crib={crib}
-                  numPlayers={numPlayers}
-                  lobbyId={lobbyId}
-                  playerId={socket.id}
-                  dealer={dealer}
-                />
-                <Player
-                  name={playerNames[2]}
-                  player={players[2]}
-                  turn={turn}
-                  crib={crib}
-                  numPlayers={numPlayers}
-                  lobbyId={lobbyId}
-                  playerId={socket.id}
-                  dealer={dealer}
-                />
-              </div>
-            </div>
+    <div
+      className="w-px self-stretch"
+      style={{
+        background:
+          "linear-gradient(to bottom, transparent, rgba(255,255,255,0.35) 20%, rgba(255,255,255,0.35) 80%, transparent)",
+      }}
+      aria-hidden="true"
+    />
+  );
+}
 
-            <div className="flex flex-col gap-2">
-              <span className="text-center font-medium text-white">Column Team:</span>
-              {/* Column Team Players */}
-              <div className="flex flex-row gap-2 lg:gap-4 justify-center">
-                <Player
-                  name={playerNames[1]}
-                  player={players[1]}
-                  turn={turn}
-                  crib={crib}
-                  numPlayers={numPlayers}
-                  lobbyId={lobbyId}
-                  playerId={socket.id}
-                  dealer={dealer}
-                />
-                <Player
-                  name={playerNames[3]}
-                  player={players[3]}
-                  turn={turn}
-                  crib={crib}
-                  numPlayers={numPlayers}
-                  lobbyId={lobbyId}
-                  playerId={socket.id}
-                  dealer={dealer}
-                />
-              </div>
-            </div>
-          </div>
+export default function PlayersDisplay({ players, playerNames, numPlayers, lobbyId, turn, crib, dealer }: ChildProps) {
+  const renderPlayer = (index: number) => (
+    <Player
+      name={playerNames[index]}
+      player={players[index]}
+      turn={turn}
+      crib={crib}
+      numPlayers={numPlayers}
+      lobbyId={lobbyId}
+      playerId={socket.id}
+      dealer={dealer}
+    />
+  );
+
+  return (
+    <div className="w-full players-display text-xs md:text-base font-medium italic md:not-italic mt-1 mb-3 flex justify-center">
+      {numPlayers === 4 ? (
+        <div className="grid grid-cols-[auto_auto_auto] gap-x-2 md:gap-x-3 gap-y-3 md:gap-y-4 items-center justify-items-center">
+          <span className="text-cyan-400 font-bold text-center">Row</span>
+          <Divider />
+          <span className="text-fuchsia-400 font-bold text-center">Column</span>
+
+          <div className="flex justify-center">{renderPlayer(0)}</div>
+          <Divider />
+          <div className="flex justify-center">{renderPlayer(1)}</div>
+
+          <div className="flex justify-center">{renderPlayer(2)}</div>
+          <Divider />
+          <div className="flex justify-center">{renderPlayer(3)}</div>
         </div>
       ) : (
-        // 2 player layout
-        <div className="flex flex-row gap-2 lg:gap-4">
-          <div className="flex flex-col gap-2">
-            <span className="text-center font-medium text-white">Row:</span>
-            <Player
-              name={playerNames[0]}
-              player={players[0]}
-              turn={turn}
-              crib={crib}
-              numPlayers={numPlayers}
-              lobbyId={lobbyId}
-              playerId={socket.id}
-              dealer={dealer}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-center font-medium text-white">Column:</span>
-            <Player
-              name={playerNames[1]}
-              player={players[1]}
-              turn={turn}
-              crib={crib}
-              numPlayers={numPlayers}
-              lobbyId={lobbyId}
-              playerId={socket.id}
-              dealer={dealer}
-            />
-          </div>
+        <div className="grid grid-cols-[auto_auto_auto] gap-x-2 md:gap-x-3 gap-y-3 items-center justify-items-center">
+          <span className="text-cyan-400 font-bold text-center">Row</span>
+          <Divider />
+          <span className="text-fuchsia-400 font-bold text-center">Column</span>
+
+          <div className="flex justify-center">{renderPlayer(0)}</div>
+          <Divider />
+          <div className="flex justify-center">{renderPlayer(1)}</div>
         </div>
       )}
     </div>

@@ -12,7 +12,7 @@ Local and online multiplayer game based on the Cross Cribb board game
 
 ## Play Online
 
-https://crosscribbs-multiplayer.onrender.com/
+https://crosscribbs-online.onrender.com/
 
 (May take some time to startup Render)
 

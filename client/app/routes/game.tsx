@@ -246,9 +246,9 @@ export default function Game() {
       )}
 
       {/* Main Responsive Grid Layout */}
-      <div className="flex-1 w-full min-h-0 flex flex-col items-center justify-evenly lg:flex-row lg:justify-around lg:gap-0 lg:py-2 mx-auto md:p-2">
-        {/* Left: Players Display — fixed 1/4 width on lg+ */}
-        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center mb-1 lg:mb-0">
+      <div className="flex-1 w-full min-h-0 flex flex-col lg:flex-row items-center justify-evenly lg:justify-around lg:gap-0 lg:py-2 mx-auto md:p-2">
+        {/* Players Display — full width above the board on mobile, left column on lg+ */}
+        <div className="w-full lg:w-1/4 lg:order-1 flex flex-col items-center justify-center mb-1 lg:mb-0">
           <PlayersDisplay
             lobbyId={lobbyId}
             numPlayers={numPlayers}
@@ -261,7 +261,7 @@ export default function Game() {
         </div>
 
         {/* Center: Board */}
-        <div className="shrink-0 flex items-center justify-center">
+        <div className="shrink-0 flex items-center justify-center lg:order-2">
           <Board
             board={gameState.board}
             lastMove={gameState.lastMove}
@@ -271,8 +271,8 @@ export default function Game() {
           />
         </div>
 
-        {/* Right: Crib & History — fixed 1/4 width on lg+, matches left column */}
-        <div className="w-full lg:w-1/4 flex flex-col items-center justify-center gap-5 xl:gap-7 mt-2 lg:mt-0">
+        {/* Crib & History — full width below the board on mobile, right column on lg+ */}
+        <div className="w-full lg:w-1/4 lg:order-3 flex flex-col items-center justify-center gap-5 xl:gap-7 mt-2 lg:mt-0">
           <Crib
             crib={gameState.crib}
             dealer={gameState.dealer}

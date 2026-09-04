@@ -54,24 +54,25 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
   const displayCardsLeft = card ? "" : "invisible";
   const displayCardImage = card ? "" : "invisible";
 
-  const cardImgClasses = `h-[9.5vh] md:h-[10.5vh] lg:h-[11vh] xl:h-[12.5vh] 2xl:h-[15vh] object-contain rounded-lg shadow-md`;
+  /* Shrunk for mobile/sm, lg+ sizing unchanged */
+  const cardImgClasses = `h-[6.5vh] sm:h-[7.5vh] md:h-[9vh] lg:h-[11vh] xl:h-[12.5vh] 2xl:h-[15vh] object-contain rounded-lg shadow-md`;
 
   return (
     <div
       className={`
         relative flex flex-col items-center ${bgGradient}
-        w-[84px] sm:w-28 lg:w-36 px-1.5 py-0.5 lg:py-1 lg:px-2.5 lg:pt-1.5 lg:pb-2.5 rounded-xl 
-        ${outlineStyle} outline transition-all duration-300 shadow-lg shrink-0 overflow-hidden select-none
+        w-[58px] sm:w-20 md:w-24 lg:w-36 px-1 py-0.5 lg:py-1 lg:px-2.5 lg:pt-1.5 lg:pb-2.5 rounded-lg lg:rounded-xl 
+        ${outlineStyle} outline transition-all duration-300 shadow-md lg:shadow-lg shrink-0 overflow-hidden select-none
       `}
     >
       {/* 1. Header: Color Dot top-left; Name centered */}
-      <div className="relative flex items-center justify-center w-full min-w-0 mb-0.5 lg:mb-1 px-1">
+      <div className="relative flex items-center justify-center w-full min-w-0 mb-0.5 lg:mb-1 px-0.5 lg:px-1">
         <span
-          className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full shrink-0 ${colors.dot}`}
+          className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1 lg:w-2 lg:h-2 rounded-full shrink-0 ${colors.dot}`}
           aria-hidden="true"
         />
         <h1
-          className="w-full text-center text-xs sm:text-xs lg:text-base font-bold text-slate-800 truncate lg:px-1"
+          className="w-full text-center text-[9px] sm:text-[10px] md:text-xs lg:text-base font-bold text-slate-800 truncate lg:px-1"
           title={name}
         >
           {name}
@@ -112,15 +113,17 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
       </div>
 
       {/* 3. Hand Count */}
-      <p className={`${displayCardsLeft} text-[9px] lg:text-xs font-semibold text-slate-600 mt-0.5 lg:mt-1`}>
+      <p
+        className={`${displayCardsLeft} text-[7px] sm:text-[8px] md:text-[9px] lg:text-xs font-semibold text-slate-600 mt-0.5 lg:mt-1`}
+      >
         {hand.length} left
       </p>
 
       {/* 4. Badges Footer: Fixed height wrapper preserves uniform card dimensions */}
-      <div className="flex items-center justify-center gap-1 w-full lg:mt-1 min-h-[14px] lg:min-h-[20px]">
+      <div className="flex items-center justify-center gap-0.5 lg:gap-1 w-full lg:mt-1 min-h-[10px] lg:min-h-[20px]">
         {isMultiplayer && isPlayer && (
           <span
-            className="bg-emerald-600 text-white font-black text-[7px] sm:text-[8px] lg:text-[10px] px-1 py-0.2 lg:px-1.5 lg:py-0.5 rounded uppercase tracking-tight shadow-xs"
+            className="bg-emerald-600 text-white font-black text-[5px] sm:text-[6px] md:text-[7px] lg:text-[10px] px-0.5 py-0.2 lg:px-1.5 lg:py-0.5 rounded uppercase tracking-tight shadow-xs"
             title="You"
           >
             YOU
@@ -129,7 +132,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
 
         {isDealer && (
           <span
-            className="bg-amber-400 text-slate-900 font-black text-[7px] sm:text-[8px] lg:text-[10px] px-1 py-0.2 lg:px-1.5 lg:py-0.5 rounded shadow-xs"
+            className="bg-amber-400 text-slate-900 font-black text-[5px] sm:text-[6px] md:text-[7px] lg:text-[10px] px-0.5 py-0.2 lg:px-1.5 lg:py-0.5 rounded shadow-xs"
             title="Dealer"
           >
             <span>DEALER</span>
@@ -138,7 +141,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
 
         {player.disconnected && (
           <span
-            className="bg-red-500 text-white font-bold text-[7px] sm:text-[8px] lg:text-[10px] px-1 py-0.2 lg:px-1.5 lg:py-0.5 rounded shadow-xs"
+            className="bg-red-500 text-white font-bold text-[5px] sm:text-[6px] md:text-[7px] lg:text-[10px] px-0.5 py-0.2 lg:px-1.5 lg:py-0.5 rounded shadow-xs"
             title="Disconnected"
           >
             <span>DC</span>
