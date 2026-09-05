@@ -8,6 +8,7 @@ export interface Player {
   playerId: string;
   disconnected?: boolean;
   disconnectExpiresAt?: number;
+  team?: "Row" | "Column";
 }
 
 export interface Lobby {

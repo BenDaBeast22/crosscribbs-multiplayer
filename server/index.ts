@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import GameController from "./gameController.js";
 import { getGame, lobbies, games, Player } from "./classes/gameHelpers.js";
-import { attachSocketUser, startDisconnectCountdown } from "./serverHelper.js";
+import { attachSocketUser, orderPlayersByTeam, startDisconnectCountdown } from "./serverHelper.js";
 
 const disconnectedPlayers: Record<string, NodeJS.Timeout> = {};
 
@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
     console.log("test create lobby");
     const lobbyId = String(lobbyCounter++);
     lobbies[lobbyId] = {
-      players: [{ id: socket.id, name: username, playerId: playerId }],
+      players: [{ id: socket.id, name: username, playerId: playerId, team: "Row" }],
       host: playerId,
       numPlayers,
       id: lobbyId,
@@ -87,13 +87,25 @@ io.on("connection", (socket) => {
     if (lobby.players.find((player) => player.playerId === playerId))
       return callback({ error: "Player already in lobby" });
 
-    // for (const player of lobby.players) {
-    // }
+    // Row/Column/Row/Column by arrival order — matches isRowTeam()'s odd=Row rule
+    // once players are reordered by team at game start.
+    const team: "Row" | "Column" = lobby.players.length % 2 === 0 ? "Row" : "Column";
 
-    lobby.players.push({ id: socket.id, name: username, playerId: playerId });
+    lobby.players.push({ id: socket.id, name: username, playerId: playerId, team });
     socket.join(lobbyId);
     attachSocketUser(socket, lobbyId, playerId, username);
     callback({ lobbyId });
+    io.to(lobbyId).emit("lobbyUpdate", lobby);
+  });
+
+  socket.on("switchTeam", ({ lobbyId, playerId }) => {
+    const lobby = lobbies[lobbyId];
+    if (!lobby) return;
+
+    const player = lobby.players.find((p) => p.playerId === playerId);
+    if (!player) return;
+
+    player.team = player.team === "Row" ? "Column" : "Row";
     io.to(lobbyId).emit("lobbyUpdate", lobby);
   });
 
@@ -129,8 +141,21 @@ io.on("connection", (socket) => {
 
   socket.on("startGame", ({ lobbyId, numPlayers, playerId }) => {
     if (lobbyId) {
-      // Multiplayer game tied to a lobby
       const lobby = lobbies[lobbyId] ?? null;
+      if (!lobby) return;
+
+      // Server-side gate: for 2v2, require exactly 2 players per team before starting
+      if (numPlayers === 4) {
+        const rowCount = lobby.players.filter((p) => p.team === "Row").length;
+        const columnCount = lobby.players.filter((p) => p.team === "Column").length;
+        if (rowCount !== 2 || columnCount !== 2) {
+          console.log(`Rejected startGame: uneven teams (Row: ${rowCount}, Column: ${columnCount})`);
+          return;
+        }
+        // Reorder so team assignment lines up with player.num parity (odd = Row)
+        lobby.players = orderPlayersByTeam(lobby.players);
+      }
+
       games[lobbyId] = new GameController(numPlayers, lobby);
       const newGame = getGame(playerId, lobbyId);
       if (!newGame) return;
@@ -138,8 +163,8 @@ io.on("connection", (socket) => {
       io.to(lobbyId).emit("gameStateUpdate", games[lobbyId].getGameState());
       console.log(`Multiplayer game started in lobby ${lobbyId}`);
     } else {
-      // Local game (hosted just on this client)
-      const localLobbyId = playerId; // use player ID so can rejoin game
+      // Local game (hosted just on this client) — unchanged
+      const localLobbyId = playerId;
       games[localLobbyId] = new GameController(numPlayers);
       socket.emit("gameStateUpdate", games[localLobbyId].getGameState());
       console.log(`Local game started for ${playerId}`);

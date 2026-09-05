@@ -52,3 +52,18 @@ export function attachSocketUser(socket: any, lobbyId: string, playerId: any, pl
   socket.data.playerId = playerId;
   socket.data.playerName = playerName;
 }
+
+// For 2v2: interleaves players by team so Row players land on odd player.num
+// (1, 3) and Column players land on even (2, 4), matching isRowTeam()'s rule —
+// regardless of actual join order, since players can switch teams pre-game.
+export function orderPlayersByTeam(players: any[]): any[] {
+  const rowPlayers = players.filter((p) => p.team === "Row");
+  const columnPlayers = players.filter((p) => p.team === "Column");
+  const ordered: any[] = [];
+  const maxLen = Math.max(rowPlayers.length, columnPlayers.length);
+  for (let i = 0; i < maxLen; i++) {
+    if (rowPlayers[i]) ordered.push(rowPlayers[i]);
+    if (columnPlayers[i]) ordered.push(columnPlayers[i]);
+  }
+  return ordered;
+}
