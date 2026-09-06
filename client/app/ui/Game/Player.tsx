@@ -43,7 +43,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
   const colors = PLAYER_COLORS[(player.num - 1) % PLAYER_COLORS.length];
 
   const outlineStyle = useMemo(() => {
-    return isTurn ? `outline-2 lg:outline-4 ${colors.outline}` : "outline-1 outline-slate-300/80";
+    return isTurn ? `outline-3 lg:outline-5 ${colors.outline}` : "outline-1 outline-slate-300/80";
   }, [colors.outline, isTurn]);
 
   // Clean background gradient without player-turn tints

@@ -43,7 +43,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
   return (
     <div className="w-full players-display text-xs md:text-base font-medium italic md:not-italic mt-1 mb-3 flex justify-center">
       {numPlayers === 4 ? (
-        <div className="grid grid-cols-[auto_auto_auto] gap-x-2 md:gap-x-3 gap-y-3 md:gap-y-4 items-center justify-items-center">
+        <div className="grid grid-cols-[auto_auto_auto] gap-x-2 md:gap-x-4 gap-y-3 md:gap-y-4 items-center justify-items-center">
           <span className="text-cyan-400 font-bold text-center">Row</span>
           <Divider />
           <span className="text-fuchsia-400 font-bold text-center">Column</span>
@@ -57,7 +57,7 @@ export default function PlayersDisplay({ players, playerNames, numPlayers, lobby
           <div className="flex justify-center">{renderPlayer(3)}</div>
         </div>
       ) : (
-        <div className="grid grid-cols-[auto_auto_auto] gap-x-2 md:gap-x-3 gap-y-3 items-center justify-items-center">
+        <div className="grid grid-cols-[auto_auto_auto] gap-x-2 md:gap-x-4 gap-y-3 items-center justify-items-center">
           <span className="text-cyan-400 font-bold text-center">Row</span>
           <Divider />
           <span className="text-fuchsia-400 font-bold text-center">Column</span>
