@@ -87,9 +87,10 @@ io.on("connection", (socket) => {
     if (lobby.players.find((player) => player.playerId === playerId))
       return callback({ error: "Player already in lobby" });
 
-    // Row/Column/Row/Column by arrival order — matches isRowTeam()'s odd=Row rule
-    // once players are reordered by team at game start.
-    const team: "Row" | "Column" = lobby.players.length % 2 === 0 ? "Row" : "Column";
+    // Assign to whichever team currently has fewer players; ties go to Row.
+    const rowCount = lobby.players.filter((p) => p.team === "Row").length;
+    const columnCount = lobby.players.filter((p) => p.team === "Column").length;
+    const team: "Row" | "Column" = columnCount < rowCount ? "Column" : "Row";
 
     lobby.players.push({ id: socket.id, name: username, playerId: playerId, team });
     socket.join(lobbyId);

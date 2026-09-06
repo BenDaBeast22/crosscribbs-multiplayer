@@ -111,6 +111,12 @@ h6 {
   isolation: isolate;
 }
 
+@media (max-width: 1024px) {
+  .panel-card {
+    padding: 1.5rem;
+  }
+}
+
 .input-field {
   border-radius: 12px;
   padding: 0.75rem 1rem;

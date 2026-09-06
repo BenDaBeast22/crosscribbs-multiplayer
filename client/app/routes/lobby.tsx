@@ -64,7 +64,7 @@ export default function Lobby() {
       <motion.div
         layout
         key={player.playerId}
-        className="flex items-center justify-between min-h-[34px] lg:min-h-0 p-1 lg:p-3.5 rounded-xl bg-white/5 border border-white/5"
+        className="flex items-center justify-between min-h-[34px] lg:min-h-0 px-2 py-1.5 lg:p-3.5 rounded-xl bg-white/5 border border-white/5"
       >
         <div className="flex items-center gap-2">
           <span className={`text-white text-xs lg:text-base ${isYou ? "italic font-extrabold" : "font-semibold"}`}>
@@ -131,24 +131,25 @@ export default function Lobby() {
             </p>
           </div>
 
-          {isTeamMode ? (
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div>
-                <h3 className="text-cyan-400 text-sm font-bold uppercase tracking-wide text-center mb-2">
-                  Row {rowPlayers.length === 2 ? "" : `(${rowPlayers.length}/2)`}
-                </h3>
-                <div className="space-y-2">{rowPlayers.map(renderPlayerRow)}</div>
-              </div>
-              <div>
-                <h3 className="text-fuchsia-400 text-sm font-bold uppercase tracking-wide text-center mb-2">
-                  Column {columnPlayers.length === 2 ? "" : `(${columnPlayers.length}/2)`}
-                </h3>
-                <div className="space-y-2">{columnPlayers.map(renderPlayerRow)}</div>
-              </div>
+          {/*
+            Same Row/Column grid layout for both 1v1 and 2v2 — only the
+            switch-team button (isTeamMode-gated inside renderPlayerRow)
+            and the "needs 2 per team" notice below differ between modes.
+          */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div>
+              <h3 className="text-cyan-400 text-sm font-bold uppercase tracking-wide text-center mb-2">
+                Row {isTeamMode && rowPlayers.length !== 2 ? `(${rowPlayers.length}/2)` : ""}
+              </h3>
+              <div className="space-y-2">{rowPlayers.map(renderPlayerRow)}</div>
             </div>
-          ) : (
-            <div className="space-y-3 mb-6">{lobby.players.map(renderPlayerRow)}</div>
-          )}
+            <div>
+              <h3 className="text-fuchsia-400 text-sm font-bold uppercase tracking-wide text-center mb-2">
+                Column {isTeamMode && columnPlayers.length !== 2 ? `(${columnPlayers.length}/2)` : ""}
+              </h3>
+              <div className="space-y-2">{columnPlayers.map(renderPlayerRow)}</div>
+            </div>
+          </div>
 
           {!teamsBalanced && isTeamMode && (
             <p className="text-amber-400 text-xs text-center mb-3">Each team needs exactly 2 players to start.</p>
