@@ -38,9 +38,18 @@ export default function Game() {
   // Controls whether the popup modal is open on mobile viewports
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
-  // Controls the round-start / dealer-and-first-player popup
+  // Controls the round-start / dealer-and-first-player popup (which also gates
+  // the coin-flip animation, since that only renders while this popup is open).
+  // Seeded from sessionStorage so a rejoin/refresh with the same dealer doesn't
+  // retrigger it — only a genuine dealer change (new round) does.
   const [showRoundStart, setShowRoundStart] = useState(false);
-  const prevDealerRef = useRef<number | null | undefined>(undefined);
+  const roundStartStorageKey = `cc-lastdealer-${lobbyId ?? playerId}`;
+  const prevDealerRef = useRef<number | null | undefined>(
+    (() => {
+      const stored = sessionStorage.getItem(roundStartStorageKey);
+      return stored !== null ? Number(stored) : undefined;
+    })(),
+  );
 
   // Initialize refs to the CURRENT counts so a fresh page load / rejoin
   // doesn't fire sounds for cards that were already on the board.
@@ -109,12 +118,13 @@ export default function Game() {
   }, [gameState?.gameOver]);
 
   // Show the round-start popup whenever the dealer changes (new round), as long as
-  // we're not mid round-score-summary or game-over (those overlays take priority)
+  // we're not mid round-score-summary or game-over (those overlays take priority).
   useEffect(() => {
     if (!gameState || gameState.gameOver || gameState.roundScoreVisible) return;
 
     if (prevDealerRef.current !== gameState.dealer) {
       prevDealerRef.current = gameState.dealer;
+      sessionStorage.setItem(roundStartStorageKey, String(gameState.dealer));
       setShowRoundStart(true);
     }
   }, [gameState?.dealer, gameState?.roundScoreVisible, gameState?.gameOver]);
@@ -138,6 +148,7 @@ export default function Game() {
   const isFirstRound = (gameState.roundHistory?.length ?? 0) === 0;
 
   const handleResetGame = () => {
+    sessionStorage.removeItem(roundStartStorageKey);
     const payload = {
       lobbyId: isMultiplayer ? lobbyId : undefined,
       playerId,
