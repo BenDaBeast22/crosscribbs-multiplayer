@@ -7,14 +7,14 @@ export const games = {};
  * If lobbyId is provided, returns the multiplayer game.
  * Otherwise, returns the local game for this socket.
  */
-export function getGame(socketId, lobbyId) {
-    const id = lobbyId || socketId;
+export function getGame(playerId, lobbyId) {
+    const id = lobbyId || playerId;
     return games[id] || null;
 }
 /**
  * Optional: delete a game when a socket disconnects
  */
-export function deleteGame(socketId, lobbyId) {
-    const id = lobbyId || socketId;
+export function deleteGame(playerId, lobbyId) {
+    const id = lobbyId || playerId;
     delete games[id];
 }

@@ -14,6 +14,8 @@ type ChildProps = {
   isSpectator?: boolean;
   spectatorCount?: number;
   lobbyId?: string;
+  showLiveScoring?: boolean;
+  toggleLiveScoring?: () => void;
 };
 
 export default function Header({
@@ -26,6 +28,8 @@ export default function Header({
   isSpectator,
   spectatorCount = 0,
   lobbyId,
+  showLiveScoring,
+  toggleLiveScoring,
 }: ChildProps) {
   const rowScore = totalScores[0];
   const colScore = totalScores[1];
@@ -147,14 +151,34 @@ export default function Header({
 
           <h1 className="title text-white font-semibold text-sm">Cross Cribbs</h1>
 
-          <button
-            className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
-            onClick={() => setShowInstructions(true)}
-            aria-haspopup="dialog"
-            aria-expanded={showInstructions}
-          >
-            Help
-          </button>
+          <div className="flex items-center gap-1.5">
+            {toggleLiveScoring && (
+              <button
+                className={`font-bold py-1 px-2 rounded text-[11px] transition-all duration-200 cursor-pointer flex items-center gap-1 ${
+                  showLiveScoring
+                    ? "bg-cyan-900/80 text-cyan-300 border border-cyan-400/60"
+                    : "bg-gray-700/80 text-gray-300 border border-gray-600"
+                }`}
+                onClick={toggleLiveScoring}
+                title="Toggle live row and column scores on the board"
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    showLiveScoring ? "bg-cyan-400" : "bg-gray-500"
+                  }`}
+                />
+                Live: {showLiveScoring ? "ON" : "OFF"}
+              </button>
+            )}
+            <button
+              className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
+              onClick={() => setShowInstructions(true)}
+              aria-haspopup="dialog"
+              aria-expanded={showInstructions}
+            >
+              Help
+            </button>
+          </div>
         </div>
 
         {renderSubBadges("mobile")}
@@ -178,6 +202,24 @@ export default function Header({
           >
             Instructions
           </button>
+          {toggleLiveScoring && (
+            <button
+              className={`font-bold py-1.5 px-3 text-xs sm:text-sm rounded transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                showLiveScoring
+                  ? "bg-cyan-900/70 hover:bg-cyan-800/80 text-cyan-300 border border-cyan-400/60 shadow-[0_0_8px_rgba(34,211,238,0.25)]"
+                  : "bg-gray-700/80 hover:bg-gray-600 text-gray-300 border border-gray-600"
+              }`}
+              onClick={toggleLiveScoring}
+              title="Toggle live row and column scores on the board"
+            >
+              <span
+                className={`w-2 h-2 rounded-full transition-colors ${
+                  showLiveScoring ? "bg-cyan-400 shadow-[0_0_6px_#22d3ee]" : "bg-gray-500"
+                }`}
+              />
+              Live Scores: {showLiveScoring ? "ON" : "OFF"}
+            </button>
+          )}
         </div>
 
         {/* Center: Title + sub-badges, both centered independently in their own rows */}

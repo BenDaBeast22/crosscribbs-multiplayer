@@ -47,6 +47,20 @@ export default function Game() {
   // Controls whether the popup modal is open on mobile viewports
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
+  // Real-time live scoring toggle for the board
+  const [showLiveScoring, setShowLiveScoring] = useState<boolean>(() => {
+    const saved = localStorage.getItem("cc_live_scoring");
+    return saved !== null ? saved === "true" : true;
+  });
+
+  const toggleLiveScoring = () => {
+    setShowLiveScoring((prev) => {
+      const next = !prev;
+      localStorage.setItem("cc_live_scoring", String(next));
+      return next;
+    });
+  };
+
   // Controls the round-start / dealer-and-first-player popup (which also gates
   // the coin-flip animation, since that only renders while this popup is open).
   // Seeded from sessionStorage so a rejoin/refresh with the same dealer doesn't
@@ -235,6 +249,8 @@ export default function Game() {
         lobbyId={lobbyId}
         isSpectator={isSpectator}
         spectatorCount={gameState.spectators?.length ?? 0}
+        showLiveScoring={showLiveScoring}
+        toggleLiveScoring={toggleLiveScoring}
       />
 
       {/* Floating emote animations render above everything, but never block clicks */}
@@ -293,6 +309,8 @@ export default function Game() {
             playCard={playCard}
             turn={gameState.turn}
             cardSizes={cardSizes}
+            showLiveScoring={showLiveScoring}
+            toggleLiveScoring={toggleLiveScoring}
           />
         </div>
 

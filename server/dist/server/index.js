@@ -2,25 +2,32 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 import GameController from "./gameController.js";
 import { getGame, lobbies, games } from "./classes/gameHelpers.js";
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
+import { attachSocketUser, orderPlayersByTeam, startDisconnectCountdown } from "./serverHelper.js";
+const disconnectedPlayers = {};
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 4000;
 // Middleware
 app.use(cors()); // {  origin: ["http://localhost:5173", "https://cross-cribbs.up.railway.app"], credentials: true,}
 app.use(express.json());
-// app.use(express.static(path.join(__dirname, "..", "public")));
-// app.use(express.static(__dirname));
-// Serve Vite frontend build
-// const frontendPath = path.join(__dirname, "..", "client");
-// app.use(express.static(frontendPath));
-// console.log("frontendPath = ", frontendPath);
-// // Handle frontend routes (React Router)
-// app.get("*", (req, res) => {
-//   res.sendFile(path.join(frontendPath, "index.html"));
-// });
+app.get("/health", (req, res) => {
+    res.status(200).send("OK");
+});
+// Serve the built Vite client
+// __dirname at runtime = server/dist/server, so go up to project root
+const frontendPath = path.join(process.cwd(), "..", "client", "dist");
+app.use(express.static(frontendPath));
+// Client-side routing fallback — must come AFTER express.static and
+// AFTER /health, but the socket.io middleware attaches itself separately
+// so this doesn't interfere with it.
+app.get("*", (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+});
 // HTTP + Socket.io setup
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -30,40 +37,92 @@ const io = new Server(server, {
             "http://127.0.0.1:5173",
             "http://localhost:3000",
             "http://127.0.0.1:3000",
-            "https://cross-cribbs-production.up.railway.app",
+            "https://cross-cribbs.up.railway.app",
+            "https://crosscribbs-multiplayer.onrender.com",
         ],
         methods: ["GET", "POST"],
     },
 });
-let lobbyCounter = 1;
+// Random, human-friendly lobby codes — excludes visually ambiguous characters
+// (0/O, 1/I/L) since people will be reading/typing these manually.
+const LOBBY_CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+function generateLobbyCode(length = 5) {
+    let code = "";
+    for (let i = 0; i < length; i++) {
+        code += LOBBY_CODE_CHARS[Math.floor(Math.random() * LOBBY_CODE_CHARS.length)];
+    }
+    return code;
+}
+function generateUniqueLobbyCode() {
+    let code = generateLobbyCode();
+    while (lobbies[code]) {
+        code = generateLobbyCode();
+    }
+    return code;
+}
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
     // Create Lobby
-    socket.on("createLobby", (username, numPlayers, callback) => {
+    socket.on("createLobby", (username, numPlayers, playerId, callback) => {
         console.log("test create lobby");
-        const lobbyId = String(lobbyCounter++);
+        const lobbyId = generateUniqueLobbyCode();
         lobbies[lobbyId] = {
-            players: [{ id: socket.id, name: username }],
-            host: socket.id,
+            players: [{ id: socket.id, name: username, playerId: playerId, team: "Row" }],
+            host: playerId,
             numPlayers,
+            id: lobbyId,
         };
         socket.join(lobbyId);
+        attachSocketUser(socket, lobbyId, playerId, username);
         callback({ lobbyId });
         console.log(`lobby created: lobby id: ${lobbyId}`);
         io.to(lobbyId).emit("lobbyUpdate", lobbies[lobbyId]);
     });
     // Join Lobby
-    socket.on("joinLobby", (lobbyId, username, callback) => {
-        console.log("join lobby id: ", lobbyId);
-        console.log("all lobbies = ", lobbies);
+    socket.on("joinLobby", (lobbyId, username, playerId, callback) => {
         const lobby = lobbies[lobbyId];
         if (!lobby)
             return callback({ error: "Lobby not found" });
+        if (lobby.players.find((player) => player.playerId === playerId))
+            return callback({ error: "Player already in lobby" });
+        const game = games[lobbyId];
+        // Game already underway — join as a spectator instead of filling a player slot
+        if (lobby.gameStarted || game) {
+            socket.join(lobbyId);
+            attachSocketUser(socket, lobbyId, playerId, username);
+            socket.data.isSpectator = true;
+            if (game) {
+                const existing = game.spectators.find((s) => s.playerId === playerId);
+                if (existing) {
+                    existing.id = socket.id; // reconnect: refresh their socket id
+                }
+                else {
+                    game.addSpectator(socket.id, playerId, username);
+                }
+                io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+            }
+            return callback({ lobbyId, spectator: true });
+        }
         if (lobby.players.length >= lobby.numPlayers)
             return callback({ error: "Lobby full" });
-        lobby.players.push({ id: socket.id, name: username });
+        // Assign to whichever team currently has fewer players; ties go to Row.
+        const rowCount = lobby.players.filter((p) => p.team === "Row").length;
+        const columnCount = lobby.players.filter((p) => p.team === "Column").length;
+        const team = columnCount < rowCount ? "Column" : "Row";
+        lobby.players.push({ id: socket.id, name: username, playerId: playerId, team });
         socket.join(lobbyId);
+        attachSocketUser(socket, lobbyId, playerId, username);
         callback({ lobbyId });
+        io.to(lobbyId).emit("lobbyUpdate", lobby);
+    });
+    socket.on("switchTeam", ({ lobbyId, playerId }) => {
+        const lobby = lobbies[lobbyId];
+        if (!lobby)
+            return;
+        const player = lobby.players.find((p) => p.playerId === playerId);
+        if (!player)
+            return;
+        player.team = player.team === "Row" ? "Column" : "Row";
         io.to(lobbyId).emit("lobbyUpdate", lobby);
     });
     socket.on("getLobbyInfo", ({ lobbyId }, callback) => {
@@ -72,32 +131,117 @@ io.on("connection", (socket) => {
             return callback({ error: "Lobby not found" });
         callback({ lobby });
     });
-    socket.on("startGame", ({ lobbyId, numPlayers }) => {
+    socket.on("rejoinLobby", ({ lobbyId, playerId }) => {
+        console.log(`rejoing lobby lobbyId = ${lobbyId} playerId=${playerId}`);
+        const lobby = lobbies[lobbyId];
+        if (!lobby)
+            return;
+        const player = lobby.players.find((p) => p.playerId === playerId);
+        if (!player)
+            return;
+        // Update lobby player ref
+        player.id = socket.id; // update socket
+        player.disconnected = false;
+        player.disconnectExpiresAt = undefined;
+        // Reattach user data to socket session
+        attachSocketUser(socket, lobbyId, player.playerId, player.name);
+        //  Clear disconnect countdown
+        if (disconnectedPlayers[playerId]) {
+            clearInterval(disconnectedPlayers[playerId]);
+            delete disconnectedPlayers[playerId];
+        }
+        socket.join(lobbyId);
+        io.to(lobbyId).emit("lobbyUpdate", lobby);
+    });
+    socket.on("startGame", ({ lobbyId, numPlayers, playerId }) => {
         if (lobbyId) {
-            // Multiplayer game tied to a lobby
             const lobby = lobbies[lobbyId] ?? null;
+            if (!lobby)
+                return;
+            // Server-side gate: for 2v2, require exactly 2 players per team before starting
+            if (numPlayers === 4) {
+                const rowCount = lobby.players.filter((p) => p.team === "Row").length;
+                const columnCount = lobby.players.filter((p) => p.team === "Column").length;
+                if (rowCount !== 2 || columnCount !== 2) {
+                    console.log(`Rejected startGame: uneven teams (Row: ${rowCount}, Column: ${columnCount})`);
+                    return;
+                }
+                // Reorder so team assignment lines up with player.num parity (odd = Row)
+                lobby.players = orderPlayersByTeam(lobby.players);
+            }
             games[lobbyId] = new GameController(numPlayers, lobby);
-            const newGame = getGame(socket.id, lobbyId);
+            const newGame = getGame(playerId, lobbyId);
             if (!newGame)
                 return;
+            lobby.gameStarted = true;
             io.to(lobbyId).emit("gameStateUpdate", games[lobbyId].getGameState());
             console.log(`Multiplayer game started in lobby ${lobbyId}`);
         }
         else {
-            // Local game (hosted just on this client)
-            const localLobbyId = socket.id; // unique socket id i.e "42SXdaf123"
+            // Local game (hosted just on this client) — unchanged
+            const localLobbyId = playerId;
             games[localLobbyId] = new GameController(numPlayers);
             socket.emit("gameStateUpdate", games[localLobbyId].getGameState());
-            console.log(`Local game started for ${socket.id}`);
+            console.log(`Local game started for ${playerId}`);
         }
     });
     // Handle "startGame" event
-    socket.on("resetGame", ({ lobbyId }) => {
-        const game = getGame(socket.id, lobbyId);
+    socket.on("resetGame", ({ lobbyId, playerId }) => {
+        const game = getGame(playerId, lobbyId);
         if (!game)
             return;
         game.resetGame();
-        io.emit("gameStateUpdate", game.getGameState()); // broadcast to all clients
+        if (lobbyId) {
+            io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+        }
+        else {
+            socket.emit("gameStateUpdate", game.getGameState()); // broadcast to all clients in local non lobby games
+        }
+    });
+    socket.on("rejoinGame", ({ lobbyId, playerId }) => {
+        if (!playerId) {
+            socket.emit("error", { message: "Missing player ID." });
+            return;
+        }
+        // rejoin local game
+        if (!lobbyId) {
+            if (!games[playerId])
+                return;
+            socket.emit("gameStateUpdate", games[playerId].getGameState());
+            return;
+        }
+        const game = games[lobbyId];
+        if (!game) {
+            socket.emit("error", { message: "Game not found." });
+            return;
+        }
+        const player = game.players.find((p) => p.playerId === playerId);
+        if (!player) {
+            // Not a real player in this game — join (or reconnect) as a spectator
+            const existing = game.spectators.find((s) => s.playerId === playerId);
+            const spectatorName = existing?.name ?? `Spectator-${playerId.slice(0, 4)}`;
+            if (existing) {
+                existing.id = socket.id;
+            }
+            else {
+                game.addSpectator(socket.id, playerId, spectatorName);
+            }
+            attachSocketUser(socket, lobbyId, playerId, spectatorName);
+            socket.data.isSpectator = true;
+            socket.join(lobbyId);
+            io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+            console.log("Spectator joined game:", playerId);
+            return;
+        }
+        // Update socketId
+        player.id = socket.id;
+        // Clear disconnect state
+        player.disconnected = false;
+        player.disconnectExpiresAt = undefined;
+        attachSocketUser(socket, lobbyId, player.playerId, player.name);
+        socket.join(lobbyId);
+        io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+        console.log("Player rejoined game:", playerId);
     });
     // Handle "selectCard" event
     // socket.on("selectCard", ({ lobbyId, player, card }) => {
@@ -108,7 +252,8 @@ io.on("connection", (socket) => {
     // });
     // Handle "playCard" event
     socket.on("playCard", ({ lobbyId, playerId, pos }) => {
-        const game = getGame(socket.id, lobbyId);
+        console.log(`player: ${playerId} played card`);
+        const game = getGame(playerId, lobbyId);
         if (!game)
             return;
         const success = game.applyMove(pos, playerId);
@@ -128,41 +273,105 @@ io.on("connection", (socket) => {
     });
     // Example: next round
     socket.on("nextRound", (data = {}) => {
-        const { lobbyId } = data;
-        const game = getGame(socket.id, lobbyId);
+        const { lobbyId, playerId } = data;
+        const game = getGame(playerId, lobbyId);
         if (!game)
             return;
         game.nextRound();
         if (lobbyId) {
             // multiplayer
-            io.emit("gameStateUpdate", game.getGameState());
+            io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
         }
         else {
             // local
             socket.emit("gameStateUpdate", game.getGameState());
         }
     });
-    socket.on("selectDealer", ({ lobbyId, winningPlayer }) => {
-        const game = getGame(socket.id, lobbyId);
+    socket.on("selectDealer", ({ lobbyId, winningPlayer, playerId }) => {
+        const game = getGame(playerId, lobbyId);
         if (!game)
             return;
         game.selectDealer(winningPlayer);
-        io.emit("gameStateUpdate", game.getGameState());
+        if (lobbyId) {
+            io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+        }
+        else {
+            socket.emit("gameStateUpdate", game.getGameState());
+        }
     });
-    socket.on("discardToCrib", ({ lobbyId, numPlayers, player, card, playerId }) => {
-        const game = getGame(socket.id, lobbyId);
+    socket.on("discardToCrib", ({ lobbyId, numPlayers, playerId, localPlayerId }) => {
+        const game = getGame(localPlayerId, lobbyId);
         if (!game)
             return;
-        const success = game.discardToCrib(numPlayers, player, card, playerId);
+        const success = game.discardToCrib(numPlayers, playerId);
         if (success) {
-            io.emit("gameStateUpdate", game.getGameState());
+            if (lobbyId) {
+                io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+            }
+            else {
+                socket.emit("gameStateUpdate", game.getGameState());
+            }
         }
+    });
+    socket.on("sendChatMessage", ({ lobbyId, text }) => {
+        if (!text?.trim())
+            return;
+        const message = {
+            id: crypto.randomUUID(),
+            playerId: socket.data.playerId,
+            playerName: socket.data.playerName,
+            isSpectator: !!socket.data.isSpectator,
+            text: text.trim(),
+            timestamp: Date.now(),
+        };
+        if (lobbyId) {
+            io.to(lobbyId).emit("chatMessage", message);
+        }
+        else {
+            socket.emit("chatMessage", message);
+        }
+    });
+    socket.on("sendEmote", ({ lobbyId, emote }) => {
+        const randomNum = Math.random();
+        if (lobbyId)
+            io.to(lobbyId).emit("emoteReceived", { emote, randomNum });
+        else
+            socket.emit("emoteReceived", { emote, randomNum });
     });
     socket.on("disconnect", () => {
         console.log(`User disconnected: ${socket.id}`);
+        const lobbyId = socket.data.lobbyId;
+        const game = games[lobbyId];
+        if (game) {
+            // Spectator leaving — just remove them, no disconnect countdown needed
+            const spectatorIndex = game.spectators.findIndex((s) => s.id === socket.id);
+            if (spectatorIndex !== -1) {
+                game.removeSpectator(socket.id);
+                io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+                return;
+            }
+            const gameStatePlayer = game.players.find((p) => p.id === socket.id);
+            if (gameStatePlayer) {
+                gameStatePlayer.disconnected = true;
+                gameStatePlayer.disconnectExpiresAt = Date.now() + 10000;
+                io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+            }
+            return;
+        }
+        const lobby = lobbies[lobbyId];
+        if (!lobby)
+            return;
+        const player = lobby.players.find((p) => p.id === socket.id);
+        if (!player)
+            return;
+        console.log(`${player.name} disconnected with playerId: ${player.playerId}`);
+        player.disconnected = true;
+        player.disconnectExpiresAt = Date.now() + 10000;
+        startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
+        io.to(lobbyId).emit("lobbyUpdate", lobby);
     });
 });
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log(`Game testing interface available at: http://localhost:${PORT}/test-game`);
+    // console.log(`Game testing interface available at: http://localhost:${PORT}/test-game`);
 });

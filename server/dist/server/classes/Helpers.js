@@ -35,9 +35,12 @@ function newDeck() {
 export { newBoard, newDeck, tallyScores };
 //Scoring
 function tallyScores(board, cutCard) {
-    const rowScore = calculateScore(board, cutCard);
-    const colScore = calculateScore(transpose(board), cutCard);
-    return [rowScore, colScore];
+    const rowResult = calculateScore(board, cutCard);
+    const colResult = calculateScore(transpose(board), cutCard);
+    return {
+        totals: [rowResult.total, colResult.total],
+        lines: [rowResult.lines, colResult.lines],
+    };
 }
 //returns a score object
 function calculateScore(board, cutCard) {
@@ -47,6 +50,7 @@ function calculateScore(board, cutCard) {
     let fifteenTotal = 0;
     let knobsTotal = 0;
     let flushTotal = 0; // Added flushTotal
+    const lines = [];
     // Assuming grid is a 2D array
     for (const [i, row] of board.entries()) {
         let rowScore = 0;
@@ -117,10 +121,12 @@ function calculateScore(board, cutCard) {
                     runScore += 3 * multiplier;
             }
         }
+        flushScore = calculateFlush(row); // Calculate flush score for the row
+        // NEW — capture this line's own breakdown before folding into totals
+        lines.push(new Score(pairScore, runScore, fifteenScore, knobsScore, flushScore));
         pairTotal += pairScore;
         runTotal += runScore;
         fifteenTotal += fifteenScore;
-        flushScore = calculateFlush(row); // Calculate flush score for the row
         flushTotal += flushScore; // Add to total flush score
         rowScore = pairScore + runScore + fifteenScore + knobsScore + flushScore; // Include flushScore
         score += rowScore;
@@ -132,8 +138,8 @@ function calculateScore(board, cutCard) {
         // Can display row scores as sum of scores for pairs, runs, etc. For viewability
         // Can keep total scores for pairs and runs as well
     }
-    const scoreTotals = new Score(pairTotal, runTotal, fifteenTotal, knobsTotal, flushTotal);
-    return scoreTotals;
+    const total = new Score(pairTotal, runTotal, fifteenTotal, knobsTotal, flushTotal);
+    return { total, lines };
 }
 function calculateFlush(row) {
     const suitCounts = {};
@@ -161,7 +167,7 @@ function calculateFifteen(array, targetSum = 15) {
         }
         for (let i = startIndex; i < array.length; i++) {
             if (!array[i])
-                return;
+                continue;
             if (currentSum + Math.min(array[i].value, 10) <= targetSum) {
                 // Faces count as 10
                 subsetSumsHelper(currentSum + Math.min(array[i].value, 10), i + 1, [...path, array[i].value]);

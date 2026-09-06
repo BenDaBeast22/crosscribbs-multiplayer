@@ -195,7 +195,7 @@ function calculateFifteen(array: (CardType | null)[], targetSum = 15) {
     }
 
     for (let i = startIndex; i < array.length; i++) {
-      if (!array[i]) return;
+      if (!array[i]) continue;
       if (currentSum + Math.min(array[i]!.value, 10) <= targetSum) {
         // Faces count as 10
         subsetSumsHelper(currentSum + Math.min(array[i]!.value, 10), i + 1, [...path, array[i]!.value]);
