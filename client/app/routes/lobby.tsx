@@ -31,7 +31,24 @@ export default function Lobby() {
     };
   }, [lobbyId, navigate]);
 
-  if (!lobby) return <div>Loading lobby...</div>;
+  if (!lobby) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-main-screen p-4">
+        <motion.div
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 100, damping: 15 }}
+          className="text-center py-5 sm:py-12"
+        >
+          <h1 className="text-5xl sm:text-6xl font-bold title-gradient drop-shadow-lg">Cross Cribbs</h1>
+        </motion.div>
+        <div className="bg-panel panel-card card-max w-full flex flex-col items-center justify-center py-12">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mb-4" />
+          <p className="text-white/60 text-sm">Loading lobby...</p>
+        </div>
+      </div>
+    );
+  }
 
   const numPlayers = lobby.numPlayers;
   const isHost = lobby.host === playerId;
