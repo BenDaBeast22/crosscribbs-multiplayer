@@ -51,8 +51,11 @@ export default function PlayerSetup({ numPlayers, onSetPlayerNames, onBack }: Ch
     const isEditing = editingIndex === index;
 
     return (
-      <div key={index} className="flex items-center gap-3 bg-white/5 rounded-lg px-4 py-3 border border-white/10">
-        <span className={`w-4 h-4 rounded-full shrink-0 ${color.swatch}`} aria-hidden="true" />
+      <div
+        key={index}
+        className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-2.5 border border-white/10 min-h-[46px]"
+      >
+        <span className={`w-3 h-3 rounded-full shrink-0 ${color.swatch}`} aria-hidden="true" />
 
         <div className="flex-1 min-w-0">
           {isEditing ? (
@@ -63,14 +66,14 @@ export default function PlayerSetup({ numPlayers, onSetPlayerNames, onBack }: Ch
               onChange={(e) => handleNameChange(index, e.target.value)}
               onBlur={() => handleBlur(index)}
               onKeyDown={(e) => e.key === "Enter" && handleBlur(index)}
-              className={`w-full bg-transparent text-white font-semibold focus:outline-none focus:ring-2 focus:ring-offset-0 rounded ${color.ring}`}
+              className={`w-full bg-transparent text-white font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-offset-0 rounded ${color.ring}`}
               maxLength={16}
               placeholder={`Player ${index + 1} name`}
             />
           ) : (
             <button
               onClick={() => setEditingIndex(index)}
-              className="text-white font-semibold text-left w-full truncate hover:text-white/80 transition-colors"
+              className="text-white font-semibold text-sm text-left w-full truncate hover:text-white/80 transition-colors"
             >
               {name}
             </button>
@@ -86,18 +89,27 @@ export default function PlayerSetup({ numPlayers, onSetPlayerNames, onBack }: Ch
       <p className="text-white/60 text-sm text-center mb-6">Tap a name to customize it, or just start playing</p>
 
       {isTeamMode ? (
-        <div className="space-y-5">
-          <div className="space-y-3">
-            <h3 className="text-cyan-400 text-sm font-bold uppercase tracking-wide">Row</h3>
-            {rowIndices.map(renderPlayerRow)}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <h3 className="text-cyan-400 text-sm font-bold uppercase tracking-wide text-center mb-2">Row</h3>
+            <div className="space-y-2">{rowIndices.map(renderPlayerRow)}</div>
           </div>
-          <div className="space-y-3">
-            <h3 className="text-fuchsia-400 text-sm font-bold uppercase tracking-wide">Column</h3>
-            {columnIndices.map(renderPlayerRow)}
+          <div>
+            <h3 className="text-fuchsia-400 text-sm font-bold uppercase tracking-wide text-center mb-2">Column</h3>
+            <div className="space-y-2">{columnIndices.map(renderPlayerRow)}</div>
           </div>
         </div>
       ) : (
-        <div className="space-y-3">{playerNames.map((_, index) => renderPlayerRow(index))}</div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <h3 className="text-cyan-400 text-sm font-bold uppercase tracking-wide text-center mb-2">Row</h3>
+            {renderPlayerRow(0)}
+          </div>
+          <div>
+            <h3 className="text-fuchsia-400 text-sm font-bold uppercase tracking-wide text-center mb-2">Column</h3>
+            {renderPlayerRow(1)}
+          </div>
+        </div>
       )}
 
       <div className="space-y-3 pt-2">
