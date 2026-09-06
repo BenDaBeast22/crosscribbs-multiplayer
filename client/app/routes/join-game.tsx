@@ -75,7 +75,7 @@ export default function JoinGame() {
               onChange={(e) => setLobbyId(e.target.value)}
               maxLength={16}
               className="w-full input-field"
-              placeholder="e.g. 1"
+              placeholder="e.g. 5WVTN"
             />
             {joinError && <p className="text-red-400 text-sm mt-2">{joinError}</p>}
           </div>

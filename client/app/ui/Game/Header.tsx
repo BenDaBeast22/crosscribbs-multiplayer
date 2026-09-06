@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import InstructionsModal from "./InstructionsModal";
 import ScorePegboard from "./ScorePegboard";
 import { motion } from "framer-motion";
+import { Copy, Check } from "lucide-react";
 
 type ChildProps = {
   totalScores: [number, number];
@@ -12,6 +13,7 @@ type ChildProps = {
   dealer: number | null;
   isSpectator?: boolean;
   spectatorCount?: number;
+  lobbyId?: string;
 };
 
 export default function Header({
@@ -23,10 +25,12 @@ export default function Header({
   dealer,
   isSpectator,
   spectatorCount = 0,
+  lobbyId,
 }: ChildProps) {
   const rowScore = totalScores[0];
   const colScore = totalScores[1];
   const [showInstructions, setShowInstructions] = useState(false);
+  const [copied, setCopied] = useState(false);
   const TURN_TIMER_SECONDS = 45;
   const [timeLeft, setTimeLeft] = useState(TURN_TIMER_SECONDS);
 
@@ -58,6 +62,18 @@ export default function Header({
     }, DISCO_DURATION_MS);
   };
 
+  const handleCopyLobbyId = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!lobbyId) return;
+    try {
+      await navigator.clipboard.writeText(lobbyId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // clipboard write failed silently — non-critical
+    }
+  };
+
   const renderTimerIcon = () => (
     <svg width="14" height="14" viewBox="0 0 16 16" className="shrink-0">
       <circle cx="8" cy="8" r="6.5" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" />
@@ -78,40 +94,70 @@ export default function Header({
   );
 
   const showSpectatorCount = !isSpectator && spectatorCount > 0;
+  const hasSubBadges = !!lobbyId || isSpectator || showSpectatorCount;
+
+  // Sits in normal flow directly below the title, centered — since it's on its
+  // own row (not absolutely positioned beside the title), it never affects the
+  // title's own centering above it.
+  const renderSubBadges = (size: "mobile" | "desktop") => {
+    if (!hasSubBadges) return null;
+
+    const textSize = size === "mobile" ? "text-[9px]" : "text-[11px]";
+    const padding = size === "mobile" ? "px-1.5 py-0.5" : "px-2 py-0.5";
+    const gap = size === "mobile" ? "gap-1" : "gap-1.5";
+
+    return (
+      <div className={`flex items-center justify-center ${gap} flex-wrap mt-1`}>
+        {lobbyId && (
+          <button
+            onClick={handleCopyLobbyId}
+            className={`flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white/80 font-semibold ${textSize} ${padding} rounded-full transition-colors cursor-pointer`}
+            title="Copy lobby code"
+          >
+            <span>#{lobbyId}</span>
+            {copied ? <Check size={size === "mobile" ? 9 : 11} /> : <Copy size={size === "mobile" ? 9 : 11} />}
+          </button>
+        )}
+        {isSpectator && (
+          <span className={`bg-amber-500/90 text-black font-bold ${textSize} ${padding} rounded-full`}>
+            👁 Spectating
+          </span>
+        )}
+        {showSpectatorCount && (
+          <span className={`bg-slate-700 text-white/70 font-semibold ${textSize} ${padding} rounded-full`}>
+            👁 {spectatorCount}
+            {size === "desktop" ? " watching" : ""}
+          </span>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="Header bg-game-panel flex flex-col relative">
       {/* MOBILE BAR LAYOUT */}
-      <div className="md:hidden flex items-center justify-between px-2 pt-2 pb-1 text-xs select-none">
-        <button
-          className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
-          onClick={backToMenu}
-        >
-          Menu
-        </button>
+      <div className="md:hidden flex flex-col items-center pt-2 pb-1 text-xs select-none">
+        <div className="flex items-center justify-between w-full px-2">
+          <button
+            className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
+            onClick={backToMenu}
+          >
+            Menu
+          </button>
 
-        <div className="flex items-center gap-1.5">
           <h1 className="title text-white font-semibold text-sm">Cross Cribbs</h1>
-          {isSpectator && (
-            <span className="bg-amber-500/90 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full">
-              👁 Spectating
-            </span>
-          )}
-          {showSpectatorCount && (
-            <span className="bg-slate-700 text-white/70 text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
-              👁 {spectatorCount}
-            </span>
-          )}
+
+          <button
+            className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
+            onClick={() => setShowInstructions(true)}
+            aria-haspopup="dialog"
+            aria-expanded={showInstructions}
+          >
+            Help
+          </button>
         </div>
 
-        <button
-          className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
-          onClick={() => setShowInstructions(true)}
-          aria-haspopup="dialog"
-          aria-expanded={showInstructions}
-        >
-          Help
-        </button>
+        {renderSubBadges("mobile")}
       </div>
 
       {/* DESKTOP TOP ROW: Buttons (Left) | Title (Center) | Total Scores (Right) */}
@@ -134,19 +180,10 @@ export default function Header({
           </button>
         </div>
 
-        {/* Center: Title */}
-        <div className="flex items-center justify-center gap-2 justify-self-center">
+        {/* Center: Title + sub-badges, both centered independently in their own rows */}
+        <div className="flex flex-col items-center justify-self-center">
           <h1 className="title text-white text-center text-xl md:text-2xl font-semibold">Cross Cribbs</h1>
-          {isSpectator && (
-            <span className="bg-amber-500/90 text-black text-[11px] font-bold px-2 py-0.5 rounded-full">
-              👁 Spectating
-            </span>
-          )}
-          {showSpectatorCount && (
-            <span className="bg-slate-700 text-white/70 text-[11px] font-semibold px-2 py-0.5 rounded-full">
-              👁 {spectatorCount} watching
-            </span>
-          )}
+          {renderSubBadges("desktop")}
         </div>
 
         {/* Right: Scores */}
@@ -174,14 +211,14 @@ export default function Header({
           onClick={triggerDisco}
           animate={timeLeft <= 10 ? { scale: [1, 1.08, 1] } : { scale: 1 }}
           transition={timeLeft <= 10 ? { duration: 0.6, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-          className={`flex items-center gap-1.5 py-1 px-3 rounded-full font-bold transition-colors duration-300 cursor-pointer ${
+          className={`flex items-center gap-1.5 py-0 px-3 rounded-full font-bold transition-colors duration-300 cursor-pointer ${
             timeLeft <= 10
               ? "bg-red-500/20 text-red-400 border border-red-500/30"
               : "bg-gray-700/80 text-cyan-300 border border-gray-600"
           }`}
         >
           {renderTimerIcon()}
-          <span>{timeLeft}s</span>
+          <span className="text-xs">{timeLeft}s</span>
         </motion.div>
       </div>
 

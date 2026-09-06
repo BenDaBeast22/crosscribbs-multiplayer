@@ -145,7 +145,7 @@ export default function Game() {
   console.log("playerNames = ", playerNames);
 
   const currentPlayerName = players.find((p) => p.id === playerId)?.name || playerNames[gameState.turn] || "You";
-  const isSpectator = !gameState.players.some((p) => p.playerId === playerId);
+  const isSpectator = isMultiplayer && !gameState.players.some((p) => p.playerId === playerId);
   const isFirstRound = (gameState.roundHistory?.length ?? 0) === 0;
 
   const handleResetGame = () => {
@@ -223,6 +223,7 @@ export default function Game() {
         paused={gameState.roundScoreVisible || gameState.gameOver}
         playerNames={playerNames}
         dealer={gameState.dealer}
+        lobbyId={lobbyId}
         isSpectator={isSpectator}
         spectatorCount={gameState.spectators?.length ?? 0}
       />

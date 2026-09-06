@@ -41,6 +41,7 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
   const isDraggable = isTurn && (!lobbyId || isPlayer);
   const isDealer = dealer !== null && dealer === player.num;
   const colors = PLAYER_COLORS[(player.num - 1) % PLAYER_COLORS.length];
+  const isYou = isMultiplayer && isPlayer;
 
   const outlineStyle = useMemo(() => {
     return isTurn ? `outline-3 lg:outline-5 ${colors.outline}` : "outline-1 outline-slate-300/80";
@@ -72,7 +73,9 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
           aria-hidden="true"
         />
         <h1
-          className="w-full text-center text-[9px] sm:text-[10px] md:text-xs lg:text-base font-bold text-slate-800 truncate lg:px-1"
+          className={`w-full text-center text-[9px] sm:text-[10px] md:text-xs lg:text-base font-bold text-slate-800 truncate lg:px-1 ${
+            isYou ? "italic" : ""
+          }`}
           title={name}
         >
           {name}
@@ -121,15 +124,6 @@ function PlayerComponent({ name, player, turn, lobbyId, playerId, dealer }: Chil
 
       {/* 4. Badges Footer: Fixed height wrapper preserves uniform card dimensions */}
       <div className="flex items-center justify-center gap-0.5 lg:gap-1 w-full lg:mt-1 min-h-[10px] lg:min-h-[20px]">
-        {isMultiplayer && isPlayer && (
-          <span
-            className="bg-emerald-600 text-white font-black text-[5px] sm:text-[6px] md:text-[7px] lg:text-[10px] px-0.5 py-0.2 lg:px-1.5 lg:py-0.5 rounded uppercase tracking-tight shadow-xs"
-            title="You"
-          >
-            YOU
-          </span>
-        )}
-
         {isDealer && (
           <span
             className="bg-amber-400 text-slate-900 font-black text-[5px] sm:text-[6px] md:text-[7px] lg:text-[10px] px-0.5 py-0.2 lg:px-1.5 lg:py-0.5 rounded shadow-xs"

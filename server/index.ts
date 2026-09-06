@@ -52,7 +52,25 @@ const io = new Server(server, {
   },
 });
 
-let lobbyCounter = 1;
+// Random, human-friendly lobby codes — excludes visually ambiguous characters
+// (0/O, 1/I/L) since people will be reading/typing these manually.
+const LOBBY_CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+
+function generateLobbyCode(length = 5): string {
+  let code = "";
+  for (let i = 0; i < length; i++) {
+    code += LOBBY_CODE_CHARS[Math.floor(Math.random() * LOBBY_CODE_CHARS.length)];
+  }
+  return code;
+}
+
+function generateUniqueLobbyCode(): string {
+  let code = generateLobbyCode();
+  while (lobbies[code]) {
+    code = generateLobbyCode();
+  }
+  return code;
+}
 
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
@@ -60,7 +78,7 @@ io.on("connection", (socket) => {
   // Create Lobby
   socket.on("createLobby", (username, numPlayers, playerId, callback) => {
     console.log("test create lobby");
-    const lobbyId = String(lobbyCounter++);
+    const lobbyId = generateUniqueLobbyCode();
     lobbies[lobbyId] = {
       players: [{ id: socket.id, name: username, playerId: playerId, team: "Row" }],
       host: playerId,
@@ -333,7 +351,7 @@ io.on("connection", (socket) => {
       id: crypto.randomUUID(),
       playerId: socket.data.playerId,
       playerName: socket.data.playerName,
-      isSpectator: !!socket.data.isSpectator, // NEW
+      isSpectator: !!socket.data.isSpectator,
       text: text.trim(),
       timestamp: Date.now(),
     };
