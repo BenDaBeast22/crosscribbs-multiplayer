@@ -6,6 +6,7 @@ type ChatMessageType = {
   id: string;
   playerId: string;
   playerName: string;
+  isSpectator?: boolean;
   text: string;
   timestamp: number;
 };
@@ -124,7 +125,14 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
                     }`}
                   >
                     {m.playerId !== playerId && (
-                      <div className="text-[10px] text-slate-300 font-semibold mb-0.5">{m.playerName}</div>
+                      <div className="text-[10px] text-slate-300 font-semibold mb-0.5 flex items-center gap-1">
+                        {m.playerName}
+                        {m.isSpectator && (
+                          <span className="bg-slate-600 text-slate-300 px-1 rounded text-[9px] font-normal">
+                            👁 spectator
+                          </span>
+                        )}
+                      </div>
                     )}
                     {m.text}
                   </div>

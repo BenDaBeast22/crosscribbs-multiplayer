@@ -34,7 +34,7 @@ export function useLobby(lobbyId?: string) {
     });
 
   const joinLobby = (lobbyId: string, username: string, playerId: string) =>
-    new Promise<{ lobbyId: string }>((resolve, reject) => {
+    new Promise<{ lobbyId: string; spectator?: boolean }>((resolve, reject) => {
       socket.emit("joinLobby", lobbyId, username, playerId, (res: any) => {
         if (res.error) reject(res.error);
         else resolve(res);

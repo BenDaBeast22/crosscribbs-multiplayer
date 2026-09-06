@@ -26,6 +26,8 @@ export interface MoveType {
   // any additional info for move validation
 }
 
+export type SpectatorType = { id: string; playerId: string; name: string };
+
 export type BoardType = (CardType | null)[][]; // 5x5 grid, null if empty
 
 export interface RoundHistoryType {
@@ -61,6 +63,7 @@ export interface GameStateType {
   lineScores: [ScoreType[], ScoreType[]] | null; // NEW — 5 per-line scores per team
   lastMove: BoardPosition | null;
   lastMovePlayerNum: number | null;
+  spectators: SpectatorType[];
 
   // added ai fields maybe should use instead
 

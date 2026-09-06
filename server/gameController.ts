@@ -1,4 +1,9 @@
-import type { BoardType, GameStateType, RoundHistoryType } from "@cross-cribbs/shared-types/GameControllerTypes.js";
+import type {
+  BoardType,
+  GameStateType,
+  RoundHistoryType,
+  SpectatorType,
+} from "@cross-cribbs/shared-types/GameControllerTypes.js";
 import { newBoard, newDeck, tallyScores } from "./classes/Helpers.js";
 import Player from "./classes/Player.js";
 import type { CardType } from "@cross-cribbs/shared-types/CardType.js";
@@ -36,6 +41,7 @@ export default class GameController implements GameStateType {
   lineScores: [ScoreType[], ScoreType[]] | null;
   lastMove: BoardPosition | null;
   lastMovePlayerNum: number | null;
+  spectators: SpectatorType[];
 
   constructor(numPlayers = 2, lobby: LobbyType | null = null) {
     this.lobby = lobby;
@@ -64,6 +70,7 @@ export default class GameController implements GameStateType {
     this.lineScores = null;
     this.lastMove = null;
     this.lastMovePlayerNum = null;
+    this.spectators = [];
     this.initializePlayers();
 
     // if multiplayer, assign socket IDs
@@ -92,6 +99,14 @@ export default class GameController implements GameStateType {
   get currentPlayerId(): string | void {
     if (!this.lobby) return; // local game no socket check
     return this.players[this.turn - 1].id;
+  }
+
+  addSpectator(id: string, playerId: string, name: string): void {
+    this.spectators.push({ id, playerId, name });
+  }
+
+  removeSpectator(id: string): void {
+    this.spectators = this.spectators.filter((s) => s.id !== id);
   }
 
   getPlayer(playerNumber: number): PlayerType {
@@ -377,6 +392,7 @@ export default class GameController implements GameStateType {
       cribScore: this.cribScore,
       heels: this.heels,
       lineScores: this.lineScores,
+      spectators: this.spectators,
     };
   }
 

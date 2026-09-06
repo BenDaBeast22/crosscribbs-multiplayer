@@ -10,9 +10,20 @@ type ChildProps = {
   paused?: boolean;
   playerNames: string[];
   dealer: number | null;
+  isSpectator?: boolean;
+  spectatorCount?: number;
 };
 
-export default function Header({ totalScores, backToMenu, turn, paused, playerNames, dealer }: ChildProps) {
+export default function Header({
+  totalScores,
+  backToMenu,
+  turn,
+  paused,
+  playerNames,
+  dealer,
+  isSpectator,
+  spectatorCount = 0,
+}: ChildProps) {
   const rowScore = totalScores[0];
   const colScore = totalScores[1];
   const [showInstructions, setShowInstructions] = useState(false);
@@ -66,6 +77,8 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
     </svg>
   );
 
+  const showSpectatorCount = !isSpectator && spectatorCount > 0;
+
   return (
     <div className="Header bg-game-panel flex flex-col relative">
       {/* MOBILE BAR LAYOUT */}
@@ -77,7 +90,19 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
           Menu
         </button>
 
-        <h1 className="title text-white font-semibold text-sm">Cross Cribbs</h1>
+        <div className="flex items-center gap-1.5">
+          <h1 className="title text-white font-semibold text-sm">Cross Cribbs</h1>
+          {isSpectator && (
+            <span className="bg-amber-500/90 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+              👁 Spectating
+            </span>
+          )}
+          {showSpectatorCount && (
+            <span className="bg-slate-700 text-white/70 text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
+              👁 {spectatorCount}
+            </span>
+          )}
+        </div>
 
         <button
           className="bg-gray-600/80 hover:bg-gray-600 text-white font-bold py-1 px-2.5 rounded transition-colors duration-200 cursor-pointer"
@@ -110,9 +135,19 @@ export default function Header({ totalScores, backToMenu, turn, paused, playerNa
         </div>
 
         {/* Center: Title */}
-        <h1 className="title text-white text-center text-xl md:text-2xl font-semibold justify-self-center">
-          Cross Cribbs
-        </h1>
+        <div className="flex items-center justify-center gap-2 justify-self-center">
+          <h1 className="title text-white text-center text-xl md:text-2xl font-semibold">Cross Cribbs</h1>
+          {isSpectator && (
+            <span className="bg-amber-500/90 text-black text-[11px] font-bold px-2 py-0.5 rounded-full">
+              👁 Spectating
+            </span>
+          )}
+          {showSpectatorCount && (
+            <span className="bg-slate-700 text-white/70 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+              👁 {spectatorCount} watching
+            </span>
+          )}
+        </div>
 
         {/* Right: Scores */}
         <div className="flex items-center gap-3 text-sm font-medium justify-self-end">

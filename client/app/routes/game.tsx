@@ -145,6 +145,7 @@ export default function Game() {
   console.log("playerNames = ", playerNames);
 
   const currentPlayerName = players.find((p) => p.id === playerId)?.name || playerNames[gameState.turn] || "You";
+  const isSpectator = !gameState.players.some((p) => p.playerId === playerId);
   const isFirstRound = (gameState.roundHistory?.length ?? 0) === 0;
 
   const handleResetGame = () => {
@@ -174,6 +175,7 @@ export default function Game() {
   };
 
   const playCard = (pos: BoardPosition) => {
+    if (isSpectator) return;
     if (isMultiplayer) {
       const playerId = socket.id;
       socket.emit("playCard", { lobbyId, pos, playerId });
@@ -183,6 +185,7 @@ export default function Game() {
   };
 
   const discardToCrib = (lobbyId: string | undefined, numPlayers: number) => {
+    if (isSpectator) return;
     const playerId = socket.id;
     const localPlayerId = localStorage.getItem("playerId");
 
@@ -220,6 +223,8 @@ export default function Game() {
         paused={gameState.roundScoreVisible || gameState.gameOver}
         playerNames={playerNames}
         dealer={gameState.dealer}
+        isSpectator={isSpectator}
+        spectatorCount={gameState.spectators?.length ?? 0}
       />
 
       {/* Floating emote animations render above everything, but never block clicks */}

@@ -42,7 +42,6 @@ export default function Spot({ pos, card, playCard, turn, isLastMove, lastMovePl
   }
 
   // Last move ring scales dynamically based on viewport size
-  console.log("last move player num = ", lastMovePlayerNum);
   const lastMoveRing =
     isLastMove && lastMovePlayerNum ? `ring-2 md:ring-3 ${getPlayerRingClass(lastMovePlayerNum)} rounded-md` : "";
 

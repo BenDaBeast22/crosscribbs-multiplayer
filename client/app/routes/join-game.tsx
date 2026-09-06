@@ -16,11 +16,15 @@ export default function JoinGame() {
     try {
       let playerId = localStorage.getItem("playerId");
       if (!playerId) {
-        playerId = crypto.randomUUID(); // or any unique ID generator
+        playerId = crypto.randomUUID();
         localStorage.setItem("playerId", playerId);
       }
-      await joinLobby(lobbyId, username, playerId);
-      navigate(`/lobby/${lobbyId}`);
+      const res = await joinLobby(lobbyId, username, playerId);
+      if (res.spectator) {
+        navigate(`/game/${lobbyId}`);
+      } else {
+        navigate(`/lobby/${lobbyId}`);
+      }
     } catch (err: any) {
       alert(err);
     }

@@ -79,13 +79,32 @@ io.on("connection", (socket) => {
     const lobby = lobbies[lobbyId];
 
     if (!lobby) return callback({ error: "Lobby not found" });
-    if (lobby.players.length >= lobby.numPlayers) {
-      console.log(`lobby.players.length = ${lobby.players.length} lobby.numPlayers = ${lobby.numPlayers}`);
-    }
-    if (lobby.players.length >= lobby.numPlayers) return callback({ error: "Lobby full" });
 
     if (lobby.players.find((player) => player.playerId === playerId))
       return callback({ error: "Player already in lobby" });
+
+    const game = games[lobbyId];
+
+    // Game already underway — join as a spectator instead of filling a player slot
+    if (lobby.gameStarted || game) {
+      socket.join(lobbyId);
+      attachSocketUser(socket, lobbyId, playerId, username);
+      socket.data.isSpectator = true;
+
+      if (game) {
+        const existing = game.spectators.find((s) => s.playerId === playerId);
+        if (existing) {
+          existing.id = socket.id; // reconnect: refresh their socket id
+        } else {
+          game.addSpectator(socket.id, playerId, username);
+        }
+        io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+      }
+
+      return callback({ lobbyId, spectator: true });
+    }
+
+    if (lobby.players.length >= lobby.numPlayers) return callback({ error: "Lobby full" });
 
     // Assign to whichever team currently has fewer players; ties go to Row.
     const rowCount = lobby.players.filter((p) => p.team === "Row").length;
@@ -201,8 +220,24 @@ io.on("connection", (socket) => {
     }
 
     const player = game.players.find((p) => p.playerId === playerId);
+
     if (!player) {
-      socket.emit("error", { message: "Player not found." });
+      // Not a real player in this game — join (or reconnect) as a spectator
+      const existing = game.spectators.find((s) => s.playerId === playerId);
+      const spectatorName = existing?.name ?? `Spectator-${playerId.slice(0, 4)}`;
+
+      if (existing) {
+        existing.id = socket.id;
+      } else {
+        game.addSpectator(socket.id, playerId, spectatorName);
+      }
+
+      attachSocketUser(socket, lobbyId, playerId, spectatorName);
+      socket.data.isSpectator = true;
+      socket.join(lobbyId);
+
+      io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+      console.log("Spectator joined game:", playerId);
       return;
     }
 
@@ -212,19 +247,10 @@ io.on("connection", (socket) => {
     // Clear disconnect state
     player.disconnected = false;
     player.disconnectExpiresAt = undefined;
-    // Reattach user data to socket session
     attachSocketUser(socket, lobbyId, player.playerId, player.name);
-    // Rejoin socket room
     socket.join(lobbyId);
 
     io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
-
-    // Send full authoritative game state ONLY to this player
-    // game = getGame(sock)
-
-    // io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
-    // socket.emit("gameStateUpdate", game.getGameState());
-
     console.log("Player rejoined game:", playerId);
   });
 
@@ -305,8 +331,9 @@ io.on("connection", (socket) => {
 
     const message = {
       id: crypto.randomUUID(),
-      playerId: socket.data.playerId, // Use socket session data
-      playerName: socket.data.playerName, // Prevents spoofing and pretending to be other player
+      playerId: socket.data.playerId,
+      playerName: socket.data.playerName,
+      isSpectator: !!socket.data.isSpectator, // NEW
       text: text.trim(),
       timestamp: Date.now(),
     };
@@ -327,31 +354,37 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
 
-    // find the lobby the socket was in
     const lobbyId = socket.data.lobbyId;
-    const lobby = lobbies[lobbyId];
-    console.log("lobby disconnect = ", lobby);
-    if (!lobby) return;
-
     const game = games[lobbyId];
 
     if (game) {
-      // disconnected from game
+      // Spectator leaving — just remove them, no disconnect countdown needed
+      const spectatorIndex = game.spectators.findIndex((s) => s.id === socket.id);
+      if (spectatorIndex !== -1) {
+        game.removeSpectator(socket.id);
+        io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+        return;
+      }
+
       const gameStatePlayer = game.players.find((p) => p.id === socket.id);
-      if (!gameStatePlayer) return;
-      gameStatePlayer.disconnected = true;
-      gameStatePlayer.disconnectExpiresAt = Date.now() + 10000;
-      io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
-    } else {
-      // disconnected from lobby
-      const player = lobby.players.find((p) => p.id === socket.id);
-      if (!player) return;
-      console.log(`${player.name} disconnected with playerId: ${player.playerId}`);
-      player.disconnected = true;
-      player.disconnectExpiresAt = Date.now() + 10000;
-      startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
-      io.to(lobbyId).emit("lobbyUpdate", lobby);
+      if (gameStatePlayer) {
+        gameStatePlayer.disconnected = true;
+        gameStatePlayer.disconnectExpiresAt = Date.now() + 10000;
+        io.to(lobbyId).emit("gameStateUpdate", game.getGameState());
+      }
+      return;
     }
+
+    const lobby = lobbies[lobbyId];
+    if (!lobby) return;
+
+    const player = lobby.players.find((p) => p.id === socket.id);
+    if (!player) return;
+    console.log(`${player.name} disconnected with playerId: ${player.playerId}`);
+    player.disconnected = true;
+    player.disconnectExpiresAt = Date.now() + 10000;
+    startDisconnectCountdown(io, lobby, player, disconnectedPlayers);
+    io.to(lobbyId).emit("lobbyUpdate", lobby);
   });
 });
 
