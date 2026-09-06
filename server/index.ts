@@ -223,6 +223,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("rejoinGame", ({ lobbyId, playerId }) => {
+    if (!playerId) {
+      socket.emit("error", { message: "Missing player ID." });
+      return;
+    }
+
     // rejoin local game
     if (!lobbyId) {
       if (!games[playerId]) return;

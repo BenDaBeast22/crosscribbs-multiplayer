@@ -28,7 +28,16 @@ export default function Game() {
   const [gameState, setGameState] = useState<GameStateType | null>(initialGameState || null);
 
   const [players, setPlayers] = useState<PlayerType[]>(initialGameState?.players || []);
-  const playerId = localStorage.getItem("playerId");
+
+  // Ensure a fresh visitor (e.g. pasting a /game/:lobbyId link cold, with no
+  // prior localStorage entry) always has a playerId before we ever talk to
+  // the server — mirrors the same fallback used in GameSetup/JoinGame/HostGame.
+  let playerId = localStorage.getItem("playerId");
+  if (!playerId) {
+    playerId = crypto.randomUUID();
+    localStorage.setItem("playerId", playerId);
+  }
+
   const [revealGameOver, setRevealGameOver] = useState(false);
 
   // Delays score reporting in Header until modal is dismissed
