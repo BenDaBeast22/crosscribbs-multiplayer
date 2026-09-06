@@ -51,7 +51,7 @@ export default function LocalOrOnline({ onSelect, onBack }: ChildProps) {
             backgroundColor: "rgba(255, 255, 255, 0.04)",
           }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => navigate("/multiplayer-setup")}
+          onClick={() => onSelect("online")}
           className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white/2 border border-white/8 transition-colors duration-200 cursor-pointer text-center group"
         >
           <div className="w-14 h-14 rounded-2xl bg-white/4 flex items-center justify-center mb-4 group-hover:bg-[rgba(0,245,212,0.1)] transition-colors border border-white/5">

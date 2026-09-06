@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { motion } from "framer-motion";
 
 type ChildProps = {
   handler?: any;
@@ -13,11 +14,13 @@ export default function BackButton({ handler }: ChildProps) {
     }
   };
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       onClick={handleClick}
       className="btn-menu btn-menu-back"
     >
       Back
-    </button>
+    </motion.button>
   );
 }

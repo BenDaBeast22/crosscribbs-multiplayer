@@ -2,29 +2,61 @@ import { useEffect, useState } from "react";
 import LocalOrOnline from "~/ui/GameSetup/LocalOrOnline";
 import NumPlayers from "~/ui/GameSetup/NumPlayers";
 import PlayerSetup from "~/ui/GameSetup/PlayerSetup";
+import OnlineMenu from "~/ui/GameSetup/OnlineMenu";
+import HostGame from "~/ui/GameSetup/HostGame";
+import JoinGame from "~/ui/GameSetup/JoinGame";
 import { useNavigate } from "react-router-dom";
 import { socket } from "~/connections/socket";
 import type { GameStateType } from "@cross-cribbs/shared-types/GameControllerTypes";
 import { AnimatePresence, motion } from "framer-motion";
 
-type SetupPage = "gameType" | "numPlayers" | "playerSetup";
-const pageOrder: SetupPage[] = ["gameType", "numPlayers", "playerSetup"];
+export type SetupPage = "gameType" | "numPlayers" | "playerSetup" | "onlineMenu" | "hostGame" | "joinGame";
 
-export default function GameSetup() {
+type MenuProps = {
+  initialPage?: SetupPage;
+};
+
+const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 50 : -50,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -50 : 50,
+    opacity: 0,
+  }),
+};
+
+export default function GameSetup({ initialPage = "gameType" }: MenuProps) {
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState<SetupPage>("gameType");
+  const [history, setHistory] = useState<SetupPage[]>(() => {
+    if (initialPage === "hostGame" || initialPage === "joinGame") {
+      return ["gameType", "onlineMenu", initialPage];
+    }
+    if (initialPage === "onlineMenu") {
+      return ["gameType", "onlineMenu"];
+    }
+    return [initialPage];
+  });
+  const [direction, setDirection] = useState<number>(1);
   const [gameType, setGameType] = useState<"local" | "online" | null>(null);
   const [numPlayers, setNumPlayers] = useState<2 | 4>(2);
   const [playerNames, setPlayerNames] = useState<string[]>([]);
+
+  const currentPage = history[history.length - 1];
+
   let playerId = localStorage.getItem("playerId");
   if (!playerId) {
-    playerId = crypto.randomUUID(); // or any unique ID generator
+    playerId = crypto.randomUUID();
     localStorage.setItem("playerId", playerId);
   }
 
   useEffect(() => {
     socket.on("gameStateUpdate", (gameState: GameStateType) => {
-      // This means the game has started
       console.log("Game started, navigating to game page.", gameState);
       console.log(
         `gamestate = ${gameState} gameType = ${gameType} numPlayers=${numPlayers} playerNames=${playerNames}`,
@@ -35,19 +67,20 @@ export default function GameSetup() {
     return () => {
       socket.off("gameStateUpdate");
     };
-  }, [navigate, numPlayers, playerNames]);
+  }, [navigate, numPlayers, playerNames, gameType]);
 
-  const goToNextPage = (next: SetupPage) => setCurrentPage(next);
+  const goToPage = (next: SetupPage) => {
+    setDirection(1);
+    setHistory((prev) => [...prev, next]);
+  };
+
   const goBack = () => {
-    const currentIndex = pageOrder.indexOf(currentPage);
-    if (currentIndex > 0) {
-      setCurrentPage(pageOrder[currentIndex - 1]);
-    } else if (currentIndex === 0) {
+    if (history.length > 1) {
+      setDirection(-1);
+      setHistory((prev) => prev.slice(0, -1));
+    } else {
       navigate("/");
     }
-  };
-  const setLocalSettings = () => {
-    socket.emit("setLocalSettings", gameType, numPlayers, playerNames);
   };
 
   const handleSetPlayerNames = (playerNames: string[]) => {
@@ -68,59 +101,66 @@ export default function GameSetup() {
 
       {/* Blur lives here, on a plain div that NEVER animates */}
       <div className="bg-panel panel-card card-max overflow-hidden">
-        {/* Entrance pop-in — animates, but carries no blur of its own */}
+        {/* Entrance pop-in — animates on entry, but carries no blur of its own */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.1 }}
           className="flex flex-col"
         >
-          <AnimatePresence mode="wait">
-            {currentPage === "gameType" && (
-              <motion.div
-                key="gameType"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -50, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={currentPage}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.2 }}
+            >
+              {currentPage === "gameType" && (
                 <LocalOrOnline
                   onSelect={(type) => {
                     setGameType(type);
-                    goToNextPage("numPlayers");
+                    if (type === "local") {
+                      goToPage("numPlayers");
+                    } else {
+                      goToPage("onlineMenu");
+                    }
                   }}
                   onBack={goBack}
                 />
-              </motion.div>
-            )}
-            {currentPage === "numPlayers" && (
-              <motion.div
-                key="numPlayers"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -50, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
+              )}
+              {currentPage === "numPlayers" && (
                 <NumPlayers
-                  onSelect={(numPlayers) => {
-                    setNumPlayers(numPlayers);
-                    goToNextPage("playerSetup");
+                  onSelect={(selectedNumPlayers) => {
+                    setNumPlayers(selectedNumPlayers);
+                    goToPage("playerSetup");
                   }}
                   onBack={goBack}
                 />
-              </motion.div>
-            )}
-            {currentPage === "playerSetup" && (
-              <motion.div
-                key="playerSetup"
-                initial={{ x: 50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -50, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <PlayerSetup numPlayers={numPlayers} onSetPlayerNames={handleSetPlayerNames} onBack={goBack} />
-              </motion.div>
-            )}
+              )}
+              {currentPage === "playerSetup" && (
+                <PlayerSetup
+                  numPlayers={numPlayers}
+                  onSetPlayerNames={handleSetPlayerNames}
+                  onBack={goBack}
+                />
+              )}
+              {currentPage === "onlineMenu" && (
+                <OnlineMenu
+                  onSelectHost={() => goToPage("hostGame")}
+                  onSelectJoin={() => goToPage("joinGame")}
+                  onBack={goBack}
+                />
+              )}
+              {currentPage === "hostGame" && (
+                <HostGame onBack={goBack} />
+              )}
+              {currentPage === "joinGame" && (
+                <JoinGame onBack={goBack} />
+              )}
+            </motion.div>
           </AnimatePresence>
         </motion.div>
       </div>
