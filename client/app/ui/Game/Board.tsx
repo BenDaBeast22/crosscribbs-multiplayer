@@ -83,15 +83,19 @@ function RowScoreBadge({ score, rowNum, isVisible }: { score?: ScoreType; rowNum
 
   const hasPoints = score.total > 0;
   return (
-    <div
-      className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-[3px] flex items-center justify-center font-sans text-[11px] sm:text-xs md:text-sm select-none transition-colors duration-150 cursor-help ${
-        hasPoints
-          ? "bg-[rgba(8,35,45,0.45)] border border-cyan-400/40 text-cyan-200/90 font-semibold"
-          : "bg-black/20 border border-cyan-500/15 text-cyan-400/30 font-normal"
-      }`}
-      title={`Row ${rowNum}: ${score.total} pts (${describeLineScore(score)})`}
-    >
-      {score.total}
+    <div className="relative group">
+      <div
+        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-[3px] flex items-center justify-center font-sans text-[11px] sm:text-xs md:text-sm select-none transition-colors duration-150 cursor-help ${
+          hasPoints
+            ? "bg-[rgba(8,35,45,0.45)] border border-cyan-400/40 text-cyan-200/90 font-semibold"
+            : "bg-black/20 border border-cyan-500/15 text-cyan-400/30 font-normal"
+        }`}
+      >
+        {score.total}
+      </div>
+      <span className="absolute left-full top-1/2 -translate-y-1/2 ml-1.5 whitespace-nowrap bg-slate-900 text-cyan-200 text-[10px] px-2 py-1 rounded shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        Row {rowNum}: {score.total} pts ({describeLineScore(score)})
+      </span>
     </div>
   );
 }
@@ -103,15 +107,19 @@ function ColScoreBadge({ score, colNum, isVisible }: { score?: ScoreType; colNum
 
   const hasPoints = score.total > 0;
   return (
-    <div
-      className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-[3px] flex items-center justify-center font-sans text-[11px] sm:text-xs md:text-sm select-none transition-colors duration-150 cursor-help ${
-        hasPoints
-          ? "bg-[rgba(45,10,38,0.45)] border border-fuchsia-400/40 text-fuchsia-200/90 font-semibold"
-          : "bg-black/20 border border-fuchsia-500/15 text-fuchsia-400/30 font-normal"
-      }`}
-      title={`Column ${colNum}: ${score.total} pts (${describeLineScore(score)})`}
-    >
-      {score.total}
+    <div className="relative group">
+      <div
+        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-[3px] flex items-center justify-center font-sans text-[11px] sm:text-xs md:text-sm select-none transition-colors duration-150 cursor-help ${
+          hasPoints
+            ? "bg-[rgba(45,10,38,0.45)] border border-fuchsia-400/40 text-fuchsia-200/90 font-semibold"
+            : "bg-black/20 border border-fuchsia-500/15 text-fuchsia-400/30 font-normal"
+        }`}
+      >
+        {score.total}
+      </div>
+      <span className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 whitespace-nowrap bg-slate-900 text-fuchsia-200 text-[10px] px-2 py-1 rounded shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        Column {colNum}: {score.total} pts ({describeLineScore(score)})
+      </span>
     </div>
   );
 }

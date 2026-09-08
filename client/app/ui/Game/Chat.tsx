@@ -96,8 +96,8 @@ export default function Chat({ lobbyId, playerId, playerName, isMultiplayer }: C
           <div
             className="
               fixed z-50 border border-slate-700 shadow-2xl flex flex-col
-              inset-x-0 bottom-0 rounded-t-2xl max-h-[30vh]
-              md:inset-x-auto md:bottom-16 md:left-3 md:w-80 md:rounded-2xl md:max-h-[35vh]
+              inset-x-0 bottom-0 rounded-t-2xl max-h-[40vh]
+              md:inset-x-auto md:bottom-16 md:left-3 md:w-80 md:rounded-2xl md:max-h-[40vh]
               bg-slate-900 md:backdrop-blur-none
             "
           >
