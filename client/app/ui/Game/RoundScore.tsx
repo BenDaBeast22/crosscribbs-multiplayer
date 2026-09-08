@@ -178,7 +178,7 @@ export default function RoundScore({
         opacity: { duration: peek ? 0.15 : 0.4, ease: "easeOut" },
         delay: 0.2,
       }}
-      className="absolute inset-0 mx-auto my-auto w-[320px] h-[600px] md:w-[600px] md:h-[700px] lg:w-[650px] lg:h-[750px] p-4 md:p-5 bg-game-panel text-white rounded-lg border-2 border-solid border-slate-800 text-xs md:text-base overflow-y-auto"
+      className="absolute inset-0 mx-auto my-auto w-[320px] h-[600px] md:w-[600px] md:h-[700px] lg:w-[650px] lg:h-[750px] p-4 md:p-5 bg-game-panel text-white rounded-lg border-2 border-solid border-slate-800 text-xs md:text-base overflow-x-hidden overflow-y-auto lg:overflow-y-hidden"
     >
       <div className="relative flex items-center justify-center mb-3">
         <h2 className="text-base md:text-3xl font-bold text-white text-center">Round Summary</h2>
